@@ -1,0 +1,28 @@
+{
+	"compilerOptions": {
+		"target": "es2016",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"outDir": "./out",
+		"removeComments": false,
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"noImplicitAny": true,
+		"skipLibCheck": true,
+		"sourceMap": true
+	},
+	"include": [
+		"*/src"
+	],
+	"exclude": [
+		"node_modules",
+		"*/node_modules"
+	],
+	"references": [
+		{ "path": "./soos-client" },
+		{ "path": "./soos-gamelogic" },
+		{ "path": "./soos-server" }
+	]
+}

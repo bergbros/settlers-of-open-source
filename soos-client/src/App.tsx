@@ -1,9 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { useEffect, useState } from 'react';
+import reactLogo from './assets/react.svg';
+import './App.css';
+import { SOOSGame } from 'soos-gamelogic';
+import axios from 'axios';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [ serverResult, setServerResult ] = useState<string>('loading');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await axios('/api/result');
+      setServerResult(result.data as string);
+    };
+
+    fetchData().catch(err => {
+      console.error(err);
+      setServerResult('error! ' + err);
+    });
+  }, []);
+
+  const game = new SOOSGame();
 
   return (
     <div className="App">
@@ -16,19 +33,14 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+      <p>
+        In-browser game logic result: {game.playGame()}
+      </p>
+      <p>
+        Server game logic result: {serverResult}
       </p>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

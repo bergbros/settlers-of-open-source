@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint ./src --ext .ts -c ../.eslintrc.js --fix"
+    "lint": "eslint ./src --ext .ts,.tsx -c ../.eslintrc.js --fix"
   },
   "dependencies": {
+    "axios": "^1.2.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "soos-gamelogic": "file:../soos-gamelogic"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",

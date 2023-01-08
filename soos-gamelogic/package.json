@@ -1,20 +1,20 @@
 {
   "name": "soos-gamelogic",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.ts",
+  "author": "BERGBROS",
+  "license": "ISC",
+  "keywords": [],
+  "description": "",
   "scripts": {
     "lint": "eslint ./src --ext .ts -c ../.eslintrc.js --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.31.0",
     "typescript": "^4.9.4"
-  },
-  "keywords": [],
-  "description": ""
+  }
 }

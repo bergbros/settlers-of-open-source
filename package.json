@@ -2,13 +2,13 @@
   "name": "settlers-of-open-source",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "author": "BERGBROS",
+  "license": "ISC",
   "main": ".eslintrc.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.48.0"
   }

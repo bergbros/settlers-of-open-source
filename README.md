@@ -4,23 +4,51 @@
 
 How to run the server:
 
-```
+```bash
 cd soos-server
+
+# Required for first time setup, and each time dependencies are changed.
+# Default to running it each time you pull the repo.
+npm install
+
+# start the server
 npm start
 ```
 
 How to run the client:
 
-```
+```bash
 cd soos-client
+
+# Required for first time setup, and each time dependencies are changed.
+# Default to running it each time you pull the repo.
+npm install
+
+# start the client (opens http://localhost:5173 in browser.)
 npm start
 ```
 
-Then navigate to http://localhost:5173 in your browser.
+Note that both the client and server will automatically pick up changes you make as you're editing code. Changes in `soos-gamelogic` should be automatically hot-reloaded by both client and server.
 
-Note that the client will automatically pick up changes you make as you're editing code, but the server will NOT. So if you want changes to be reflected in the server, you must kill it with ctrl-C and then restart it.
+## Naming conventions
 
-Also, I haven't tested this, but I strongly suspect that changes in `soos-gamelogic` won't be detected by the client. So you'll probably have to restart the client when you edit that too.
+Filenames are in `kebab-case`, class names are `UpperCamelCase`, and function/variable names are in `lowerCamelCase`. For example:
+
+```ts
+// Filename: hex-coords.ts
+
+class HexCoords {
+    someMethod() { }
+}
+
+function someFunction() { }
+```
+
+Unit test files live alongside the regular files, and just have a `test.ts` extension. For example, the test file for `hex-coords.ts` would be `hex-coords.test.ts` in the same directory.
+
+## Unit Testing
+
+Each sub-project (client, server, and gamelogic) has its own `test` npm script. So just `cd` into the folder of the subproject, and run `npm run test`.
 
 # Architecture
 

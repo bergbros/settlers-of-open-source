@@ -1,3 +1,4 @@
+// Overrides for TS files
 const TS_OVERRIDE = {
   files: [ '**/*.ts', '**/*.tsx' ],
   parser: '@typescript-eslint/parser',
@@ -40,6 +41,19 @@ const TS_OVERRIDE = {
   },
 };
 
+// Overrides for test files (*.test.ts, *.test.tsx)
+const TEST_OVERRIDE = {
+  'files': [ '**/*.test.ts', '**/*.test.tsx' ],
+  'plugins': [ 'jest' ],
+  'extends': [ 'plugin:jest/recommended' ],
+  'rules': {
+    '@typescript-eslint/no-unsafe-return': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
+    '@typescript-eslint/unbound-method': 'off',
+    'jest/prefer-expect-assertions': 'off',
+  },
+};
+
 module.exports = {
   'env': {
     'browser': false,
@@ -47,7 +61,7 @@ module.exports = {
     'es2021': true,
   },
   'extends': [ 'eslint:recommended' ],
-  'overrides': [ TS_OVERRIDE ],
+  'overrides': [ TS_OVERRIDE, TEST_OVERRIDE ],
   'parserOptions': {
     'ecmaVersion': 12,
   },

@@ -1,0 +1,5 @@
+{
+    "watch": ["src", "../soos-gamelogic/src"],
+    "ext": "ts,json",
+    "ignore": ["src/**/*.test.ts"]
+}

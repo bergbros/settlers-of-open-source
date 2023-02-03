@@ -1,46 +1,52 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { useEffect, useState } from 'react';
-import reactLogo from './assets/react.svg';
-import './App.css';
-import { SOOSGame } from 'soos-gamelogic';
-import axios from 'axios';
+import { ReactNode } from 'react';
+import './App.scss';
 
-function App() {
-  const [ serverResult, setServerResult ] = useState<string>('loading');
+const HexWidth = 100, HexHeight = 120;
+const BoardWidth = 8, BoardHeight = 7;
+const Terrain = [
+  [ 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w' ],
+  [ 'w', 'w', 'd', 'd', 'd', 'd', 'w', 'w' ],
+  [ 'w', 'w', 'd', 'g', 'g', 'g', 'd', 'w' ],
+  [ 'w', 'd', 'g', 'g', 'g', 'g', 'd', 'w' ],
+  [ 'w', 'w', 'd', 'g', 'g', 'g', 'd', 'w' ],
+  [ 'w', 'w', 'd', 'd', 'd', 'd', 'w', 'w' ],
+  [ 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w' ],
+];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios('/api/result');
-      setServerResult(result.data as string);
-    };
+export default function App() {
+  const board = [];
+  for (let y = 0; y < BoardHeight; y++) {
+    const isOffset: boolean = y % 2 === 1;
 
-    fetchData().catch(err => {
-      console.error(err);
-      setServerResult('error! ' + err);
-    });
-  }, []);
+    const row = [];
+    for (let x = 0; x < BoardWidth; x++) {
+      let xCoord = x * HexWidth;
+      if (isOffset) {
+        xCoord += HexWidth * .5;
+      }
 
-  const game = new SOOSGame();
+      const yCoord = y * HexHeight * .75;
+
+      let terrainClass = '';
+      switch (Terrain[y][x]) {
+        case 'w': terrainClass = 'water'; break;
+        case 'd': terrainClass = 'desert'; break;
+        case 'g': terrainClass = 'grass'; break;
+      }
+
+      row.push(
+        <div className={`Hex ${terrainClass}`} style={{
+          left: xCoord + 'px',
+          top: yCoord + 'px',
+        }}></div>
+      );
+    }
+    board.push(row);
+  }
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <p>
-        In-browser game logic result: {game.playGame()}
-      </p>
-      <p>
-        Server game logic result: {serverResult}
-      </p>
+      {board}
     </div>
   );
 }
-
-export default App;

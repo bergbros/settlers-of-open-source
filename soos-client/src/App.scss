@@ -1,0 +1,22 @@
+.Hex {
+  width: 100px;
+  height: 120px;
+  background-color: gray;
+  display: inline-block;
+  clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
+  
+  position: absolute;
+
+  &.water {
+    background-color: lightblue;
+  }
+
+  &.grass {
+    background-color: rgb(5, 227, 5);
+  }
+
+  &.desert {
+    background-color: rgb(252, 214, 164);
+  }
+}
+

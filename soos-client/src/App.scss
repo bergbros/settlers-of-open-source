@@ -20,3 +20,36 @@
   }
 }
 
+.SettleSpot {
+  width: 20px;
+  height: 20px;
+  background-color: gray;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.RoadSpot{
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  display: inline-block;
+  background-color: gray;
+  &.vertical {
+    height: 30px;
+    width: 12px;
+    border: 2px;
+    background-color: gray;
+    border-color: black;
+  }
+  &.neSlant{
+    height: 30px;
+    width: 50px;
+    clip-path: polygon(25% 55%, 35% 85%, 78% 40%, 68% 15%);
+  }
+  &.nwSlant{ //x = 100 - neSlant percent, no change to y
+    height: 30px;
+    width: 50px;
+    clip-path: polygon(75% 55%, 65% 85%, 22% 40%, 32% 15%);
+  }
+}
+

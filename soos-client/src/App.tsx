@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import './App.scss';
 
 const HexWidth = 100, HexHeight = 120;
@@ -15,6 +15,37 @@ const Terrain = [
 
 export default function App() {
   const board = [];
+  const [clickStatement, setCS] = useState('no clicks');
+
+  function addSettleSpot(ssXCoord:number, ssYCoord:number,ssKey:string){
+    return (
+          <div className={`SettleSpot`} style={{
+            left: ssXCoord + 'px',
+            top: ssYCoord + 'px',
+          }} 
+          key = {ssKey}
+          onClick = {()=>setCS(`Clicked: ${ssKey}`)}
+          >
+          </div>
+        );
+  }
+
+  function addRoadSpot(rsXCoord:number, rsYCoord:number, rDirection:string, rsKey:string){
+    return (
+      <div 
+      className={`RoadSpot ${rDirection}`} 
+      style={{
+        left: rsXCoord + 'px',
+        top: rsYCoord + 'px',
+      }} 
+      key={rsKey}
+      onClick = {()=>setCS(`Clicked: ${rsKey}`)}
+      >
+
+      </div>
+    );
+  }
+
   for (let y = 0; y < BoardHeight; y++) {
     const isOffset: boolean = y % 2 === 1;
 
@@ -40,7 +71,7 @@ export default function App() {
             left: xCoord + 'px',
             top: yCoord + 'px',
           }}
-          key = 'h:${xCoord},${yCoord}'
+          key = {`h:${x},${y}`}
           >
         </div>
       );
@@ -49,21 +80,21 @@ export default function App() {
       //add top left settlement spot on each hex
       let ssXCoord = xCoord - ssRadius ;
       let ssYCoord = yCoord - ssRadius+ HexHeight*.25;
-      row.push(addSettleSpot(ssXCoord,ssYCoord,'s:${xCoord},${yCoord},6'));
+      row.push(addSettleSpot(ssXCoord,ssYCoord,`s:${x},${y},6`));
 
       //add top center settlement spot on each hex
       ssXCoord = xCoord - ssRadius + HexWidth*0.5 ;
       ssYCoord = yCoord - ssRadius;
-      row.push(addSettleSpot(ssXCoord,ssYCoord,'s:${xCoord},${yCoord},1'));
+      row.push(addSettleSpot(ssXCoord,ssYCoord,`s:${x},${y},1`));
 
       //add right corners for end of row hexes
       if(x === BoardWidth-1){
         ssXCoord = xCoord - ssRadius + HexWidth;
         ssYCoord = yCoord - ssRadius + HexHeight*0.25;
-        row.push(addSettleSpot(ssXCoord,ssYCoord,'s:${xCoord},${yCoord},2'));
+        row.push(addSettleSpot(ssXCoord,ssYCoord,`s:${x},${y},2`));
         ssXCoord = xCoord - ssRadius + HexWidth;
         ssYCoord = yCoord - ssRadius+HexHeight*0.75;
-        row.push(addSettleSpot(ssXCoord,ssYCoord,'s:${xCoord},${yCoord},3'));
+        row.push(addSettleSpot(ssXCoord,ssYCoord,`s:${x},${y},3`));
         
       }
 
@@ -71,31 +102,31 @@ export default function App() {
       if(y===BoardHeight-1||x===0){
         ssXCoord = xCoord - ssRadius;
         ssYCoord = yCoord - ssRadius + HexHeight*0.75;
-        row.push(addSettleSpot(ssXCoord,ssYCoord,'s:${xCoord},${yCoord},4'));
+        row.push(addSettleSpot(ssXCoord,ssYCoord,`s:${x},${y},4`));
       }
 
       //add bottom centers for the last row of hexes
       if(y === BoardHeight-1){
         ssXCoord = xCoord - ssRadius + HexWidth*0.5;
         ssYCoord = yCoord - ssRadius+HexHeight;
-        row.push(addSettleSpot(ssXCoord,ssYCoord,'s:${xCoord},${yCoord},5'));
+        row.push(addSettleSpot(ssXCoord,ssYCoord,`s:${x},${y},5`));
       }
 
       //Add the Roads!
       const RoadWidth = 12/2
-      row.push(addRoadSpot(xCoord,yCoord,"neSlant",'r:${xCoord},${yCoord},6'));
-      row.push(addRoadSpot(xCoord+0.5*HexWidth,yCoord,"nwSlant",'r:${xCoord},${yCoord},1'));
-      row.push(addRoadSpot(xCoord-RoadWidth,yCoord+0.25*HexHeight+ssRadius+5,"vertical",'r:${xCoord},${yCoord},5'));
+      row.push(addRoadSpot(xCoord,yCoord,"neSlant",`r:${x},${y},6`));
+      row.push(addRoadSpot(xCoord+0.5*HexWidth,yCoord,"nwSlant",`r:${x},${y},1`));
+      row.push(addRoadSpot(xCoord-RoadWidth,yCoord+0.25*HexHeight+ssRadius+5,"vertical",`r:${x},${y},5`));
       if(x === 0){
-        row.push(addRoadSpot(xCoord,yCoord+HexHeight*0.75,"nwSlant",'r:${xCoord},${yCoord},4'));
+        row.push(addRoadSpot(xCoord,yCoord+HexHeight*0.75,"nwSlant",`r:${x},${y},4`));
       }
       if(x === BoardWidth-1){
-        row.push(addRoadSpot(xCoord-RoadWidth+HexWidth,yCoord+0.25*HexHeight+ssRadius+5,"vertical",'r:${xCoord},${yCoord},2'));
-        row.push(addRoadSpot(xCoord+0.5*HexWidth,yCoord+HexHeight*0.75,"neSlant",'r:${xCoord},${yCoord},3'));
+        row.push(addRoadSpot(xCoord-RoadWidth+HexWidth,yCoord+0.25*HexHeight+ssRadius+5,"vertical",`r:${x},${y},2`));
+        row.push(addRoadSpot(xCoord+0.5*HexWidth,yCoord+HexHeight*0.75,"neSlant",`r:${x},${y},3`));
       }
       if(y === BoardHeight - 1){
-        row.push(addRoadSpot(xCoord+0.5*HexWidth,yCoord+HexHeight*0.75,"neSlant",'r:${xCoord},${yCoord},3'));
-        row.push(addRoadSpot(xCoord,yCoord+HexHeight*0.75,"nwSlant",'r:${xCoord},${yCoord},4'));
+        row.push(addRoadSpot(xCoord+0.5*HexWidth,yCoord+HexHeight*0.75,"neSlant",`r:${x},${y},3`));
+        row.push(addRoadSpot(xCoord,yCoord+HexHeight*0.75,"nwSlant",`r:${x},${y},4`));
       }
     }
     board.push(row);
@@ -104,28 +135,11 @@ export default function App() {
   return (
     <div className="App">
       {board}
+      {clickStatement}
     </div>
   );
-}
 
-function addSettleSpot(ssXCoord:number, ssYCoord:number,ssKey:string){
+  
+  
 
-  return (
-        <div className={`SettleSpot`} style={{
-          left: ssXCoord + 'px',
-          top: ssYCoord + 'px',
-        }} 
-        key = {ssKey} 
-        >
-        </div>
-      );
-}
-
-function addRoadSpot(rsXCoord:number, rsYCoord:number, rDirection:string, rsKey:string){
-  return (
-    <div className={`RoadSpot ${rDirection}`} style={{
-      left: rsXCoord + 'px',
-      top: rsYCoord + 'px',
-    }} key={rsKey}></div>
-  );
 }

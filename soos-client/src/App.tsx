@@ -155,8 +155,9 @@ export default function App() {
 
   return (
     <div className="App">
-      {board}
+      <div><button>Next Turn</button></div>
       {clickStatement}
+      {board}
     </div>
   );
 }

@@ -14,6 +14,7 @@ export class App extends Component {
     return(
       <div className="App">
         <GameBoard></GameBoard>
+        <div className="GameInfo"></div>
       </div>
       );      
   }
@@ -23,9 +24,17 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
   constructor(props:any) {
     super(props);
     this.state = {
-      myTerrain: [],
+      myTerrain: [
+        [ 'e', 'e', '/', '/', '/', '/', 'e' ],
+        [ 'e', '/', '?', '?', '?', '/', 'e' ],
+        [ 'e', '/', '?', '?', '?', '?', '/' ],
+        [ '/', '?', '?', '?', '?', '?', '/' ],
+        [ 'e', '/', '?', '?', '?', '?', '/' ],
+        [ 'e', '/', '?', '?', '?', '/', 'e' ],
+        [ 'e', 'e', '/', '/', '/', '/', 'e' ],
+      ],
       myTerrFrequency: [],
-      board:this.initializeBoard(),
+      board:[],//this.initializeBoard(),
       clickStatement: "Click on an object to see its properties",
     };
   }
@@ -37,7 +46,10 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
     } else{
       statement = clickedKey;
     }
+
     this.setState({clickStatement:`You clicked: ${statement}`});
+    //console.log(e.target);
+    //return(e.preventDefault());
   }
   
   render(){
@@ -45,7 +57,7 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
     return(
       <div className="App">
         <div>{this.state.clickStatement}</div>
-        <div><button>Next Turn</button></div>
+        <div><button>Next Turn</button><button onClick={()=>this.setState({board:this.initializeBoard()})}>New Board</button></div>
         {this.state.board}        
       </div>
     );
@@ -79,18 +91,17 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
   }
 
   listResources(ssKey:string){
-    let myResources = ['w'];
+    let myResources = ['resources:'];
     const myLocation = this.parseKey(ssKey);
     //first hex is easy - it's the one listed.
-    //console.log(this.state.myTerrain);
-    //myResources.push(this.state.myTerrain[myLocation[1]][myLocation[0]]);
+    myResources.push(this.state.myTerrain[myLocation[1]][myLocation[0]]);
     //Second hex is the cardinal direction of the settlement
-    //myResources.push(this.getHex(myLocation[0],myLocation[1],myLocation[2]));
+    myResources.push(this.getHex(myLocation[0],myLocation[1],myLocation[2]));
     //third direction is that direction minus one
-    //if (myLocation[2]===1)
-    //  myResources.push(this.getHex(myLocation[0],myLocation[1],6));
-    //else
-    //  myResources.push(this.getHex(myLocation[0],myLocation[1],myLocation[2]-1));
+    if (myLocation[2]===1)
+      myResources.push(this.getHex(myLocation[0],myLocation[1],6));
+    else
+      myResources.push(this.getHex(myLocation[0],myLocation[1],myLocation[2]-1));
     return myResources;
   }
 
@@ -101,21 +112,22 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
         resY=startY-1; resX = startX+startY%2
         break;
       case 2:
-        resY=startY; resX = startX+1;
+        resY=startY; resX = startX+1;break;
       case 3:
-        resY=startY+1;resX=startX+startY%2;
+        resY=startY+1;resX=startX+startY%2;break;
       case 4:
-        resY=startY+1;resX = startX+startY%2-1
+        resY=startY+1;resX = startX+startY%2-1;break;
       case 5:
-        resY=startY; resX = startX-1;
+        resY=startY; resX = startX-1;break;
       case 6:
-        resY=startY-1;resX=startX-startY%2;
+        resY=startY-1;resX=startX-(startY+1)%2;break;
     }
+    //console.log(resX + "," + resY);
     return this.state.myTerrain[resY][resX];
   }
   
   parseKey(theKey:string){
-    console.log(theKey.split(/[?:,]/).splice(1).map(Number));
+    //console.log(theKey.split(/[?:,]/).splice(1).map(Number));
     return(
       theKey.split(/[?:,]/).splice(1).map(Number)
     );
@@ -126,6 +138,7 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
     const board = [];
     //const [clickStatement:string, setCS] = useState('no clicks');
     let settleSpotCount = 0; let roadSpotCount=0;
+    console.log("test");
     let Terrain = [
       [ 'e', 'e', '/', '/', '/', '/', 'e' ],
       [ 'e', '/', '?', '?', '?', '/', 'e' ],
@@ -136,7 +149,7 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
       [ 'e', 'e', '/', '/', '/', '/', 'e' ],
     ];
     let terrFrequency:(number|null)[][] = [];
-  
+    console.log(Terrain);
     
   
     

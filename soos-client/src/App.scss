@@ -1,9 +1,35 @@
+.App{
+  position:relative;
+  background-color: beige;
+}
+
 .GameBoard{
   display: flex;
   flex-direction: row;
+  position:absolute;
+  top: 0px;
+  left: 225px;
+  height: 300px;
+  width: 100%;
+  background-color: pink;
 }
 
+.GameInfo{
+  position:fixed;
+  top:60px;
+  left:0;
+  width: 225px;
+  height:100%;
+  padding: 20px;
+  background: darkblue;
+}
 
+.teamOne{
+  background: red;
+}
+.teamTwo{
+  background:blue;
+}
 
 .Hex {
   position: absolute;

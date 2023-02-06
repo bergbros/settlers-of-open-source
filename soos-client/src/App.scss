@@ -1,3 +1,10 @@
+.GameBoard{
+  display: flex;
+  flex-direction: row;
+}
+
+
+
 .Hex {
   position: absolute;
   width: 100px;

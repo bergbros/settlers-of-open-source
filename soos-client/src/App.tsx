@@ -4,23 +4,61 @@ import './App.scss';
 const HexWidth = 100, HexHeight = 120;
 const BoardWidth = 7, BoardHeight = 7;
 
+
 export class App extends Component {
   constructor(props:any){
     super(props);
+    this.state={
+      gamePhase:0
+      //phase 0: create a board
+      //phase 1: assign settlements to each team
+      //phase 2: ...
+    }
+  }
+
+  handleNextGamePhase(){
 
   }
 
   render(): ReactNode {
     return(
       <div className="App">
-        <GameBoard></GameBoard>
+        <div className="App HeaderInfo">
+          <GameBoard></GameBoard>
+        </div>
         <div className="GameInfo"></div>
       </div>
+      
       );      
   }
 }
 
-class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain:string[][], myTerrFrequency:(number|null)[][]}>{
+class Player extends Component<{id:string},{settlements:any[],roads:any[],resources:string,cardsInHand:string,playedCards:string}>{
+  constructor(props:any){
+    super(props);
+    this.state={
+      settlements:["this"],
+      roads:["is"],
+      resources:"ONLY",
+      cardsInHand:"A",
+      playedCards:"TEST",
+    }
+  }
+
+  render(): ReactNode {
+    return(
+      <div className="Player">
+        <div>PLAYER HERE</div>
+        <div>{this.state.resources}</div>
+        <div>{this.state.cardsInHand}</div>
+        <div>{this.state.playedCards}</div>
+      </div>
+    );
+  }
+}
+
+
+class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain:string[][], myTerrFrequency:(number|null)[][],myPlayers:Player[]}>{
   constructor(props:any) {
     super(props);
     this.state = {
@@ -36,6 +74,7 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
       myTerrFrequency: [],
       board:[],//this.initializeBoard(),
       clickStatement: "Click on an object to see its properties",
+      myPlayers:[],
     };
   }
 
@@ -55,9 +94,11 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
   render(){
 
     return(
-      <div className="App">
+      <div className="App HeaderInfo">
         <div>{this.state.clickStatement}</div>
+        <div className="App HeaderInfo">
         <div><button>Next Turn</button><button onClick={()=>this.setState({board:this.initializeBoard()})}>New Board</button></div>
+        </div>
         {this.state.board}        
       </div>
     );
@@ -258,14 +299,36 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
     this.setState({myTerrFrequency: terrFrequency});
     //console.log(`Terrain: ${this.state.myTerrain}`);
     
+    for(let i=1;i<4;i++){
+        let newPlayer = new Player(i.toString());
+        this.state.myPlayers.push();
+    }
+
+
+
     return (
-      <div className="App">
-        {board}
+      <div className="App HeaderInfo">
+        <div className="App HeaderInfo">
+          <ol>{this.listPlayers()}</ol>
+          <Player id="PLAYER1"></Player>
+        </div>
+        <div className='GameBoard'>{board}</div>
       </div>
     );
   }
 
+  listPlayers(){
+    const mylist = [];
+    for (let i = 0; i<this.state.myPlayers.length; i++){
+      let plyr = this.state.myPlayers[i];
+      mylist.push(plyr.render());
+    }
 
+    return mylist;
+    //return this.state.myPlayers.map((plyr:Player)=>{
+    //<li>{plyr}</li>
+    //  });
+  }
 }
 
 type HexProp = {terrainClass:string, xCoord:number, yCoord:number,x:number, y:number,tileNumber:number,settlements:number[], roads:number[]}
@@ -273,6 +336,7 @@ class Hex extends Component<HexProp, {}> {
   constructor(props:any){
     super(props);
   }
+
   render(): ReactNode {
     const hexDivs = [];
     hexDivs.push(

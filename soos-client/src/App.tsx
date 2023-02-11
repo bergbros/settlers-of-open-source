@@ -1,9 +1,27 @@
 import { Component, ReactNode, useState } from 'react';
+import { Game, HexCoords, MapHex, ResourceType, TerrainType } from 'soos-gamelogic';
 import './App.scss';
+import Hex from './Hex';
 
 const HexWidth = 100, HexHeight = 120;
 const BoardWidth = 7, BoardHeight = 7;
 
+function App() {
+  const [game, setGame] = useState<Game>(new Game());
+
+  // Set up force update function
+  const [count, setCount] = useState<number>(0);
+  game.forceUpdate = () => {
+    setCount(count + 1);
+  }
+
+  const hexes = [
+    (<Hex
+      mapHex={new MapHex(new HexCoords(1, 2), TerrainType.Land, ResourceType.Brick, 5)}
+      onClick={(hexCoords) => game.onHexClicked(hexCoords)}
+    />)
+  ]
+}
 
 export class App extends Component<{},{phaseString:string, gamePhase:number,activePlayer:number}> {
   constructor(props:any){
@@ -225,7 +243,8 @@ class GameBoard extends Component<{nextPhase:Function; getActivePlayer:Function,
 
     const board = [];
     //const [clickStatement:string, setCS] = useState('no clicks');
-    let settleSpotCount = 0; let roadSpotCount=0;
+    let settleSpotCount = 0;
+    let roadSpotCount=0;
     console.log("test");
     let Terrain = [
       [ 'e', 'e', '/', '/', '/', '/', 'e' ],
@@ -238,9 +257,6 @@ class GameBoard extends Component<{nextPhase:Function; getActivePlayer:Function,
     ];
     let terrFrequency:(number|null)[][] = [];
     console.log(Terrain);
-    
-  
-    
     
     //three brick/ore, four wood/grain/sheep, one desert; 19 tiles
     let tilePile = ['b','b','b','o','o','o','w','w','w','w','g','g','g','g','s','s','s','s','d'];
@@ -275,7 +291,7 @@ class GameBoard extends Component<{nextPhase:Function; getActivePlayer:Function,
             Terrain[y][x] = newTile;
             break;
         }
-  
+
         let xCoord = x * HexWidth;
         if (isOffset) {
           xCoord += HexWidth * .5;
@@ -381,32 +397,32 @@ class GameBoard extends Component<{nextPhase:Function; getActivePlayer:Function,
   }
 }
 
-type HexProp = {terrainClass:string, xCoord:number, yCoord:number,x:number, y:number,tileNumber:number,settlements:number[], roads:number[]}
-class Hex extends Component<HexProp, {}> {
-  constructor(props:any){
-    super(props);
-  }
+// type HexProp = {terrainClass:string, xCoord:number, yCoord:number,x:number, y:number,tileNumber:number,settlements:number[], roads:number[]}
+// class Hex extends Component<HexProp, {}> {
+//   constructor(props:any){
+//     super(props);
+//   }
 
-  render(): ReactNode {
-    const hexDivs = [];
-    hexDivs.push(
-      <div 
-          className={`Hex ${this.props.terrainClass}`} style={{
-            left: this.props.xCoord + 'px',
-            top: this.props.yCoord + 'px',
-          }}
-          key = {`h:${this.props.x},${this.props.y}`}
-          >
-            <div className="tileNumber">{this.props.tileNumber}</div>
-        </div>
-    );
+//   render(): ReactNode {
+//     const hexDivs = [];
+//     hexDivs.push(
+//       <div 
+//           className={`Hex ${this.props.terrainClass}`} style={{
+//             left: this.props.xCoord + 'px',
+//             top: this.props.yCoord + 'px',
+//           }}
+//           key = {`h:${this.props.x},${this.props.y}`}
+//           >
+//             <div className="tileNumber">{this.props.tileNumber}</div>
+//         </div>
+//     );
 
 
-    return(hexDivs); 
-  }
+//     return(hexDivs); 
+//   }
 
 
   
-}
+// }
 
 

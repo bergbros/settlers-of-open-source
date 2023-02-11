@@ -79,3 +79,7 @@ const _dirToCoords = Object.freeze({
 export function dirToCoords(dir: HexDirection): HexCoords {
   return _dirToCoords[dir];
 }
+
+const opposites = Object.freeze({
+
+});

@@ -5,26 +5,60 @@ const HexWidth = 100, HexHeight = 120;
 const BoardWidth = 7, BoardHeight = 7;
 
 
-export class App extends Component {
+export class App extends Component<{},{phaseString:string, gamePhase:number,activePlayer:number}> {
   constructor(props:any){
     super(props);
     this.state={
-      gamePhase:0
+      gamePhase:0,
       //phase 0: create a board
       //phase 1: assign settlements to each team
       //phase 2: ...
+      phaseString:"Start Game",
+      activePlayer:0,
     }
   }
 
+  getActivePlayer(){
+    return this.state.activePlayer;
+  }
+  getPhase(){
+    return this.state.gamePhase;
+  }
+
   handleNextGamePhase(){
+    console.log("handling next Phase");
+    const lastPhase = this.state.gamePhase;
+    let newPString ="";
+    let newPhase = lastPhase+1
+    switch(lastPhase){
+      case 0:
+        newPString = "Place first Settlement & road Player 1";
+        break;
+      case 1:
+        newPString = "Place first Settlement & road Player 2";
+        break;
+      case 2:
+        newPString = "Place second Settlement & road Player 2";
+        break;
+      case 3:
+        newPString = "Place second Settlement & road Player 1";
+        break;
+      default:
+        newPString = "Player 1's turn!";
+        newPhase = 10;
+        break;    
+    }
+    console.log("setting state");
+    this.setState({gamePhase: newPhase, phaseString:newPString});
 
   }
 
   render(): ReactNode {
     return(
       <div className="App">
+        <button onClick={this.handleNextGamePhase.bind(this)}>{this.state.phaseString}</button>
         <div className="App HeaderInfo">
-          <GameBoard></GameBoard>
+          <GameBoard nextPhase = {this.handleNextGamePhase} getActivePlayer = {this.getActivePlayer} getPhase = {this.getPhase}></GameBoard>
         </div>
         <div className="GameInfo"></div>
       </div>
@@ -33,32 +67,44 @@ export class App extends Component {
   }
 }
 
-class Player extends Component<{id:string},{settlements:any[],roads:any[],resources:string,cardsInHand:string,playedCards:string}>{
-  constructor(props:any){
-    super(props);
-    this.state={
-      settlements:["this"],
-      roads:["is"],
-      resources:"ONLY",
-      cardsInHand:"A",
-      playedCards:"TEST",
-    }
-  }
+    
+type PlayerProps = {
+  id:string,
+  playerNumber:number,
+  construction:string[],
+  resources:string,
+  cardsInHand:string,
+  playedCards:string,
+}
 
-  render(): ReactNode {
-    return(
-      <div className="Player">
-        <div>PLAYER HERE</div>
-        <div>{this.state.resources}</div>
-        <div>{this.state.cardsInHand}</div>
-        <div>{this.state.playedCards}</div>
-      </div>
-    );
-  }
+//extends Component<{id:string, settlements:any[],roads:any[],resources:string,cardsInHand:string,playedCards:string},{}>
+function createPlayer(aPlayerNumber:number):PlayerProps {
+  return {
+    id: "",
+    playerNumber: aPlayerNumber,
+    construction:[""],
+    resources:"ONLY",
+    cardsInHand:"A",
+    playedCards:"TEST",
+  };
+}
+function addSettlementToPlayer(rsKey:string, origPlayer:PlayerProps):PlayerProps{
+  const myConstructs = origPlayer.construction;
+  myConstructs.push(rsKey);
+  return {
+    id: origPlayer.id,
+    playerNumber: origPlayer.playerNumber,
+    construction: myConstructs,
+    resources:"ONLY",
+    cardsInHand:"A",
+    playedCards:"TEST",
+  };
 }
 
 
-class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain:string[][], myTerrFrequency:(number|null)[][],myPlayers:Player[]}>{
+class GameBoard extends Component<{nextPhase:Function; getActivePlayer:Function, getPhase:Function},
+{board:any; clickStatement:string,myTerrain:string[][], 
+  myTerrFrequency:(number|null)[][],myPlayers:PlayerProps[]}>{
   constructor(props:any) {
     super(props);
     this.state = {
@@ -80,7 +126,8 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
 
   handleClick(clickedKey:string){
     let statement ="";
-    if(clickedKey[0]==='s'){
+    if(clickedKey[0]==='s' && this.props.getPhase()<10){
+      this.state.myPlayers[this.props.getActivePlayer()]
       statement = clickedKey + this.listResources(clickedKey);
     } else{
       statement = clickedKey;
@@ -97,7 +144,7 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
       <div className="App HeaderInfo">
         <div>{this.state.clickStatement}</div>
         <div className="App HeaderInfo">
-        <div><button>Next Turn</button><button onClick={()=>this.setState({board:this.initializeBoard()})}>New Board</button></div>
+        <div><button onClick={()=>this.setState({board:this.initializeBoard()})}>New Board</button></div>
         </div>
         {this.state.board}        
       </div>
@@ -295,13 +342,12 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
       board.push(row);
     }
     //console.log(`Terrain: ${Terrain}`);
-    this.setState({myTerrain: Terrain});
-    this.setState({myTerrFrequency: terrFrequency});
+    this.setState({myTerrain: Terrain, myTerrFrequency: terrFrequency});
     //console.log(`Terrain: ${this.state.myTerrain}`);
     
     for(let i=1;i<4;i++){
-        let newPlayer = new Player(i.toString());
-        this.state.myPlayers.push();
+        let newPlayer = createPlayer(i);
+        this.state.myPlayers.push(newPlayer);
     }
 
 
@@ -310,7 +356,6 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
       <div className="App HeaderInfo">
         <div className="App HeaderInfo">
           <ol>{this.listPlayers()}</ol>
-          <Player id="PLAYER1"></Player>
         </div>
         <div className='GameBoard'>{board}</div>
       </div>
@@ -321,7 +366,12 @@ class GameBoard extends Component<{},{board:any; clickStatement:string,myTerrain
     const mylist = [];
     for (let i = 0; i<this.state.myPlayers.length; i++){
       let plyr = this.state.myPlayers[i];
-      mylist.push(plyr.render());
+      mylist.push(
+        <li key={i} className = "Player">
+          {plyr.id} player number {plyr.playerNumber}
+          <br/> Resources: {plyr.resources}
+        </li>
+      );
     }
 
     return mylist;

@@ -43,6 +43,7 @@ export default class MapHex {
         return true;
       }
     }
+    
     return false;
   }
 }

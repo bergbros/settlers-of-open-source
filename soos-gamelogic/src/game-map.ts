@@ -80,22 +80,35 @@ export default class GameMap {
     }
 
     //add town spots to each hex!
+
+    console.log("BH: "+ BoardHeight + ", BW: " + BoardWidth);
     for (let y = 0; y < BoardHeight; y++) {
+      let townRowCounter = 0;
       for (let x = 0; x < BoardWidth; x++) {
         for (let theta = 0; theta<6; theta++){
+          console.log("checking row " + y + ", x " + x);
           if(!this.townExists(x,y,theta)){
-            this.board[y][x].addTown(theta);
+            console.log("adding town spot at" + x + "," + y + "," + theta);
+            (this.board[y][x]).addTown(theta);
+            townRowCounter++;
           }
         }
       }
+      console.log("added " + townRowCounter +" towns on row " + y);
     }
   }
 
   townExists(x:number,y:number,theta:number){
-    let myVC = new VertexCoords(new HexCoords(x,y),theta).normalize();
-    if (myVC.coords.y>=this.board.length) return true;
-    if (myVC.coords.x>=this.board[y].length) return true;
-    return this.board[myVC.coords.y][myVC.coords.x].townExists(myVC.direction);
+    let myVC = new VertexCoords(new HexCoords(x,y),theta)//.normalize();
+    if (myVC.coords.y>=OriginalTerrain.length) {
+      console.log("aborting at "+ x + "," + y + "," + theta);
+      return true;
+    }
+    if (myVC.coords.x>OriginalTerrain[0].length) {
+      console.log("aborting at "+ x + "," + y + "," + theta);
+      return true;
+    }
+    return this.board[y][x].townExists(myVC.direction);
   }
 
   stringToResourcePile(jsonMap:readonly string[]){

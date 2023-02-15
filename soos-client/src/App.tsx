@@ -32,6 +32,7 @@ export function App() {
           onClick={(hexCoords) => game.onHexClicked(hexCoords)}
         />
       );
+      //console.log("adding " + mapHex.towns.length + " towns for " + mapHex.coords.x + "," + mapHex.coords.y);
       for (let i=0;i<mapHex.towns.length;i++){
         towns.push(
           <Town

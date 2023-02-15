@@ -1,5 +1,7 @@
 import { Component, ReactNode, useState } from 'react';
 import { Game, HexCoords, MapHex, ResourceType, TerrainType } from 'soos-gamelogic';
+import MapTown from 'soos-gamelogic/src/map-town';
+import VertexCoords from 'soos-gamelogic/src/utils/vertex-coords';
 import './App.scss';
 import Hex from './Hex';
 import Town from './Town';
@@ -21,7 +23,16 @@ export function App() {
   const hexes = [];
   const towns = [];
   const roads = [];
+  // let myTown = new MapTown(new VertexCoords(new HexCoords(3,3),2));
+  
+  // towns.push(
+  //   <Town
+  //     mapTown={myTown}
+  //     onClick = {(vertexCoords) => game.onVertexClicked(vertexCoords)}
+  //   />
+  // );
 
+  //console.log(game.myMap.board);
   for (let i = 0; i< game.myMap.board.length; i++){ 
     for (let k = 0; k < game.myMap.board[i].length; k++){
       let mapHex:MapHex = game.myMap.board[i][k];
@@ -30,6 +41,7 @@ export function App() {
         <Hex
           mapHex={mapHex}
           onClick={(hexCoords) => game.onHexClicked(hexCoords)}
+          key = {`h:${mapHex.coords.x},${mapHex.coords.y}`}
         />
       );
       //console.log("adding " + mapHex.towns.length + " towns for " + mapHex.coords.x + "," + mapHex.coords.y);
@@ -38,26 +50,12 @@ export function App() {
           <Town
             mapTown={mapHex.towns[i]}
             onClick = {(vertexCoords) => game.onVertexClicked(vertexCoords)}
+            key = {`t:${mapHex.towns[i].coords.coords.x},${mapHex.towns[i].coords.coords.y},${mapHex.towns[i].coords.direction}`}
           />
         );
       }
    }
   }
-
-  // for (let i = 0; i< game.myMap.board.length; i++){ 
-  //   for (let k = 0; k < game.myMap.board[i].length; k++){
-  //     let mapHex:MapHex = game.myMap.board[i][k];
-  //     towns.push(
-  //       <Hex
-  //         mapHex={mapHex}
-  //         onClick={(hexCoords) => game.onHexClicked(hexCoords)}
-  //       />
-  //     );
-  //   }
-  // }
-
-  
-
 
   return (
     <div className="App">

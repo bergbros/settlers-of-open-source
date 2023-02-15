@@ -38,8 +38,10 @@ export default class MapHex {
   }
 
   townExists(direction:number):boolean{
-    for (let i = 0; i<this.towns?.length;i++){
+    //console.log(this.towns.length);
+    for (let i = 0; i<this.towns.length;i++){
       if(this.towns[i].coords.direction===direction){
+        console.log("found town!" + direction);
         return true;
       }
     }

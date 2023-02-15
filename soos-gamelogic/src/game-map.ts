@@ -30,12 +30,11 @@ export default class GameMap {
     const BoardWidth = OriginalTerrain[0].length;
     const tilePile = this.stringToResourcePile(OriginalTiles);
     const numberPile= OriginalNumbers.slice();
-    const hexRow:MapHex[] =[];
     for (let y = 0; y < BoardHeight; y++) {
       const isOffset: boolean = y % 2 === 1;
       const row = [];
       const freqRow = [];
-
+      const hexRow:MapHex[] =[];
       for (let x = 0; x < BoardWidth; x++) {
 
         //add Hexes to the map
@@ -71,41 +70,41 @@ export default class GameMap {
             numberPile.splice(frequencyIndex,1);
           }
         }
-        const newHex = new MapHex(new HexCoords(x,y),hexTerrain, hexResource,hexFrequency)
+        const newHex = new MapHex(new HexCoords(x,y), hexTerrain, hexResource,hexFrequency)
 
         
         hexRow.push(newHex);
       }
       this.board.push(hexRow);
     }
-
+    
     //add town spots to each hex!
-
-    console.log("BH: "+ BoardHeight + ", BW: " + BoardWidth);
+    //console.log(this.board);
     for (let y = 0; y < BoardHeight; y++) {
       let townRowCounter = 0;
       for (let x = 0; x < BoardWidth; x++) {
-        for (let theta = 0; theta<6; theta++){
-          console.log("checking row " + y + ", x " + x);
-          if(!this.townExists(x,y,theta)){
-            console.log("adding town spot at" + x + "," + y + "," + theta);
-            (this.board[y][x]).addTown(theta);
-            townRowCounter++;
+        if (this.board[y][x].terrainType===TerrainType.Land){
+          for (let theta = 0; theta<6; theta++){
+            if(!this.townExists(x,y,theta)){
+              //console.log(theta);
+              this.board[y][x].addTown(theta);
+              //console.log("added at direction " + theta);
+              townRowCounter++;
+            }
           }
+          //console.log("created " + townRowCounter +" towns on row " + y);
         }
       }
-      console.log("added " + townRowCounter +" towns on row " + y);
+      //console.log("created " + townRowCounter +" towns on row " + y);
     }
   }
 
   townExists(x:number,y:number,theta:number){
-    let myVC = new VertexCoords(new HexCoords(x,y),theta)//.normalize();
+    let myVC = new VertexCoords(new HexCoords(x,y),theta);//.normalize();
     if (myVC.coords.y>=OriginalTerrain.length) {
-      console.log("aborting at "+ x + "," + y + "," + theta);
       return true;
     }
     if (myVC.coords.x>OriginalTerrain[0].length) {
-      console.log("aborting at "+ x + "," + y + "," + theta);
       return true;
     }
     return this.board[y][x].townExists(myVC.direction);

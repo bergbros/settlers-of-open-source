@@ -3,7 +3,19 @@ import { HexCoords, MapHex, ResourceType, TerrainType } from 'soos-gamelogic';
 import { hexCoordsToPixels } from './utils';
 
 function getTerrainClass(terrainType: TerrainType, resourceType?: ResourceType): string {
-    return '';
+    if(terrainType !== TerrainType.Land) return '';
+    let terrainClass = '';
+    switch(resourceType){
+        case ResourceType.Brick: terrainClass = 'brick'; break;
+        case ResourceType.Grain: terrainClass = 'grain'; break;
+        case ResourceType.Ore: terrainClass = 'ore';   break;
+        case ResourceType.Sheep: terrainClass = 'sheep'; break;
+        case ResourceType.Wood: terrainClass = 'wood';  break;
+        case ResourceType.None: terrainClass = 'desert';break;
+        default: terrainClass = ''; break;
+      }
+    
+    return terrainClass;
 }
 
 export type HexProps = {
@@ -21,14 +33,16 @@ export default function Hex(props: HexProps) {
     const tileNumber = mapHex.frequency
         ? (<div className="tileNumber">{mapHex.frequency}</div>)
         : null;
-
+    
+    //console.log(`adding hex at: ${mapHex.coords.x},${mapHex.coords.y}`)
     return (
         <div
-            className={`Hex ${terrainClass}`} style={{
+            key={`h:${mapHex.coords.x},${mapHex.coords.y}`}
+            className={`Hex ${terrainClass}`} 
+            style={{
                 left: x + 'px',
                 top: y + 'px',
             }}
-            key={`h:${x},${y}`}
             onClick={() => onClick(mapHex.coords)}
         >
             {tileNumber}

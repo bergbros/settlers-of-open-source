@@ -2,11 +2,12 @@ import { Component, ReactNode, useState } from 'react';
 import { Game, HexCoords, MapHex, ResourceType, TerrainType } from 'soos-gamelogic';
 import './App.scss';
 import Hex from './Hex';
+import Town from './Town';
 
 const HexWidth = 100, HexHeight = 120;
 const BoardWidth = 7, BoardHeight = 7;
 
-function App() {
+export function App() {
   const [game, setGame] = useState<Game>(new Game());
 
   // Set up force update function
@@ -15,15 +16,62 @@ function App() {
     setCount(count + 1);
   }
 
-  const hexes = [
-    (<Hex
-      mapHex={new MapHex(new HexCoords(1, 2), TerrainType.Land, ResourceType.Brick, 5)}
-      onClick={(hexCoords) => game.onHexClicked(hexCoords)}
-    />)
-  ]
+
+
+  const hexes = [];
+  const towns = [];
+  const roads = [];
+
+  for (let i = 0; i< game.myMap.board.length; i++){ 
+    for (let k = 0; k < game.myMap.board[i].length; k++){
+      let mapHex:MapHex = game.myMap.board[i][k];
+      //console.log("translating " + mapHex.coords.x + "," + mapHex.coords.y);
+      hexes.push(
+        <Hex
+          mapHex={mapHex}
+          onClick={(hexCoords) => game.onHexClicked(hexCoords)}
+        />
+      );
+      for (let i=0;i<mapHex.towns.length;i++){
+        towns.push(
+          <Town
+            mapTown={mapHex.towns[i]}
+            onClick = {(vertexCoords) => game.onVertexClicked(vertexCoords)}
+          />
+        );
+      }
+   }
+  }
+
+  // for (let i = 0; i< game.myMap.board.length; i++){ 
+  //   for (let k = 0; k < game.myMap.board[i].length; k++){
+  //     let mapHex:MapHex = game.myMap.board[i][k];
+  //     towns.push(
+  //       <Hex
+  //         mapHex={mapHex}
+  //         onClick={(hexCoords) => game.onHexClicked(hexCoords)}
+  //       />
+  //     );
+  //   }
+  // }
+
+  
+
+
+  return (
+    <div className="App">
+      <div className = "App HeaderInfo">
+        {game.instructionText}
+      </div>
+      <div className="Board">
+      {hexes}
+      {towns}
+      </div>
+    </div>
+  );
 }
 
-export class App extends Component<{},{phaseString:string, gamePhase:number,activePlayer:number}> {
+export class App2 extends Component<{},{phaseString:string, gamePhase:number,activePlayer:number}> {
   constructor(props:any){
     super(props);
     this.state={

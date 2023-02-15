@@ -1,6 +1,8 @@
+import GameMap from './game-map';
 import Player from './player';
 import EdgeCoords from './utils/edge-coords';
 import HexCoords from './utils/hex-coords';
+import VertexCoords from './utils/vertex-coords';
 
 // phases requiring input
 export enum GamePhase {
@@ -31,16 +33,23 @@ export default class Game {
 
   gamePhase: GamePhase;
   currPlayerIdx: number;
-
+  myMap:GameMap;
   displayEmptySettlements: boolean;
   displayEmptyRoads: boolean;
+  instructionText:string;
 
   constructor() {
-
+    this.players = [new Player("Player 1"), new Player("Player 2")];
+    this.gamePhase =0;
+    this.currPlayerIdx=0;
+    this.displayEmptySettlements=true;
+    this.displayEmptyRoads=true;
+    this.myMap = new GameMap();
+    this.instructionText='Game Started! Player 1 place first settlement';
   }
 
   initializeBoard() {
-
+    this.myMap.initializeBoard();
   }
 
   getCurrPlayer() {
@@ -62,9 +71,7 @@ export default class Game {
   }
 
   onHexClicked(hex: HexCoords) {
-    if (this.gamePhase === GamePhase.PlaceSettlement1) {
-      this.getCurrPlayer().placeSettlement(hex);
-    }
+    
   }
 
   onEdgeClicked(edge: EdgeCoords) {
@@ -72,6 +79,8 @@ export default class Game {
   }
 
   onVertexClicked(vertex: VertexCoords) {
-
+    if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
+      this.getCurrPlayer().placeSettlement(vertex);
+    }
   }
 }

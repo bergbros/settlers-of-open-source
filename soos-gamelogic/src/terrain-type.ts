@@ -30,3 +30,20 @@ export function resourceToLand(resource: ResourceType): string {
       return 'Desert';
     }
 }
+
+export function stringToResource(jsonResource:string){
+  switch (jsonResource) {
+    case 'o':
+      return ResourceType.Ore;
+    case 'b':
+      return  ResourceType.Brick;
+    case 'g':
+      return ResourceType.Grain;
+    case 'w':
+      return ResourceType.Wood;
+    case 's':
+      return  ResourceType.Sheep;
+    default:
+      return ResourceType.None;
+    }
+}

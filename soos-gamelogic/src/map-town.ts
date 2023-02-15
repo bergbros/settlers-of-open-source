@@ -4,44 +4,42 @@ import VertexCoords from './utils/vertex-coords';
 
 
 
-export default class MapTown{
-    coords:VertexCoords;
-    player?:Player;
+export default class MapTown {
+    coords: VertexCoords;
+    player?: Player;
     townLevel: number;
-    constructor(myVC: VertexCoords) {
-        //id = 't:'+myVC.coords.x+','+myVC.coords.y+','+myVC.direction);
-        this.coords = myVC;
+    constructor(coords: VertexCoords) {
+        this.coords = coords;
         this.player = undefined;
         this.townLevel = 0;
     }
 
-    claimCity(player:Player){
-        if(this.player===undefined) throw Error;
-        this.player=player;
-        this.townLevel=1;
+    claimCity(player: Player) {
+        if (this.player === undefined) throw Error;
+        this.player = player;
+        this.townLevel = 1;
     }
-    
-    upgradeCity(){
-        if(this.player===undefined) throw Error;
+
+    upgradeCity() {
+        if (this.player === undefined) throw Error;
         this.townLevel++;
     }
-    getType(){
+    getType() {
         return "MapTown";
     }
-    getCoords(){
+    getCoords() {
         return this.coords;
     }
 }
 
-export class MapRoad{
-    coords:EdgeCoords;
-    
-    constructor(myVC: EdgeCoords) {
-        //id = 't:'+myVC.coords.x+','+myVC.coords.y+','+myVC.direction;
-        this.coords = myVC;
+export class MapRoad {
+    coords: EdgeCoords;
+
+    constructor(coords: EdgeCoords) {
+        this.coords = coords;
     }
 
-    getType(){
+    getType() {
         return "MapRoad";
     }
 }

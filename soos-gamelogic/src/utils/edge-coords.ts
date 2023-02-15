@@ -1,24 +1,24 @@
-import HexCoords, { HexDirection } from './hex-coords';
+import HexCoords, { HexDirection, hexDirOpposite } from './hex-coords';
 
 const HexDirectionsNeedNormalize = Object.freeze([
-  HexDirection.Right,
-  HexDirection.DownRight,
-  HexDirection.DownLeft,
+  HexDirection.E,
+  HexDirection.SE,
+  HexDirection.SW,
 ])
 
 export default class EdgeCoords {
-  coords: HexCoords;
+  hexCoords: HexCoords;
   direction: HexDirection;
 
   constructor(coords: HexCoords, direction: HexDirection) {
-    this.coords = coords;
+    this.hexCoords = coords;
     this.direction = direction;
   }
 
   normalize() {
     if (HexDirectionsNeedNormalize.includes(this.direction)) {
-      this.coords = this.coords.add(this.direction);
-      // this.direction = this.direction.opp
+      this.hexCoords = this.hexCoords.add(this.direction);
+      this.direction = hexDirOpposite(this.direction);
     }
   }
 }

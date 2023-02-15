@@ -3,7 +3,9 @@ const TS_OVERRIDE = {
   files: [ '**/*.ts', '**/*.tsx' ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: [ './tsconfig.json', './client/tsconfig.json', './server/tsconfig.json' ],
+    project: [ './tsconfig.json' ], //, './soos-client/tsconfig.json', './soos-gamelogic/tsconfig.json', './soos-server/tsconfig.json' ],
+    // eslint-disable-next-line no-undef
+    tsconfigRootDir: __dirname,
   },
   plugins: [ '@typescript-eslint' ],
   extends: [

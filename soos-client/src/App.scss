@@ -1,35 +1,38 @@
-.App{
-  position:relative;
+$tileNumberSize: 40px;
+
+.App {
+  position: relative;
   background-color: beige;
-  left:260px;
+  left: 260px;
   border: 3px solid black;
-  &.HeaderInfo{
-    position:relative;
-    left:0px;
-    border:2px solid gray;
-    height:50px;
+
+  &.HeaderInfo {
+    position: relative;
+    left: 0px;
+    border: 2px solid gray;
+    height: 50px;
   }
 }
 
-
-
-.Player{
-  position:relative;
-  top:0px;
+.Player {
+  position: relative;
+  top: 0px;
   left: 0px;
   border: 3px solid yellow
 }
-.TeamOne{
+
+.TeamOne {
   background: red;
 }
-.TeamTwo{
-  background:lightblue;
+
+.TeamTwo {
+  background: lightblue;
 }
 
-.Board{
+.Board {
   display: flex;
   flex-direction: row;
-  position:relative;
+  position: relative;
   top: 60px;
   left: 50px;
   height: 800px;
@@ -37,12 +40,12 @@
   background-color: lightblue;
 }
 
-.GameInfo{
-  position:fixed;
-  top:0px;
-  left:0;
+.GameInfo {
+  position: fixed;
+  top: 0px;
+  left: 0;
   width: 225px;
-  height:100%;
+  height: 100%;
   padding: 20px;
   background: lightgreen;
 }
@@ -53,19 +56,36 @@
   height: 120px;
   clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
   z-index: 1;
-  .tileNumber{
+
+  .tileNumber {
     color: black;
     text-align: center;
     margin: auto;
-    width: 50%;
-    padding: 40px 0;
-    font-size: 30px;
+    margin-top: 40px;
+
+    width: $tileNumberSize;
+    height: $tileNumberSize;
+    line-height: $tileNumberSize; // center text vertically
+
+    font-size: 25px;
     z-index: 5;
+
+    background-color: bisque;
+    border-radius: $tileNumberSize/2;
   }
+
+  .tileCoords {
+    position: absolute;
+    font-size: 14px;
+    top: 80px;
+    right: 20px;
+  }
+
   &.water {
     background-color: rgba(173, 216, 230, 0);
     z-index: 3;
   }
+
   &.water {
     background-color: lightskyblue;
     z-index: 3;
@@ -95,6 +115,7 @@
     background-color: rgb(181, 175, 0);
     z-index: 3;
   }
+
   &.desert {
     background-color: rgb(227, 208, 170);
     z-index: 3;
@@ -110,13 +131,14 @@
   z-index: 10;
 }
 
-.RoadSpot{
+.RoadSpot {
   width: 50px;
   height: 50px;
   position: absolute;
   display: inline-block;
   background-color: gray;
   z-index: 10;
+
   &.vertical {
     height: 30px;
     width: 12px;
@@ -124,15 +146,17 @@
     background-color: gray;
     border-color: black;
   }
-  &.neSlant{
+
+  &.neSlant {
     height: 30px;
     width: 50px;
     clip-path: polygon(25% 55%, 35% 85%, 78% 40%, 68% 15%);
   }
-  &.nwSlant{ //x = 100 - neSlant percent, no change to y
+
+  &.nwSlant {
+    //x = 100 - neSlant percent, no change to y
     height: 30px;
     width: 50px;
     clip-path: polygon(75% 55%, 65% 85%, 22% 40%, 32% 15%);
   }
 }
-

@@ -1,49 +1,96 @@
-// settlements
-import HexCoords, { HexDirection } from './hex-coords';
+import HexCoords from './hex-coords';
 
 export enum VertexDirection {
-    // in clockwise order
-    N= 0,
-    NE = 1,
-    SE = 2,
-    S = 3,
-    SW = 4,
-    NW = 5,
-  }
+  // in clockwise order
+  N = 0,
+  NE = 1,
+  SE = 2,
+  S = 3,
+  SW = 4,
+  NW = 5,
+}
+
+export const AllVertexDirections = Object.freeze([
+  VertexDirection.N,
+  VertexDirection.NE,
+  VertexDirection.SE,
+  VertexDirection.S,
+  VertexDirection.SW,
+  VertexDirection.NW,
+]);
+
+const hexDirNames = {
+  [VertexDirection.N]: 'N',
+  [VertexDirection.NE]: 'NE',
+  [VertexDirection.SE]: 'SE',
+  [VertexDirection.S]: 'S',
+  [VertexDirection.SW]: 'SW',
+  [VertexDirection.NW]: 'NW',
+}
+
+export function vertexDirName(dir: VertexDirection): string {
+  return hexDirNames[dir];
+}
+
+const opposites = Object.freeze({
+  [VertexDirection.N]: VertexDirection.S,
+  [VertexDirection.NE]: VertexDirection.SW,
+  [VertexDirection.SE]: VertexDirection.NW,
+  [VertexDirection.S]: VertexDirection.N,
+  [VertexDirection.SW]: VertexDirection.NE,
+  [VertexDirection.NW]: VertexDirection.SE,
+});
+
+export function vertexDirOpposite(dir: VertexDirection): VertexDirection {
+  return opposites[dir];
+}
 
 const VertexDirectionsNeedNormalize = Object.freeze([
-    VertexDirection.NE,
-    VertexDirection.SE,
+  VertexDirection.NE,
+  VertexDirection.SE,
   VertexDirection.S,
 ])
 
 export default class VertexCoords {
-  coords: HexCoords;
+  hexCoords: HexCoords;
   direction: VertexDirection;
 
   constructor(coords: HexCoords, direction: VertexDirection) {
-    this.coords = coords;
+    this.hexCoords = coords;
     this.direction = direction;
+
+    this.normalize();
   }
 
-  normalize():VertexCoords {
-    let finalVC:VertexCoords = new VertexCoords(this.coords,this.direction);
+  normalize(): void {
     if (VertexDirectionsNeedNormalize.includes(this.direction)) {
-        if (this.direction===VertexDirection.SE){
-            finalVC = new VertexCoords( new HexCoords(this.coords.x+1,this.coords.y), VertexDirection.NW);
-        } else if (this.direction===VertexDirection.S){
-            //?? ideally I would use shovedRight here, but I don't have access to it I believe
-            finalVC = new VertexCoords( new HexCoords(this.coords.x+(this.coords.y%2),this.coords.y+1), VertexDirection.NW);
-        } else { //South East
-            finalVC = new VertexCoords( new HexCoords(this.coords.x+(this.coords.y%2),this.coords.y+1), VertexDirection.N);
-        }
+      let x = this.hexCoords.x;
+      let y = this.hexCoords.y;
+
+      switch (this.direction) {
+        case VertexDirection.NE:
+          x++;
+          this.direction = VertexDirection.NW;
+          break;
+
+        case VertexDirection.SE:
+          x += y % 2;
+          y++;
+          this.direction = VertexDirection.N;
+          break;
+
+        case VertexDirection.S:
+          x += y % 2;
+          y++;
+          this.direction = VertexDirection.NW;
+          break;
+      }
+
+      this.hexCoords = new HexCoords(x, y);
     }
-    return finalVC;
   }
 
-  opposite():VertexCoords{
-    let opp:VertexCoords= new VertexCoords(this.coords,this.direction+3);
-    if (opp.direction>5) opp.direction-=6;
-    return opp;
+  equals(other: VertexCoords): boolean {
+    return other && this.hexCoords.equals(other.hexCoords) && this.direction === other.direction;
   }
 }

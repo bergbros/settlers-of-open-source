@@ -1,16 +1,13 @@
 import MapTown from './map-town';
 import { resourceToLand, ResourceType, TerrainType } from './terrain-type';
 import HexCoords from './utils/hex-coords';
-import VertexCoords from './utils/vertex-coords';
-
-
+import VertexCoords, { VertexDirection } from './utils/vertex-coords';
 
 export default class MapHex {
   coords: HexCoords;
   terrainType: TerrainType;
   resourceType?: ResourceType;
   frequency?: number;
-  towns:MapTown[];
 
   constructor(coords: HexCoords, terrainType: TerrainType, resourceType?: ResourceType, frequency?: number) {
     //id = 'h:'+coords.x+','+coords.y;
@@ -18,7 +15,6 @@ export default class MapHex {
     this.terrainType = terrainType;
     this.resourceType = resourceType;
     this.frequency = frequency;
-    this.towns = [];
   }
 
   getLandType(): string | undefined {
@@ -29,23 +25,7 @@ export default class MapHex {
     return resourceToLand(this.resourceType);
   }
 
-  getType(){
+  getType() {
     return "MapHex";
-  }
-
-  addTown(direction:number){
-    this.towns.push(new MapTown(new VertexCoords(this.coords, direction)));
-  }
-
-  townExists(direction:number):boolean{
-    //console.log(this.towns.length);
-    for (let i = 0; i<this.towns.length;i++){
-      if(this.towns[i].coords.direction===direction){
-        console.log("found town!" + direction);
-        return true;
-      }
-    }
-    
-    return false;
   }
 }

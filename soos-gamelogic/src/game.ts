@@ -33,23 +33,23 @@ export default class Game {
 
   gamePhase: GamePhase;
   currPlayerIdx: number;
-  myMap:GameMap;
+  map: GameMap;
   displayEmptySettlements: boolean;
   displayEmptyRoads: boolean;
-  instructionText:string;
+  instructionText: string;
 
   constructor() {
-    this.players = [new Player("Player 1"), new Player("Player 2")];
-    this.gamePhase =0;
-    this.currPlayerIdx=0;
-    this.displayEmptySettlements=true;
-    this.displayEmptyRoads=true;
-    this.myMap = new GameMap();
-    this.instructionText='Game Started! Player 1 place first settlement';
+    this.players = [new Player('Player 1'), new Player('Player 2')];
+    this.gamePhase = 0;
+    this.currPlayerIdx = 0;
+    this.displayEmptySettlements = true;
+    this.displayEmptyRoads = true;
+    this.map = new GameMap();
+    this.instructionText = 'Game Started! Player 1 place first settlement';
   }
 
   initializeBoard() {
-    this.myMap.initializeBoard();
+    this.map.initializeBoard();
   }
 
   getCurrPlayer() {
@@ -71,7 +71,7 @@ export default class Game {
   }
 
   onHexClicked(hex: HexCoords) {
-    
+
   }
 
   onEdgeClicked(edge: EdgeCoords) {

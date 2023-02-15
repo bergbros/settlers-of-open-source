@@ -22,7 +22,7 @@ export default class HexCoords {
 
   // Returns the coordinates of the hex in the given direction from this hex.
   add(direction: HexDirection): HexCoords {
-    const coords = dirToCoords(direction);
+    const coords = hexDirToCoords(direction);
 
     let x = this.x + coords.x;
     const y = this.y + coords.y;
@@ -40,46 +40,69 @@ export default class HexCoords {
   toString(): string {
     return `(${this.x},${this.y})`;
   }
+
+  equals(other: HexCoords): boolean {
+    return other && this.x === other.x && this.y === other.y;
+  }
 }
 
 export enum HexDirection {
   // in clockwise order
-  UpRight = 0,
-  Right = 1,
-  DownRight = 2,
-  DownLeft = 3,
-  Left = 4,
-  UpLeft = 5,
+  NE = 0,
+  E = 1,
+  SE = 2,
+  SW = 3,
+  W = 4,
+  NW = 5,
 }
+
+export const AllHexDirections = Object.freeze([
+  HexDirection.NE,
+  HexDirection.E,
+  HexDirection.SE,
+  HexDirection.SW,
+  HexDirection.W,
+  HexDirection.NW,
+]);
 
 const hexDirNames = {
-  [HexDirection.UpRight]: 'UpRight',
-  [HexDirection.Right]: 'Right',
-  [HexDirection.DownRight]: 'DownRight',
-  [HexDirection.DownLeft]: 'DownLeft',
-  [HexDirection.Left]: 'Left',
-  [HexDirection.UpLeft]: 'UpLeft',
+  [HexDirection.NE]: 'NE',
+  [HexDirection.E]: 'E',
+  [HexDirection.SE]: 'SE',
+  [HexDirection.SW]: 'SW',
+  [HexDirection.W]: 'W',
+  [HexDirection.NW]: 'NW',
 }
 
-export function dirName(dir: HexDirection): string {
+export function hexDirName(dir: HexDirection): string {
   return hexDirNames[dir];
 }
 
 // Note that 0,0 is the top left corner, and increasing numbers go down/left from there
 const _dirToCoords = Object.freeze({
-  [HexDirection.UpRight]: new HexCoords(1, -1),
-  [HexDirection.Right]: new HexCoords(1, 0),
-  [HexDirection.DownRight]: new HexCoords(1, 1),
-  [HexDirection.DownLeft]: new HexCoords(-1, 1),
-  [HexDirection.Left]: new HexCoords(-1, 0),
-  [HexDirection.UpLeft]: new HexCoords(-1, -1),
+  [HexDirection.NE]: new HexCoords(1, -1),
+  [HexDirection.E]: new HexCoords(1, 0),
+  [HexDirection.SE]: new HexCoords(1, 1),
+  [HexDirection.SW]: new HexCoords(-1, 1),
+  [HexDirection.W]: new HexCoords(-1, 0),
+  [HexDirection.NW]: new HexCoords(-1, -1),
 });
 
 // Convert a HexDirection enum to a HexCoords object containing the actual x/y offset for that direction.
-export function dirToCoords(dir: HexDirection): HexCoords {
+export function hexDirToCoords(dir: HexDirection): HexCoords {
   return _dirToCoords[dir];
 }
 
 const opposites = Object.freeze({
-
+  [HexDirection.NE]: HexDirection.SW,
+  [HexDirection.E]: HexDirection.W,
+  [HexDirection.SE]: HexDirection.NW,
+  [HexDirection.SW]: HexDirection.NE,
+  [HexDirection.W]: HexDirection.E,
+  [HexDirection.NW]: HexDirection.SE,
 });
+
+// Get the opposite direction of a direction
+export function hexDirOpposite(dir: HexDirection): HexDirection {
+  return opposites[dir];
+}

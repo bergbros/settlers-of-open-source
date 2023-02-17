@@ -49,6 +49,8 @@ const VertexDirectionsNeedNormalize = Object.freeze([
   VertexDirection.NE,
   VertexDirection.SE,
   VertexDirection.S,
+
+  // TODO add SW
 ])
 
 export default class VertexCoords {
@@ -92,5 +94,10 @@ export default class VertexCoords {
 
   equals(other: VertexCoords): boolean {
     return other && this.hexCoords.equals(other.hexCoords) && this.direction === other.direction;
+  }
+
+  toString(): string {
+    // (3,4,dir=NW)
+    return `(${this.hexCoords.x},${this.hexCoords.y},dir=${vertexDirName(this.direction)})`;
   }
 }

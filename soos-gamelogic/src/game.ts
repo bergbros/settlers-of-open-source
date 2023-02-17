@@ -34,16 +34,12 @@ export default class Game {
   gamePhase: GamePhase;
   currPlayerIdx: number;
   map: GameMap;
-  displayEmptySettlements: boolean;
-  displayEmptyRoads: boolean;
   instructionText: string;
 
   constructor() {
-    this.players = [new Player('Player 1'), new Player('Player 2')];
-    this.gamePhase = 0;
+    this.players = [new Player(0, 'Player 1'), new Player(1, 'Player 2')];
+    this.gamePhase = GamePhase.PlaceSettlement1;
     this.currPlayerIdx = 0;
-    this.displayEmptySettlements = true;
-    this.displayEmptyRoads = true;
     this.map = new GameMap();
     this.instructionText = 'Game Started! Player 1 place first settlement';
   }
@@ -78,9 +74,28 @@ export default class Game {
 
   }
 
+  displayEmptyTowns(): boolean {
+    return this.isLocalPlayerTurn() && 
+      (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2);
+  }
+
+  displayEmptyRoads(): boolean {
+    return this.isLocalPlayerTurn() && 
+      (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2);
+  }
+
+  isLocalPlayerTurn(): boolean {
+    return true;
+  }
+
   onVertexClicked(vertex: VertexCoords) {
     if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
-      this.getCurrPlayer().placeSettlement(vertex);
+      console.log('vertex clicked: ' + vertex.toString());
+      
+      const currPlayer = this.getCurrPlayer();
+      const townThere = this.map.townAt(vertex);
+      townThere?.claimTown(currPlayer);
+      this.forceUpdate();
     }
   }
 }

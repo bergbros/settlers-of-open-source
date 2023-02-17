@@ -37,6 +37,10 @@ export function App() {
 
   for (const town of game.map.towns) {
     const townCoords = town.coords;
+    
+    if (town.isUnclaimed() && !game.displayEmptyTowns())
+      continue;
+
     towns.push(
       <Town
         mapTown={town}

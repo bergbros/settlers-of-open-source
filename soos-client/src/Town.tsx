@@ -10,10 +10,11 @@ export type TownProps = {
 export default function Town(props: TownProps) {
   const { mapTown, onClick } = props;
   const { x, y } = vertexCoordsToPixels(mapTown.coords);
-  //console.log("translating " + mapTown.coords.coords.x + "," + mapTown.coords.coords.y);
+
+  const playerClass = mapTown.isUnclaimed() ? '' : 'p' + mapTown.player?.index;
 
   return (
-    <div className='Town'
+    <div className={'Town ' + playerClass}
       key={`t:${mapTown.coords.hexCoords.x},${mapTown.coords.hexCoords.y},${mapTown.coords.direction}`}
       style={{
         left: x + 'px',

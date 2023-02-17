@@ -5,12 +5,12 @@ export enum TerrainType {
 };
 
 export enum ResourceType {
-  None, // desert
-  Ore,
-  Brick,
-  Grain,
-  Wood,
-  Sheep,
+  None = -1, // desert
+  Ore = 0,
+  Brick = 1,
+  Grain = 2,
+  Wood = 3,
+  Sheep = 4,
 }
 
 export function resourceToLand(resource: ResourceType): string {

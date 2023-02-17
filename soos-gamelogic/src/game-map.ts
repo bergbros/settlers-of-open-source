@@ -19,6 +19,8 @@ const OriginalTerrain = Object.freeze([
 
 export default class GameMap {
   board: MapHex[][];
+
+  // TODO convert to dictionary
   towns: MapTown[];
 
   constructor() {
@@ -109,12 +111,23 @@ export default class GameMap {
   }
 
   townExists(coords: VertexCoords) {
+    // TODO convert to dictionary
     for (const town of this.towns) {
       if (town.coords.equals(coords)) {
         return true;
       }
     }
     return false;
+  }
+
+  townAt(coords: VertexCoords): MapTown | undefined {
+    // TODO convert to dictionary
+    for (const town of this.towns) {
+      if (town.coords.equals(coords)) {
+        return town;
+      }
+    }
+    return undefined;
   }
 
   stringToResourcePile(jsonMap: readonly string[]) {

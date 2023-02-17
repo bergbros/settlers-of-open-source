@@ -1,4 +1,5 @@
 $tileNumberSize: 40px;
+$p0-color: red;
 
 .App {
   position: relative;
@@ -21,12 +22,12 @@ $tileNumberSize: 40px;
   border: 3px solid yellow
 }
 
-.TeamOne {
-  background: red;
+.p0 {
+  background-color: red !important;
 }
 
-.TeamTwo {
-  background: lightblue;
+.p1 {
+  background-color: rgb(38, 145, 252) !important;
 }
 
 .Board {
@@ -71,7 +72,7 @@ $tileNumberSize: 40px;
     z-index: 5;
 
     background-color: bisque;
-    border-radius: $tileNumberSize/2;
+    border-radius: calc($tileNumberSize/2);
   }
 
   .tileCoords {
@@ -97,12 +98,12 @@ $tileNumberSize: 40px;
   }
 
   &.sheep {
-    background-color: rgb(76, 199, 76);
+    background-color: rgb(97, 222, 97);
     z-index: 3;
   }
 
   &.brick {
-    background-color: rgb(122, 16, 0);
+    background-color: rgb(146, 26, 8);
     z-index: 3;
   }
 
@@ -112,12 +113,12 @@ $tileNumberSize: 40px;
   }
 
   &.grain {
-    background-color: rgb(181, 175, 0);
+    background-color: rgb(237, 213, 30);
     z-index: 3;
   }
 
   &.desert {
-    background-color: rgb(227, 208, 170);
+    background-color: rgb(243, 213, 152);
     z-index: 3;
   }
 }

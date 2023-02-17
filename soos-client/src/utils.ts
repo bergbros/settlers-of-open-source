@@ -1,4 +1,6 @@
 import { HexCoords } from 'soos-gamelogic';
+import EdgeCoords from 'soos-gamelogic/src/utils/edge-coords';
+import { HexDirection } from 'soos-gamelogic/src/utils/hex-coords';
 import VertexCoords, { VertexDirection } from 'soos-gamelogic/src/utils/vertex-coords';
 
 export const HexWidth = 100, HexHeight = 120;
@@ -60,6 +62,49 @@ export function vertexCoordsToPixels(vertexCoords: VertexCoords): PixelCoords {
   const settlementRadius = 10;
   xCoord -= settlementRadius;
   yCoord -= settlementRadius;
+
+  return {
+    x: xCoord,
+    y: yCoord
+  }
+}
+
+
+export function edgeCoordsToPixels(edgeCoords: EdgeCoords): PixelCoords {
+  //console.log("translating " + vertexCoords.coords.x + "," + vertexCoords.coords.y);
+  let hexCoords = edgeCoords.hexCoords;
+  let xCoord = hexCoords.x * HexWidth;
+
+  if (hexCoords.isShovedRight()) {
+    xCoord += HexWidth * .5;
+  }
+  xCoord += 55;
+  let yCoord = hexCoords.y * HexHeight * .75 + 55;
+
+  const edgeWidth = 5;
+
+  switch (edgeCoords.direction) {
+    case HexDirection.NW:
+      break;
+    case HexDirection.NE:
+      xCoord += HexWidth * 0.5;
+      break;
+    case HexDirection.E:
+      xCoord += HexWidth - edgeWidth;
+      yCoord += HexHeight * 0.25 + 15;
+      break;
+    case HexDirection.W:
+      xCoord-= edgeWidth;
+      yCoord += HexHeight * 0.25 + 15;
+      break;
+    case HexDirection.SE:
+      xCoord += HexWidth * 0.5;
+      yCoord += HexHeight * 0.75;
+      break;
+    case HexDirection.SW:
+      yCoord += HexHeight * 0.75;
+      break;
+  }
 
   return {
     x: xCoord,

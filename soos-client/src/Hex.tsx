@@ -1,4 +1,5 @@
-import { HexCoords, MapHex, ResourceType, TerrainType } from 'soos-gamelogic';
+import { HexCoords, ResourceType, TerrainType } from 'soos-gamelogic';
+import GameHex from 'soos-gamelogic/src/gamehex';
 import { hexCoordsToPixels } from './utils';
 
 // Debug thing to show the HexCoords of every hex on the board.
@@ -26,32 +27,32 @@ function getTerrainClass(terrainType: TerrainType, resourceType?: ResourceType):
 }
 
 export type HexProps = {
-  mapHex: MapHex;
+  gameHex: GameHex;
   onClick: (hexCoords: HexCoords) => void;
 };
 
 export default function Hex(props: HexProps) {
-  const { mapHex, onClick } = props;
+  const { gameHex, onClick } = props;
 
-  const terrainClass = getTerrainClass(mapHex.terrainType, mapHex.resourceType);
+  const terrainClass = getTerrainClass(gameHex.terrainType, gameHex.resourceType);
 
-  const { x, y } = hexCoordsToPixels(mapHex.coords);
+  const { x, y } = hexCoordsToPixels(gameHex.coords);
 
-  const tileNumber = mapHex.frequency
-    ? (<div className="tileNumber">{mapHex.frequency}</div>)
+  const tileNumber = gameHex.frequency
+    ? (<div className="tileNumber">{gameHex.frequency}</div>)
     : null;
 
-  const coordsLabel = showAllCoords ? (<div className='tileCoords'>{mapHex.coords.x},{mapHex.coords.y}</div>) : null;
+  const coordsLabel = showAllCoords ? (<div className='tileCoords'>{gameHex.coords.x},{gameHex.coords.y}</div>) : null;
 
   return (
     <div
-      key={`h:${mapHex.coords.x},${mapHex.coords.y}`}
+      key={`h:${gameHex.coords.x},${gameHex.coords.y}`}
       className={`Hex ${terrainClass}`}
       style={{
         left: x + 'px',
         top: y + 'px',
       }}
-      onClick={() => onClick(mapHex.coords)}
+      onClick={() => onClick(gameHex.coords)}
     >
       {tileNumber}
       {coordsLabel}

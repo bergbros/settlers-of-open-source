@@ -49,7 +49,7 @@ const VertexDirectionsNeedNormalize = Object.freeze([
   VertexDirection.NE,
   VertexDirection.SE,
   VertexDirection.S,
-
+  VertexDirection.SW,
   // TODO add SW
 ])
 
@@ -85,6 +85,11 @@ export default class VertexCoords {
           x += y % 2;
           y++;
           this.direction = VertexDirection.NW;
+          break;
+        case VertexDirection.SW:
+          x += y % 2-1;
+          y++;
+          this.direction = VertexDirection.N;
           break;
       }
 

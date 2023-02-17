@@ -1,9 +1,9 @@
-import MapTown from './map-town';
+import GameTown from './gametown';
 import { resourceToLand, ResourceType, TerrainType } from './terrain-type';
 import HexCoords from './utils/hex-coords';
 import VertexCoords, { VertexDirection } from './utils/vertex-coords';
 
-export default class MapHex {
+export default class GameHex {
   coords: HexCoords;
   terrainType: TerrainType;
   resourceType?: ResourceType;
@@ -26,6 +26,6 @@ export default class MapHex {
   }
 
   getType() {
-    return "MapHex";
+    return "GameHex";
   }
 }

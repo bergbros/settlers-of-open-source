@@ -1,8 +1,7 @@
 import Player from './player';
-import EdgeCoords from './utils/edge-coords';
 import VertexCoords from './utils/vertex-coords';
 
-export default class MapTown {
+export default class GameTown {
     coords: VertexCoords;
     player?: Player;
     townLevel: number;
@@ -33,22 +32,10 @@ export default class MapTown {
     }
 
     getType() {
-        return "MapTown";
+        return "GameTown";
     }
 
     getCoords() {
         return this.coords;
-    }
-}
-
-export class MapRoad {
-    coords: EdgeCoords;
-
-    constructor(coords: EdgeCoords) {
-        this.coords = coords;
-    }
-
-    getType() {
-        return "MapRoad";
     }
 }

@@ -65,7 +65,7 @@ export const AllHexDirections = Object.freeze([
   HexDirection.NW,
 ]);
 
-const hexDirNames = {
+export const hexDirNames = {
   [HexDirection.NE]: 'NE',
   [HexDirection.E]: 'E',
   [HexDirection.SE]: 'SE',

@@ -35,13 +35,14 @@ export default class Game {
   currPlayerIdx: number;
   map: GameMap;
   instructionText: string;
-
+  claimedSettlement:boolean;
   constructor() {
     this.players = [new Player(0, 'Player 1'), new Player(1, 'Player 2')];
-    this.gamePhase = GamePhase.PlaceSettlement1;
     this.currPlayerIdx = 0;
     this.map = new GameMap();
+    this.gamePhase = GamePhase.PlaceSettlement1;
     this.instructionText = 'Game Started! Player 1 place first settlement';
+    this.claimedSettlement = false;
   }
 
   initializeBoard() {
@@ -66,13 +67,7 @@ export default class Game {
     }
   }
 
-  onHexClicked(hex: HexCoords) {
-
-  }
-
-  onEdgeClicked(edge: EdgeCoords) {
-
-  }
+  
 
   displayEmptyTowns(): boolean {
     return this.isLocalPlayerTurn() && 
@@ -88,14 +83,82 @@ export default class Game {
     return true;
   }
 
+  nextPlayer(){
+    this.claimedSettlement = false;
+    this.map.updateDisplayRoads();
+
+    if (this.gamePhase===GamePhase.PlaceSettlement1){
+      if(this.currPlayerIdx === this.players.length-1) {
+        console.log("next PhaseTurn!")
+        this.nextPhaseTurn();
+      } else {        
+        this.currPlayerIdx++;
+        this.instructionText = `Player ${this.currPlayerIdx+1} place first settlement & road`;
+        
+      }
+    }else if (this.gamePhase===GamePhase.PlaceSettlement2){
+      if(this.currPlayerIdx === 0) 
+        this.nextPhaseTurn();
+      else
+        this.currPlayerIdx--;
+
+      this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
+
+    }
+    else {
+      if(this.currPlayerIdx === this.players.length-1) 
+        this.nextPhaseTurn();
+      else
+        this.currPlayerIdx++;
+    }
+
+    this.forceUpdate();
+  }
+
+  nextPhaseTurn(){
+    if(this.gamePhase===GamePhase.PlaceSettlement1){
+      this.gamePhase = GamePhase.PlaceSettlement2;
+      this.currPlayerIdx = this.players.length;
+      //this.nextPlayer();
+      return;
+    }
+    if(this.gamePhase===GamePhase.PlaceSettlement2){
+      this.gamePhase = GamePhase.MainGameplay;
+      this.currPlayerIdx = 0;
+    }
+ 
+  }
+
   onVertexClicked(vertex: VertexCoords) {
+    if(this.claimedSettlement) return;
     if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
       console.log('vertex clicked: ' + vertex.toString());
       
       const currPlayer = this.getCurrPlayer();
       const townThere = this.map.townAt(vertex);
       townThere?.claimTown(currPlayer);
+      this.claimedSettlement = true;
+      this.map.updateDisplayRoads(vertex);
       this.forceUpdate();
     }
   }
+  
+  onEdgeClicked(edge: EdgeCoords) {
+    if(!this.claimedSettlement) return;
+    if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
+      console.log('edge clicked: ' + edge.toString());
+      const currPlayer = this.getCurrPlayer();
+      const roadThere = this.map.roadAt(edge);
+      roadThere?.claimRoad(currPlayer);
+      console.log("claimed road");
+      this.nextPlayer();
+      console.log("passed to next player");
+      this.forceUpdate();
+    }
+  }
+  
+  onHexClicked(hex: HexCoords) {
+
+  }
+
 }

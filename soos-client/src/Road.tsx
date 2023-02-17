@@ -12,7 +12,11 @@ export default function Road(props: RoadProps) {
   const { gameRoad, onClick } = props;
   const { x, y } = edgeCoordsToPixels(gameRoad.coords);
 
-  const playerClass = gameRoad.isUnclaimed() ? '' : 'p' + gameRoad.player?.index;
+  let playerClass = '';
+  if(gameRoad.showMe()){
+    playerClass = 'p' + gameRoad.player?.index;
+    console.log(playerClass);
+  }
 
   const roadCoords = gameRoad.getCoords();
   let roadOrientation = "vertical";
@@ -23,7 +27,7 @@ export default function Road(props: RoadProps) {
   }
 
   return (
-    <div className={'Road ' + roadOrientation + playerClass}
+    <div className={'Road ' + roadOrientation + " " + playerClass}
       key={`t:${gameRoad.coords.hexCoords.x},${gameRoad.coords.hexCoords.y},${gameRoad.coords.direction}`}
       style={{
         left: x + 'px',

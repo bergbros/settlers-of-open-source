@@ -52,11 +52,10 @@ export function App() {
     );
   }
 
-  console.log(game.map.roads);
   for (const road of game.map.roads) {
     const roadCoords = road.coords;
     
-    if (road.isUnclaimed() && !game.displayEmptyRoads())
+    if (!road.showMe())
       continue;
 
     roads.push(

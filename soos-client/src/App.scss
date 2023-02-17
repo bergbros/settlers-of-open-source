@@ -124,12 +124,16 @@ $p0-color: red;
 }
 
 .Town {
-  width: 20px;
-  height: 20px;
-  background-color: gray;
+  width: 16px;
+  height: 16px;
+  border: 2px solid gray;
   border-radius: 50%;
   position: absolute;
   z-index: 10;
+
+  stroke: solid gray;
+  stroke-dasharray: 8, 8.5;
+  stroke-width: 3;
 }
 
 .Road {

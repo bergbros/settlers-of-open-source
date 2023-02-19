@@ -105,4 +105,6 @@ export default class VertexCoords {
     // (3,4,dir=NW)
     return `(${this.hexCoords.x},${this.hexCoords.y},dir=${vertexDirName(this.direction)})`;
   }
+
+  
 }

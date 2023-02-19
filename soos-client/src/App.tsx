@@ -5,6 +5,7 @@ import { Game, HexCoords, ResourceType, TerrainType, GameHex, GameTown } from 's
 import VertexCoords from 'soos-gamelogic/src/utils/vertex-coords';
 import './App.scss';
 import Hex from './Hex';
+import Player from './Player';
 import Road from './Road';
 import Town from './Town';
 
@@ -23,6 +24,7 @@ export function App() {
   const hexes = [];
   const towns = [];
   const roads = [];
+  const players = [];
 
   for (let i = 0; i < game.map.board.length; i++) {
     for (let k = 0; k < game.map.board[i].length; k++) {
@@ -67,10 +69,15 @@ export function App() {
     );
   }
 
+  for (const player of game.players){
+    players.push(<Player player = {player}></Player>);
+  }
+
   return (
     <div className="App">
       <div className="App HeaderInfo">
         {game.instructionText}
+        {players}
       </div>
       <div className="Board">
         {hexes}

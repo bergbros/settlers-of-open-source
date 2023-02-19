@@ -4,7 +4,7 @@ $p0-color: red;
 .App {
   position: relative;
   background-color: beige;
-  left: 260px;
+  left: 0px;
   border: 3px solid black;
 
   &.HeaderInfo {
@@ -12,6 +12,7 @@ $p0-color: red;
     left: 0px;
     border: 2px solid gray;
     height: 50px;
+    white-space: pre-wrap;
   }
 }
 
@@ -19,7 +20,9 @@ $p0-color: red;
   position: relative;
   top: 0px;
   left: 0px;
-  border: 3px solid yellow
+  border: 3px solid yellow;
+  background-color: solid rgba(255, 255, 255, 0.466);
+  white-space: pre-wrap;
 }
 
 .p0 {
@@ -35,7 +38,7 @@ $p0-color: red;
   flex-direction: row;
   position: relative;
   top: 60px;
-  left: 50px;
+  left: 150px;
   height: 800px;
   width: 900px;
   background-color: lightblue;

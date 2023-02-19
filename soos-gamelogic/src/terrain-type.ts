@@ -13,6 +13,14 @@ export enum ResourceType {
   Sheep = 4,
 }
 
+export const AllResourceTypes = Object.freeze([
+  ResourceType.Ore,
+  ResourceType.Brick,
+  ResourceType.Grain,
+  ResourceType.Wood,
+  ResourceType.Sheep
+]);
+
 export function resourceToLand(resource: ResourceType): string {
   switch (resource) {
     case ResourceType.Ore:
@@ -28,6 +36,23 @@ export function resourceToLand(resource: ResourceType): string {
 
     default:
       return 'Desert';
+  }
+}
+
+export function resourceToString(resource: ResourceType): string {
+  switch (resource) {
+    case ResourceType.Ore:
+      return 'Ore';
+    case ResourceType.Brick:
+      return 'Brick';
+    case ResourceType.Grain:
+      return 'Grain';
+    case ResourceType.Wood:
+      return 'Wood';
+    case ResourceType.Sheep:
+      return 'Sheep';
+    default:
+      return '';
   }
 }
 

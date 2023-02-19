@@ -15,7 +15,6 @@ export default function Road(props: RoadProps) {
   let playerClass = '';
   if(gameRoad.showMe()){
     playerClass = 'p' + gameRoad.player?.index;
-    console.log(playerClass);
   }
 
   const roadCoords = gameRoad.getCoords();

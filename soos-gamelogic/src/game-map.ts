@@ -109,6 +109,20 @@ export default class GameMap {
     }
   }
 
+  getFrequency (diceRoll:number) :GameHex[] {
+    const BoardHeight = OriginalTerrain.length;
+    const BoardWidth = OriginalTerrain[0].length;
+    const hexes:GameHex[] = [];
+    for (let y = 0; y < BoardHeight; y++) {
+      for (let x = 0; x < BoardWidth; x++) {
+        if (this.board[y][x].frequency && this.board[y][x].frequency===diceRoll){
+          hexes.push(this.board[y][x]);
+        }
+      }
+    }
+    return hexes;
+  }
+
   getHex(coords: HexCoords): GameHex | undefined {
     const row = this.board[coords.y];
     if (!row) {

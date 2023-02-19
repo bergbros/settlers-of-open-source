@@ -5,7 +5,7 @@ import VertexCoords, { VertexDirection } from 'soos-gamelogic/src/utils/vertex-c
 
 export const HexWidth = 100, HexHeight = 120;
 export const BoardWidth = 7, BoardHeight = 7;
-
+const leftPixelOffset = 55;
 export type PixelCoords = {
   x: number,
   y: number
@@ -16,8 +16,8 @@ export function hexCoordsToPixels(hexCoords: HexCoords): PixelCoords {
   if (hexCoords.isShovedRight()) {
     xCoord += HexWidth * .5;
   }
-  xCoord += 55;
-  const yCoord = hexCoords.y * HexHeight * .75 + 55;
+  xCoord += leftPixelOffset;
+  const yCoord = hexCoords.y * HexHeight * .75 + leftPixelOffset;
 
   return {
     x: xCoord,
@@ -32,8 +32,8 @@ export function vertexCoordsToPixels(vertexCoords: VertexCoords): PixelCoords {
   if (hexCoords.isShovedRight()) {
     xCoord += HexWidth * .5;
   }
-  xCoord += 55;
-  let yCoord = hexCoords.y * HexHeight * .75 + 55;
+  xCoord += leftPixelOffset;
+  let yCoord = hexCoords.y * HexHeight * .75 + leftPixelOffset;
 
   switch (vertexCoords.direction) {
     case VertexDirection.N:
@@ -78,8 +78,8 @@ export function edgeCoordsToPixels(edgeCoords: EdgeCoords): PixelCoords {
   if (hexCoords.isShovedRight()) {
     xCoord += HexWidth * .5;
   }
-  xCoord += 55;
-  let yCoord = hexCoords.y * HexHeight * .75 + 55;
+  xCoord += leftPixelOffset;
+  let yCoord = hexCoords.y * HexHeight * .75 + leftPixelOffset;
 
   const edgeWidth = 5;
 

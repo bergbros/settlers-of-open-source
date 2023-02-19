@@ -1,4 +1,4 @@
-import Player from './player';
+import Player from './gameplayer';
 import VertexCoords from './utils/vertex-coords';
 
 export default class GameTown {

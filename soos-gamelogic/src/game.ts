@@ -1,8 +1,8 @@
 import GameMap from './game-map';
-import Player from './player';
+import GamePlayer from './gameplayer';
 import EdgeCoords from './utils/edge-coords';
-import HexCoords from './utils/hex-coords';
-import VertexCoords from './utils/vertex-coords';
+import HexCoords, { AllHexDirections } from './utils/hex-coords';
+import VertexCoords, { AllVertexDirections } from './utils/vertex-coords';
 
 // phases requiring input
 export enum GamePhase {
@@ -29,7 +29,7 @@ export default class Game {
   // allPlayerPieces: Map<HexCoords, Piece>
   // refreshObjects()
 
-  players: Player[];
+  players: GamePlayer[];
 
   gamePhase: GamePhase;
   currPlayerIdx: number;
@@ -37,16 +37,18 @@ export default class Game {
   instructionText: string;
   claimedSettlement:boolean;
   constructor() {
-    this.players = [new Player(0, 'Player 1'), new Player(1, 'Player 2')];
+    this.claimedSettlement = false;
+    this.players = [new GamePlayer(0, 'Player 1'), new GamePlayer(1, 'Player 2')];
     this.currPlayerIdx = 0;
     this.map = new GameMap();
     this.gamePhase = GamePhase.PlaceSettlement1;
     this.instructionText = 'Game Started! Player 1 place first settlement';
-    this.claimedSettlement = false;
   }
 
   initializeBoard() {
     this.map.initializeBoard();
+    this.claimedSettlement = false;
+    this.gamePhase = GamePhase.PlaceSettlement1;
   }
 
   getCurrPlayer() {
@@ -70,7 +72,7 @@ export default class Game {
   
 
   displayEmptyTowns(): boolean {
-    return this.isLocalPlayerTurn() && 
+    return this.isLocalPlayerTurn() && !this.claimedSettlement &&
       (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2);
   }
 
@@ -94,22 +96,43 @@ export default class Game {
       } else {        
         this.currPlayerIdx++;
         this.instructionText = `Player ${this.currPlayerIdx+1} place first settlement & road`;
-        
       }
     }else if (this.gamePhase===GamePhase.PlaceSettlement2){
-      if(this.currPlayerIdx === 0) 
+      if(this.currPlayerIdx === 0) {
         this.nextPhaseTurn();
-      else
+      } else{
         this.currPlayerIdx--;
+        this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
+      }
 
-      this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
-
-    }
-    else {
+    } else {
+      // check for win conditions!
       if(this.currPlayerIdx === this.players.length-1) 
-        this.nextPhaseTurn();
+        this.currPlayerIdx = 0;
       else
         this.currPlayerIdx++;
+
+      //roll dice
+      const diceRoll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6);
+
+      const hexes = this.map.getFrequency(diceRoll);
+      for(let i = 0; i< hexes.length; i++){
+        const hex = hexes[i];
+        for (let j = 0; j< AllVertexDirections.length; j++){
+          let dir = AllVertexDirections[j];
+          const town = this.map.townAt(new VertexCoords(hex.coords,dir));
+          if(town && town.player){
+            town.player.addCard(hex.resourceType);
+          }
+        }
+      }
+
+      //later... go to Robber gamephase??
+      
+      //distribute resources
+      //let player build if desired/possible
+
+      this.instructionText = `Dice roll was: ${diceRoll}\n Player ${this.currPlayerIdx+1}'s turn!`;
     }
 
     this.forceUpdate();
@@ -118,16 +141,18 @@ export default class Game {
   nextPhaseTurn(){
     if(this.gamePhase===GamePhase.PlaceSettlement1){
       this.gamePhase = GamePhase.PlaceSettlement2;
-      this.currPlayerIdx = this.players.length;
-      //this.nextPlayer();
+      this.currPlayerIdx = this.players.length-1;
+      this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
       return;
-    }
-    if(this.gamePhase===GamePhase.PlaceSettlement2){
+    } else if(this.gamePhase===GamePhase.PlaceSettlement2){
       this.gamePhase = GamePhase.MainGameplay;
-      this.currPlayerIdx = 0;
+      this.currPlayerIdx = -1;
+      this.nextPlayer();
     }
  
   }
+
+
 
   onVertexClicked(vertex: VertexCoords) {
     if(this.claimedSettlement) return;

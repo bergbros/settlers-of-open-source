@@ -115,7 +115,7 @@ export default class Game {
         this.currPlayerIdx++;
 
       //roll dice
-      const diceRoll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6);
+      const diceRoll = Math.floor(Math.random() * 6)+1 + Math.floor(Math.random() * 6)+1;
 
       //distribute resources
       const hexes = this.map.getFrequency(diceRoll);

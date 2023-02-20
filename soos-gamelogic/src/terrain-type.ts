@@ -6,19 +6,19 @@ export enum TerrainType {
 
 export enum ResourceType {
   None = -1, // desert
-  Ore = 0,
+  Wood = 0,
   Brick = 1,
-  Grain = 2,
-  Wood = 3,
-  Sheep = 4,
+  Sheep = 2,
+  Grain = 3,
+  Ore = 4,
 }
 
 export const AllResourceTypes = Object.freeze([
-  ResourceType.Ore,
-  ResourceType.Brick,
-  ResourceType.Grain,
   ResourceType.Wood,
-  ResourceType.Sheep
+  ResourceType.Brick,
+  ResourceType.Sheep,
+  ResourceType.Grain,
+  ResourceType.Ore
 ]);
 
 export function resourceToLand(resource: ResourceType): string {

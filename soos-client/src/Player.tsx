@@ -18,7 +18,7 @@ export default function Player(props: PlayerProps) {
   }
 
   return (
-    <div>
+    <div className="PlayerList">
         <div className={'Player '+ playerClass}
             key={playerClass}
             >

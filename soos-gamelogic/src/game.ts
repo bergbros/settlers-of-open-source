@@ -1,3 +1,4 @@
+import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions';
 import GameMap from './game-map';
 import GamePlayer from './gameplayer';
 import EdgeCoords from './utils/edge-coords';
@@ -115,11 +116,10 @@ export default class Game {
       //roll dice
       const diceRoll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6);
 
+      //distribute resources
       const hexes = this.map.getFrequency(diceRoll);
-      for(let i = 0; i< hexes.length; i++){
-        const hex = hexes[i];
-        for (let j = 0; j< AllVertexDirections.length; j++){
-          let dir = AllVertexDirections[j];
+      for(const hex of hexes){
+        for (const dir of AllVertexDirections){
           const town = this.map.townAt(new VertexCoords(hex.coords,dir));
           if(town && town.player){
             town.player.addCard(hex.resourceType);
@@ -127,15 +127,17 @@ export default class Game {
         }
       }
 
-      //later... go to Robber gamephase??
+      //later... go to Robber gamephase??      
       
-      //distribute resources
       //let player build if desired/possible
-
       this.instructionText = `Dice roll was: ${diceRoll}\n Player ${this.currPlayerIdx+1}'s turn!`;
     }
 
     this.forceUpdate();
+  }
+
+  actionViable(action:BuildOptions):boolean{
+    return false;
   }
 
   nextPhaseTurn(){
@@ -152,7 +154,9 @@ export default class Game {
  
   }
 
+  executeAction(action:BuildOptions){
 
+  }
 
   onVertexClicked(vertex: VertexCoords) {
     if(this.claimedSettlement) return;

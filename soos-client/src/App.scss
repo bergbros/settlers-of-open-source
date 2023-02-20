@@ -5,24 +5,36 @@ $p0-color: red;
   position: relative;
   background-color: beige;
   left: 0px;
+  width:100%;
   border: 3px solid black;
 
   &.HeaderInfo {
     position: relative;
     left: 0px;
     border: 2px solid gray;
-    height: 50px;
     white-space: pre-wrap;
+    width: 50%;
+    float:left;
+  }
+  &.ActionButtons {
+    display:inline;
+    padding:15px;
   }
 }
 
 .Player {
   position: relative;
+  width:40%;
   top: 0px;
   left: 0px;
-  border: 3px solid yellow;
   background-color: solid rgba(255, 255, 255, 0.466);
   white-space: pre-wrap;
+  display:inline-block;
+  padding:10px;
+  padding-left:20px;
+}
+.PlayerList{
+  display:inline;
 }
 
 .p0 {
@@ -33,12 +45,21 @@ $p0-color: red;
   background-color: rgb(38, 145, 252) !important;
 }
 
+.NextTurnButton{
+  float:right;
+  width:45%
+}
+.ActionButton{
+  float:right;
+  width:45%
+}
+
 .Board {
   display: flex;
   flex-direction: row;
   position: relative;
-  top: 60px;
-  left: 150px;
+  top: 50px;
+  left: 50px;
   height: 800px;
   width: 900px;
   background-color: lightblue;

@@ -1,16 +1,13 @@
-import { Component, ReactNode, useState } from 'react';
-import { Game, HexCoords, ResourceType, TerrainType, GameHex, GameTown } from 'soos-gamelogic';
+import { useState } from 'react';
+import { actionToString, AllBuildOptions, Game, GameHex } from 'soos-gamelogic';
+import { GamePhase } from 'soos-gamelogic/src/game';
 //import GameHex from 'soos-gamelogic/src/gamehex';
 //import GameTown from 'soos-gamelogic/src/gametown';
-import VertexCoords from 'soos-gamelogic/src/utils/vertex-coords';
 import './App.scss';
 import Hex from './Hex';
 import Player from './Player';
 import Road from './Road';
 import Town from './Town';
-
-const HexWidth = 100, HexHeight = 120;
-const BoardWidth = 7, BoardHeight = 7;
 
 export function App() {
   const [game, setGame] = useState<Game>(new Game());
@@ -25,6 +22,7 @@ export function App() {
   const towns = [];
   const roads = [];
   const players = [];
+  const actions = [];
 
   for (let i = 0; i < game.map.board.length; i++) {
     for (let k = 0; k < game.map.board[i].length; k++) {
@@ -73,12 +71,29 @@ export function App() {
     players.push(<Player player = {player}></Player>);
   }
 
+  for (const option of AllBuildOptions){
+    actions.push(
+      <button 
+        onClick = {() => game.executeAction(option)} 
+        className= "ActionButton" 
+        disabled = {!game.actionViable(option)}>
+          {actionToString(option)}
+      </button>)
+  }
+
+
   return (
     <div className="App">
       <div className="App HeaderInfo">
         {game.instructionText}
-        {players}
+        {actions}
       </div>
+      <button 
+        onClick = {() => game.nextPlayer()} 
+        className= "NextTurnButton" 
+        disabled = {game.gamePhase!==GamePhase.MainGameplay}
+        >Next Turn</button>
+      <div className="App HeaderInfo">{players}</div>
       <div className="Board">
         {hexes}
         {towns}

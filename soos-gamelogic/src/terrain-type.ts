@@ -33,24 +33,25 @@ export function resourceToLand(resource: ResourceType): string {
       return 'Forest';
     case ResourceType.Sheep:
       return 'Pasture';
-
     default:
       return 'Desert';
   }
 }
 
-export function resourceToString(resource: ResourceType): string {
+export function resourceToString(resource: ResourceType|undefined): string {
+  if(resource===undefined) return '';
+
   switch (resource) {
-    case ResourceType.Ore:
-      return 'Ore';
-    case ResourceType.Brick:
-      return 'Brick';
-    case ResourceType.Grain:
-      return 'Grain';
     case ResourceType.Wood:
       return 'Wood';
+    case ResourceType.Brick:
+      return 'Brick';
     case ResourceType.Sheep:
       return 'Sheep';
+    case ResourceType.Grain:
+      return 'Grain';
+    case ResourceType.Ore:
+      return 'Ore';
     default:
       return '';
   }

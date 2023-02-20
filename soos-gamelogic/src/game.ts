@@ -1,6 +1,7 @@
 import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions';
 import GameMap from './game-map';
 import GamePlayer from './gameplayer';
+import { resourceToString } from './terrain-type';
 import EdgeCoords from './utils/edge-coords';
 import HexCoords, { AllHexDirections } from './utils/hex-coords';
 import VertexCoords, { AllVertexDirections } from './utils/vertex-coords';
@@ -122,6 +123,7 @@ export default class Game {
         for (const dir of AllVertexDirections){
           const town = this.map.townAt(new VertexCoords(hex.coords,dir));
           if(town && town.player){
+            console.log("giving " + town.player.index + ": " + resourceToString(hex.resourceType));
             town.player.addCard(hex.resourceType);
           }
         }

@@ -18,7 +18,7 @@ export default class GamePlayer {
   }
 
   addCard(resource?:ResourceType){
-    if(resource)
+    if(resource!==undefined)
       this.cards[resource]++;
   }
 }

@@ -40,7 +40,7 @@ export default class GameTown {
     getCoords() {
         return this.coords;
     }
-    showTown(){
+    showMe(){
         this.display= true;
     }
     resetDisplay(){

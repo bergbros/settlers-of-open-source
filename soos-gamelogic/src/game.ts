@@ -50,12 +50,16 @@ export default class Game {
     this.map = new GameMap();
     this.gamePhase = GamePhase.PlaceSettlement1;
     this.instructionText = 'Game Started! Player 1 place first settlement';
+    this.displayEmptyTowns();
   }
 
+  //this never gets called at the moment
   initializeBoard() {
+    console.log("initializing board");
     this.map.initializeBoard();
     this.claimedSettlement = false;
     this.gamePhase = GamePhase.PlaceSettlement1;
+    this.displayEmptyTowns();
   }
 
   getCurrPlayer() {
@@ -77,15 +81,15 @@ export default class Game {
   }
 
   
-
-  displayEmptyTowns(): boolean {
-    return this.isLocalPlayerTurn() && !this.claimedSettlement &&
-      (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2);
+  displayEmptyTowns() {
+    for(const town of this.map.towns)
+      town.showMe();
   }
 
-  displayEmptyRoads(): boolean {
-    return this.isLocalPlayerTurn() && 
-      (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2||this.gamePhase === GamePhase.BuildSettlement);
+  displayEmptyRoads() {
+    //do we ever want to show all empty roads? not sure we need this function
+    for(const road of this.map.roads)
+      road.showMe();
   }
 
   isLocalPlayerTurn(): boolean {
@@ -102,6 +106,8 @@ export default class Game {
         this.nextPhaseTurn();
       } else {        
         this.currPlayerIdx++;
+        this.map.resetDisplayRoads();
+        this.displayEmptyTowns();
         this.instructionText = `Player ${this.currPlayerIdx+1} place first settlement & road`;
       }
     }else if (this.gamePhase===GamePhase.PlaceSettlement2){
@@ -109,6 +115,8 @@ export default class Game {
         this.nextPhaseTurn();
       } else{
         this.currPlayerIdx--;
+        this.map.resetDisplayRoads();
+        this.displayEmptyTowns();
         this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
       }
 
@@ -131,12 +139,16 @@ export default class Game {
             town.player.addCard(hex.resourceType);
           }
         }
-      }
+      } 
 
       //later... go to Robber gamephase??      
       
       //let player build if desired/possible
       this.instructionText = `Dice roll was: ${diceRoll}\n Player ${this.currPlayerIdx+1}'s turn!`;
+    } else if(this.gamePhase===GamePhase.BuildSettlement){
+      this.gamePhase=GamePhase.MainGameplay;
+    } else if(this.gamePhase===GamePhase.BuildRoad){
+      this.gamePhase=GamePhase.MainGameplay;
     }
 
     this.forceUpdate();
@@ -166,6 +178,8 @@ export default class Game {
     if(this.gamePhase===GamePhase.PlaceSettlement1){
       this.gamePhase = GamePhase.PlaceSettlement2;
       this.currPlayerIdx = this.players.length-1;
+      this.map.resetDisplayRoads();
+      this.displayEmptyTowns();  
       this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
       return;
     } else if(this.gamePhase===GamePhase.PlaceSettlement2){
@@ -189,8 +203,16 @@ export default class Game {
         }
         break;
       case BuildOptions.Settlement:
+        this.claimedSettlement = false;
         this.gamePhase=GamePhase.BuildSettlement;
         this.map.resetDisplayRoads();
+        this.map.resetDisplayTowns();
+        for(const road of this.map.roads){
+          if(!road.player) continue;
+          if(road.player?.index!==this.currPlayerIdx) continue;
+          for (const town of this.map.getTowns(road))
+            town.showMe();
+        }        
         break;
       case BuildOptions.City:
 
@@ -206,17 +228,21 @@ export default class Game {
 
   onVertexClicked(vertex: VertexCoords) {
     if(this.claimedSettlement) return;
-    if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
-      console.log('vertex clicked: ' + vertex.toString());
-      
+
+    if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2||this.gamePhase===GamePhase.BuildSettlement) {
       const currPlayer = this.getCurrPlayer();
       const townThere = this.map.townAt(vertex);
       townThere?.claimTown(currPlayer);
       this.claimedSettlement = true;
       this.map.resetDisplayRoads();
-      this.map.updateDisplayRoads(vertex);
-      this.forceUpdate();
+      this.map.resetDisplayTowns();
+      if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2)
+        this.map.updateDisplayRoads(vertex);
+      else{
+        this.gamePhase= GamePhase.MainGameplay;
+      }
     }
+    this.forceUpdate();
   }
   
   onEdgeClicked(edge: EdgeCoords) {

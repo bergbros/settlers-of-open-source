@@ -4,7 +4,7 @@ import GameTown from './gametown';
 import { ResourceType, stringToResource, TerrainType } from './terrain-type';
 import EdgeCoords, { vertexToEdge } from './utils/edge-coords';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords';
-import VertexCoords, { AllVertexDirections, VertexDirection, vertexDirName } from './utils/vertex-coords';
+import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection, vertexDirName } from './utils/vertex-coords';
 
 const OriginalTiles = Object.freeze(['b', 'b', 'b', 'o', 'o', 'o', 'w', 'w', 'w', 'w', 'g', 'g', 'g', 'g', 's', 's', 's', 's', 'd']);
 const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]);
@@ -187,17 +187,24 @@ export default class GameMap {
     return resourcePile;
   }
 
-  resetDisplayRoads(){
-    for (let i = 0; i< this.roads.length; i++){
-      this.roads[i].resetDisplay();
-    }
+  resetDisplayTowns(){
+    for(const town of this.towns)
+      town.resetDisplay();
   }
 
+  resetDisplayRoads(){
+    for (const road of this.roads)
+      road.resetDisplay();
+  }
+  updateDisplayTowns(vertex?:VertexCoords){
+    if(!vertex)return;
+    const town = this.townAt(vertex)
+    if(town) town.display = true;
+  }
   updateDisplayRoads(vertex?:VertexCoords){
     if (!vertex) return;
     const roadArray = this.getRoads(vertex)
-    for (let i = 0; i< roadArray.length; i++){
-      const theRoad = roadArray[i];
+    for (const theRoad of roadArray){
       if(theRoad)
         theRoad.setDisplay(true);
     }
@@ -205,6 +212,16 @@ export default class GameMap {
 
   getNeighboringRoads(town:GameTown): (GameRoad|undefined)[]{
     return this.getRoads(town.getCoords());
+  }
+
+  getTowns(road:GameRoad){
+    const returnTowns:GameTown[]=[];
+    let theTown = this.townAt(new VertexCoords(road.coords.hexCoords,edgeToVertex(road.coords.direction)));
+    if(theTown) returnTowns.push(theTown);
+    theTown = this.townAt(new VertexCoords(road.coords.hexCoords,edgeToVertex(road.coords.direction+1)));
+    if(theTown) returnTowns.push(theTown);
+    console.log(returnTowns);
+    return returnTowns;
   }
 
   getRoads(vertex:VertexCoords|undefined): (GameRoad|undefined)[]{

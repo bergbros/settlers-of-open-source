@@ -1,4 +1,4 @@
-import HexCoords from './hex-coords';
+import HexCoords, { HexDirection } from './hex-coords';
 
 export enum VertexDirection {
   // in clockwise order
@@ -107,4 +107,16 @@ export default class VertexCoords {
   }
 
   
+}
+
+export function edgeToVertex(direction:HexDirection): VertexDirection{
+  const myvert = VertexDirection.N;
+  switch(direction){
+    case HexDirection.NE: return VertexDirection.N;
+    case HexDirection.E: return VertexDirection.NE;
+    case HexDirection.SE: return VertexDirection.SE;
+    case HexDirection.SW: return VertexDirection.S;
+    case HexDirection.W: return VertexDirection.SW;
+    case HexDirection.NW: return VertexDirection.NW;
+  }
 }

@@ -5,11 +5,13 @@ export default class GameTown {
     coords: VertexCoords;
     player?: Player;
     townLevel: number;
+    display:boolean;
 
     constructor(coords: VertexCoords) {
         this.coords = coords;
         this.player = undefined;
         this.townLevel = 0;
+        this.display = false;
     }
 
     claimTown(player: Player) {
@@ -37,5 +39,11 @@ export default class GameTown {
 
     getCoords() {
         return this.coords;
+    }
+    showTown(){
+        this.display= true;
+    }
+    resetDisplay(){
+        this.display = this.player!==undefined;
     }
 }

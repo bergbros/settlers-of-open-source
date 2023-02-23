@@ -34,6 +34,7 @@ $p0-color: red;
   padding-left:20px;
 }
 .PlayerList{
+  margin:8px;
   display:inline;
 }
 
@@ -50,8 +51,9 @@ $p0-color: red;
   width:45%
 }
 .ActionButton{
-  float:right;
-  width:45%
+  float:left;
+  width:47%;
+  margin:5px;
 }
 
 .Board {

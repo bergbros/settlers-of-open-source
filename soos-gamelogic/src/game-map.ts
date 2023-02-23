@@ -187,13 +187,14 @@ export default class GameMap {
     return resourcePile;
   }
 
-  updateDisplayRoads(vertex?:VertexCoords){
+  resetDisplayRoads(){
     for (let i = 0; i< this.roads.length; i++){
       this.roads[i].resetDisplay();
     }
+  }
 
+  updateDisplayRoads(vertex?:VertexCoords){
     if (!vertex) return;
-
     const roadArray = this.getRoads(vertex)
     for (let i = 0; i< roadArray.length; i++){
       const theRoad = roadArray[i];

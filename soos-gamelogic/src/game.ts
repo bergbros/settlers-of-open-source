@@ -1,10 +1,10 @@
 import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions';
 import GameMap from './game-map';
 import GamePlayer from './gameplayer';
-import { resourceToString } from './terrain-type';
+import { AllResourceTypes, resourceToString } from './terrain-type';
 import EdgeCoords from './utils/edge-coords';
 import HexCoords, { AllHexDirections } from './utils/hex-coords';
-import VertexCoords, { AllVertexDirections } from './utils/vertex-coords';
+import VertexCoords, { AllVertexDirections, edgeToVertex } from './utils/vertex-coords';
 
 // phases requiring input
 export enum GamePhase {
@@ -12,6 +12,11 @@ export enum GamePhase {
   PlaceSettlement2,
   PlaceRobber,
   MainGameplay,
+  BuildRoad,
+  BuildSettlement,
+  BuildCity,
+  BuyDevelopmentCard,
+  TradeResources,
   GameOver,
 }
 
@@ -80,7 +85,7 @@ export default class Game {
 
   displayEmptyRoads(): boolean {
     return this.isLocalPlayerTurn() && 
-      (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2);
+      (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2||this.gamePhase === GamePhase.BuildSettlement);
   }
 
   isLocalPlayerTurn(): boolean {
@@ -89,7 +94,7 @@ export default class Game {
 
   nextPlayer(){
     this.claimedSettlement = false;
-    this.map.updateDisplayRoads();
+    this.map.resetDisplayRoads();
 
     if (this.gamePhase===GamePhase.PlaceSettlement1){
       if(this.currPlayerIdx === this.players.length-1) {
@@ -107,7 +112,7 @@ export default class Game {
         this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
       }
 
-    } else {
+    } else if (this.gamePhase === GamePhase.MainGameplay){
       // check for win conditions!
       if(this.currPlayerIdx === this.players.length-1) 
         this.currPlayerIdx = 0;
@@ -123,7 +128,6 @@ export default class Game {
         for (const dir of AllVertexDirections){
           const town = this.map.townAt(new VertexCoords(hex.coords,dir));
           if(town && town.player){
-            console.log("giving " + town.player.index + ": " + resourceToString(hex.resourceType));
             town.player.addCard(hex.resourceType);
           }
         }
@@ -139,7 +143,23 @@ export default class Game {
   }
 
   actionViable(action:BuildOptions):boolean{
-    return false;
+      //negative cost indicates any one resource less than requirement is an option
+      //TODO: implement ports eventually...
+    let defaultReturnValue = true;
+    for (const resource of AllResourceTypes){
+      
+      if(AllBuildCosts[action][resource]<0){
+        defaultReturnValue = false;
+        if(this.players[this.currPlayerIdx].cards[resource]>=-1*AllBuildCosts[action][resource]){
+          return true;
+        }
+      } else {
+        if(this.players[this.currPlayerIdx].cards[resource]<AllBuildCosts[action][resource]){
+          return false;
+        }
+      }
+    }
+    return defaultReturnValue;
   }
 
   nextPhaseTurn(){
@@ -157,7 +177,31 @@ export default class Game {
   }
 
   executeAction(action:BuildOptions){
+    switch(action){
+      case BuildOptions.Road:
+        this.gamePhase=GamePhase.BuildRoad;
+        this.map.resetDisplayRoads();
+        for(const road of this.map.roads){
+          if(!road.player) continue;
+          if(road.player?.index!==this.currPlayerIdx) continue;
+          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
+          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction+1)));
+        }
+        break;
+      case BuildOptions.Settlement:
+        this.gamePhase=GamePhase.BuildSettlement;
+        this.map.resetDisplayRoads();
+        break;
+      case BuildOptions.City:
 
+        break;
+      case BuildOptions.Development:
+    
+        break;
+      case BuildOptions.Trade:
+        break;
+    }
+    this.forceUpdate();
   }
 
   onVertexClicked(vertex: VertexCoords) {
@@ -169,23 +213,24 @@ export default class Game {
       const townThere = this.map.townAt(vertex);
       townThere?.claimTown(currPlayer);
       this.claimedSettlement = true;
+      this.map.resetDisplayRoads();
       this.map.updateDisplayRoads(vertex);
       this.forceUpdate();
     }
   }
   
   onEdgeClicked(edge: EdgeCoords) {
-    if(!this.claimedSettlement) return;
-    if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
-      console.log('edge clicked: ' + edge.toString());
-      const currPlayer = this.getCurrPlayer();
-      const roadThere = this.map.roadAt(edge);
-      roadThere?.claimRoad(currPlayer);
-      console.log("claimed road");
-      this.nextPlayer();
-      console.log("passed to next player");
-      this.forceUpdate();
-    }
+    
+    if(!this.claimedSettlement && (this.gamePhase === GamePhase.PlaceSettlement1||this.gamePhase === GamePhase.PlaceSettlement2) ) return;
+    if(this.gamePhase!==GamePhase.BuildRoad && this.gamePhase !== GamePhase.PlaceSettlement1 && this.gamePhase !== GamePhase.PlaceSettlement2) return;
+    
+    //console.log('edge clicked: ' + edge.toString());
+    const currPlayer = this.getCurrPlayer();
+    const roadThere = this.map.roadAt(edge);
+    roadThere?.claimRoad(currPlayer);
+    this.nextPlayer();
+    this.forceUpdate();
+    
   }
   
   onHexClicked(hex: HexCoords) {

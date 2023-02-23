@@ -32,7 +32,7 @@ export function App() {
           gameHex={gameHex}
           onClick={(hexCoords) => game.onHexClicked(hexCoords)}
           key={`h:${gameHex.coords.x},${gameHex.coords.y}`}
-        />,
+        />
       );
     }
   }
@@ -40,7 +40,7 @@ export function App() {
   for (const town of game.map.towns) {
     const townCoords = town.coords;
     
-    if (town.isUnclaimed() && !game.displayEmptyTowns())
+    if (!town.display)
       continue;
 
     towns.push(
@@ -48,7 +48,7 @@ export function App() {
         gameTown={town}
         onClick={(vertexCoords) => game.onVertexClicked(vertexCoords)}
         key={`t:${townCoords.hexCoords.x},${townCoords.hexCoords.y},${townCoords.direction}`}
-      />,
+      />
     );
   }
 
@@ -63,7 +63,7 @@ export function App() {
         gameRoad={road}
         onClick={(edgeCoords) => game.onEdgeClicked(edgeCoords)}
         key={`r:${roadCoords.hexCoords.x},${roadCoords.hexCoords.y},${roadCoords.direction}`}
-      />,
+      />
     );
   }
 
@@ -78,14 +78,15 @@ export function App() {
         className= "ActionButton" 
         disabled = {!game.actionViable(option)}>
           {actionToString(option)}
-      </button>)
+      </button>);
   }
 
 
   return (
     <div className="App">
+      <div>{game.instructionText}
+        </div>
       <div className="App HeaderInfo">
-        {game.instructionText}
         {actions}
       </div>
       <button 

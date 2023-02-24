@@ -218,7 +218,8 @@ export default class GameMap {
     const returnTowns:GameTown[]=[];
     let theTown = this.townAt(new VertexCoords(road.coords.hexCoords,edgeToVertex(road.coords.direction)));
     if(theTown) returnTowns.push(theTown);
-    theTown = this.townAt(new VertexCoords(road.coords.hexCoords,edgeToVertex(road.coords.direction+1)));
+
+    theTown = this.townAt(new VertexCoords(road.coords.hexCoords,edgeToVertex((road.coords.direction+1)%6)));
     if(theTown) returnTowns.push(theTown);
     console.log(returnTowns);
     return returnTowns;

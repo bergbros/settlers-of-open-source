@@ -12,9 +12,9 @@ export default function Town(props: TownProps) {
   const { x, y } = vertexCoordsToPixels(gameTown.coords);
 
   const playerClass = gameTown.isUnclaimed() ? '' : 'p' + gameTown.player?.index;
-
+  const highlighted = gameTown.highlighted? 'highlight': '';
   return (
-    <div className={'Town ' + playerClass}
+    <div className={'Town ' + playerClass + ' ' + highlighted}
       key={`t:${gameTown.coords.hexCoords.x},${gameTown.coords.hexCoords.y},${gameTown.coords.direction}`}
       style={{
         left: x + 'px',

@@ -19,7 +19,7 @@ export const AllBuildCosts = Object.freeze([
     [1,1,1,1,0], //settlement
     [0,0,0,3,2], //city
     [0,0,1,1,1], //development
-    [-4,-4,-4,-4]
+    [-4,-4,-4,-4,-4]
 ]);
 
 export function actionToString(action:BuildOptions):string{

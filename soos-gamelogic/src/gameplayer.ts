@@ -21,4 +21,13 @@ export default class GamePlayer {
     if(resource!==undefined)
       this.cards[resource]++;
   }
+  spend(action:number[]){
+//    console.log("spending");
+//    console.log(action);
+    for (let i = 0; i<action.length; i++){
+      if (i>=this.cards.length) return;
+      this.cards[i] = this.cards[i]-action[i];
+      if (this.cards[i]<0) throw new Error("Negative resources!");
+    }
+  }
 }

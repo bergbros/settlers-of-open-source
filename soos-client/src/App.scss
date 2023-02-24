@@ -46,6 +46,7 @@ $p0-color: red;
   background-color: rgb(38, 145, 252) !important;
 }
 
+
 .NextTurnButton{
   float:right;
   width:45%
@@ -160,6 +161,10 @@ $p0-color: red;
   stroke: solid gray;
   stroke-dasharray: 8, 8.5;
   stroke-width: 3;
+}
+
+.highlight{
+  border: 2px solid yellow;
 }
 
 .Road {

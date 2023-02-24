@@ -6,12 +6,13 @@ export default class GameTown {
     player?: Player;
     townLevel: number;
     display:boolean;
-
+    highlighted:boolean;
     constructor(coords: VertexCoords) {
         this.coords = coords;
         this.player = undefined;
         this.townLevel = 0;
         this.display = false;
+        this.highlighted = false;
     }
 
     claimTown(player: Player) {
@@ -45,5 +46,9 @@ export default class GameTown {
     }
     resetDisplay(){
         this.display = this.player!==undefined;
+        this.highlighted = false;
+    }
+    highlightMe(){
+        this.highlighted = true;
     }
 }

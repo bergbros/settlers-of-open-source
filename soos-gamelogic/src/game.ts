@@ -42,7 +42,8 @@ export default class Game {
   currPlayerIdx: number;
   map: GameMap;
   instructionText: string;
-  claimedSettlement:boolean;
+  claimedSettlement: boolean; //only applicable during gamephase.placeSettlement 1&2, if false player is placing settlement, if true they are placing a road.
+
   constructor() {
     this.claimedSettlement = false;
     this.players = [new GamePlayer(0, 'Player 1'), new GamePlayer(1, 'Player 2')];
@@ -80,15 +81,15 @@ export default class Game {
     }
   }
 
-  
+
   displayEmptyTowns() {
-    for(const town of this.map.towns)
+    for (const town of this.map.towns)
       town.showMe();
   }
 
   displayEmptyRoads() {
     //do we ever want to show all empty roads? not sure we need this function
-    for(const road of this.map.roads)
+    for (const road of this.map.roads)
       road.showMe();
   }
 
@@ -96,77 +97,87 @@ export default class Game {
     return true;
   }
 
-  nextPlayer(){
+  nextPlayer() {
     this.claimedSettlement = false;
     this.map.resetDisplayRoads();
 
-    if (this.gamePhase===GamePhase.PlaceSettlement1){
-      if(this.currPlayerIdx === this.players.length-1) {
+    if (this.gamePhase === GamePhase.PlaceSettlement1) {
+      if (this.currPlayerIdx === this.players.length - 1) {
         console.log("next PhaseTurn!")
         this.nextPhaseTurn();
-      } else {        
+      } else {
         this.currPlayerIdx++;
         this.map.resetDisplayRoads();
         this.displayEmptyTowns();
-        this.instructionText = `Player ${this.currPlayerIdx+1} place first settlement & road`;
+        this.instructionText = `Player ${this.currPlayerIdx + 1} place first settlement & road`;
       }
-    }else if (this.gamePhase===GamePhase.PlaceSettlement2){
-      if(this.currPlayerIdx === 0) {
+    } else if (this.gamePhase === GamePhase.PlaceSettlement2) {
+      if (this.currPlayerIdx === 0) {
         this.nextPhaseTurn();
-      } else{
+      } else {
         this.currPlayerIdx--;
         this.map.resetDisplayRoads();
         this.displayEmptyTowns();
-        this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
+        this.instructionText = `Player ${this.currPlayerIdx + 1} place second settlement & road`;
       }
 
-    } else if (this.gamePhase === GamePhase.MainGameplay){
-      // check for win conditions!
-      if(this.currPlayerIdx === this.players.length-1) 
-        this.currPlayerIdx = 0;
-      else
-        this.currPlayerIdx++;
-
-      //roll dice
-      const diceRoll = Math.floor(Math.random() * 6)+1 + Math.floor(Math.random() * 6)+1;
-
-      //distribute resources
-      const hexes = this.map.getFrequency(diceRoll);
-      for(const hex of hexes){
-        for (const dir of AllVertexDirections){
-          const town = this.map.townAt(new VertexCoords(hex.coords,dir));
-          if(town && town.player){
-            town.player.addCard(hex.resourceType);
-          }
-        }
-      } 
-
-      //later... go to Robber gamephase??      
-      
-      //let player build if desired/possible
-      this.instructionText = `Dice roll was: ${diceRoll}\n Player ${this.currPlayerIdx+1}'s turn!`;
-    } else if(this.gamePhase===GamePhase.BuildSettlement){
-      this.gamePhase=GamePhase.MainGameplay;
-    } else if(this.gamePhase===GamePhase.BuildRoad){
-      this.gamePhase=GamePhase.MainGameplay;
+    } else if (this.gamePhase === GamePhase.MainGameplay) {
+      this.nextPlayerMainGameplay();
+    } else if (this.gamePhase === GamePhase.BuildSettlement) {
+      this.gamePhase = GamePhase.MainGameplay;
+    } else if (this.gamePhase === GamePhase.BuildRoad) {
+      this.gamePhase = GamePhase.MainGameplay;
     }
 
     this.forceUpdate();
   }
 
-  actionViable(action:BuildOptions):boolean{
-      //negative cost indicates any one resource less than requirement is an option
-      //TODO: implement ports eventually...
+
+
+  nextPlayerMainGameplay() {
+    // check for win conditions!
+
+    //next player
+    if (this.currPlayerIdx === this.players.length - 1)
+      this.currPlayerIdx = 0;
+    else
+      this.currPlayerIdx++;
+
+    //roll dice
+    const diceRoll = Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1;
+
+    //distribute resources
+    const hexes = this.map.getFrequency(diceRoll);
+    for (const hex of hexes) {
+      for (const dir of AllVertexDirections) {
+        const town = this.map.townAt(new VertexCoords(hex.coords, dir));
+        if (town && town.player) {
+          town.player.addCard(hex.resourceType);
+        }
+      }
+    }
+
+    //later... go to Robber gamephase??      
+
+    //let player build if desired/possible
+    this.instructionText = `Dice roll was: ${diceRoll}\n Player ${this.currPlayerIdx + 1}'s turn!`;
+  }
+
+
+
+  actionViable(action: BuildOptions): boolean {
+    //negative cost indicates any one resource less than requirement is an option
+    //TODO: implement ports eventually...
     let defaultReturnValue = true;
-    for (const resource of AllResourceTypes){
-      
-      if(AllBuildCosts[action][resource]<0){
+    for (const resource of AllResourceTypes) {
+
+      if (AllBuildCosts[action][resource] < 0) {
         defaultReturnValue = false;
-        if(this.players[this.currPlayerIdx].cards[resource]>=-1*AllBuildCosts[action][resource]){
+        if (this.players[this.currPlayerIdx].cards[resource] >= -1 * AllBuildCosts[action][resource]) {
           return true;
         }
       } else {
-        if(this.players[this.currPlayerIdx].cards[resource]<AllBuildCosts[action][resource]){
+        if (this.players[this.currPlayerIdx].cards[resource] < AllBuildCosts[action][resource]) {
           return false;
         }
       }
@@ -174,51 +185,63 @@ export default class Game {
     return defaultReturnValue;
   }
 
-  nextPhaseTurn(){
-    if(this.gamePhase===GamePhase.PlaceSettlement1){
+  nextPhaseTurn() {
+    if (this.gamePhase === GamePhase.PlaceSettlement1) {
       this.gamePhase = GamePhase.PlaceSettlement2;
-      this.currPlayerIdx = this.players.length-1;
+      this.currPlayerIdx = this.players.length - 1;
       this.map.resetDisplayRoads();
-      this.displayEmptyTowns();  
-      this.instructionText = `Player ${this.currPlayerIdx+1} place second settlement & road`;
+      this.displayEmptyTowns();
+      this.instructionText = `Player ${this.currPlayerIdx + 1} place second settlement & road`;
       return;
-    } else if(this.gamePhase===GamePhase.PlaceSettlement2){
+
+    } else if (this.gamePhase === GamePhase.PlaceSettlement2) {
       this.gamePhase = GamePhase.MainGameplay;
       this.currPlayerIdx = -1;
       this.nextPlayer();
     }
- 
+
   }
 
-  executeAction(action:BuildOptions){
-    switch(action){
+  executeAction(action: BuildOptions) {
+    switch (action) {
       case BuildOptions.Road:
-        this.gamePhase=GamePhase.BuildRoad;
+        this.gamePhase = GamePhase.BuildRoad;
         this.map.resetDisplayRoads();
-        for(const road of this.map.roads){
-          if(!road.player) continue;
-          if(road.player?.index!==this.currPlayerIdx) continue;
+        for (const road of this.map.roads) {
+          if (!road.player) 
+            continue;
+          if (road.player?.index !== this.currPlayerIdx) 
+            continue;
           this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
-          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction+1)));
+          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex((road.coords.direction + 1) % 6)));
         }
         break;
       case BuildOptions.Settlement:
         this.claimedSettlement = false;
-        this.gamePhase=GamePhase.BuildSettlement;
+        this.gamePhase = GamePhase.BuildSettlement;
         this.map.resetDisplayRoads();
         this.map.resetDisplayTowns();
-        for(const road of this.map.roads){
-          if(!road.player) continue;
-          if(road.player?.index!==this.currPlayerIdx) continue;
+        for (const road of this.map.roads) {
+          if (!road.player) 
+            continue;
+          if (road.player?.index !== this.currPlayerIdx) 
+            continue;
           for (const town of this.map.getTowns(road))
             town.showMe();
-        }        
+        }
         break;
       case BuildOptions.City:
-
+        for (const town of this.map.towns) {
+          if (town.isUnclaimed()) 
+            continue;
+          if (town.player === this.players[this.currPlayerIdx])
+            town.highlightMe();
+        }
+        this.claimedSettlement = false;
+        this.gamePhase = GamePhase.BuildCity;
         break;
       case BuildOptions.Development:
-    
+
         break;
       case BuildOptions.Trade:
         break;
@@ -227,40 +250,51 @@ export default class Game {
   }
 
   onVertexClicked(vertex: VertexCoords) {
-    if(this.claimedSettlement) return;
+    if (this.claimedSettlement) 
+      return;
+    const currPlayer = this.getCurrPlayer();
+    const townThere = this.map.townAt(vertex);
 
-    if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2||this.gamePhase===GamePhase.BuildSettlement) {
-      const currPlayer = this.getCurrPlayer();
-      const townThere = this.map.townAt(vertex);
+    if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2 || this.gamePhase === GamePhase.BuildSettlement) {
       townThere?.claimTown(currPlayer);
-      this.claimedSettlement = true;
       this.map.resetDisplayRoads();
       this.map.resetDisplayTowns();
-      if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2)
+      if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
+        this.claimedSettlement = true;
         this.map.updateDisplayRoads(vertex);
-      else{
-        this.gamePhase= GamePhase.MainGameplay;
+      } else {
+        currPlayer.spend(AllBuildCosts[BuildOptions.Settlement]);
+        this.gamePhase = GamePhase.MainGameplay;
+      }
+    } else if (this.gamePhase === GamePhase.BuildCity) {
+      if (townThere) {
+        if (townThere.highlighted) {
+          townThere.upgradeCity();
+          this.gamePhase = GamePhase.MainGameplay;
+          currPlayer.spend(AllBuildCosts[BuildOptions.City]);
+        }
       }
     }
     this.forceUpdate();
   }
-  
+
   onEdgeClicked(edge: EdgeCoords) {
-    
-    if(!this.claimedSettlement && (this.gamePhase === GamePhase.PlaceSettlement1||this.gamePhase === GamePhase.PlaceSettlement2) ) return;
-    if(this.gamePhase!==GamePhase.BuildRoad && this.gamePhase !== GamePhase.PlaceSettlement1 && this.gamePhase !== GamePhase.PlaceSettlement2) return;
-    
+    if (!this.claimedSettlement && (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2)) 
+      return;
+    if (this.gamePhase !== GamePhase.BuildRoad && this.gamePhase !== GamePhase.PlaceSettlement1 && this.gamePhase !== GamePhase.PlaceSettlement2) 
+      return;
+
     //console.log('edge clicked: ' + edge.toString());
     const currPlayer = this.getCurrPlayer();
     const roadThere = this.map.roadAt(edge);
     roadThere?.claimRoad(currPlayer);
+    if (this.gamePhase == GamePhase.BuildRoad) currPlayer.spend(AllBuildCosts[BuildOptions.Road]);
     this.nextPlayer();
     this.forceUpdate();
-    
   }
-  
-  onHexClicked(hex: HexCoords) {
 
+  onHexClicked(hex: HexCoords) {
+    //useful for when we place the robber!
   }
 
 }

@@ -13,7 +13,7 @@ export default function Road(props: RoadProps) {
   const { x, y } = edgeCoordsToPixels(gameRoad.coords);
 
   let playerClass = '';
-  if(gameRoad.showMe()){
+  if(gameRoad.showMe() && gameRoad.player){
     playerClass = 'p' + gameRoad.player?.index;
   }
 

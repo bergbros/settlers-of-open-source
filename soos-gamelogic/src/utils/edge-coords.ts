@@ -7,7 +7,6 @@ const EdgeDirectionsNeedNormalize = Object.freeze([
   HexDirection.E,
   HexDirection.SE,
   HexDirection.SW,
-  HexDirection.NE,
 ])
 
 export function edgeDirName(dir: HexDirection): string {
@@ -44,6 +43,7 @@ export default class EdgeCoords {
   constructor(coords: HexCoords, direction: HexDirection) {
     this.hexCoords = coords;
     this.direction = direction;
+    this.normalize();
   }
 
   normalize() {

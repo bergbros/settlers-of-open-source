@@ -25,8 +25,6 @@ type Action = () => void;
 export default class Game {
   forceUpdate: Action = () => { };
 
-  // map
-  // players
   // aggregate view of the board
   // Robber
   // longest road, largest army, metropolises
@@ -34,7 +32,6 @@ export default class Game {
   // Pieces - roads, settlements etc. Each piece has a ownerIdx pointing to player
 
   // allPlayerPieces: Map<HexCoords, Piece>
-  // refreshObjects()
 
   players: GamePlayer[];
 
@@ -152,7 +149,7 @@ export default class Game {
       for (const dir of AllVertexDirections) {
         const town = this.map.townAt(new VertexCoords(hex.coords, dir));
         if (town && town.player) {
-          town.player.addCard(hex.resourceType);
+          town.player.addCard(hex.resourceType, town.townLevel);
         }
       }
     }
@@ -272,6 +269,7 @@ export default class Game {
           townThere.upgradeCity();
           this.gamePhase = GamePhase.MainGameplay;
           currPlayer.spend(AllBuildCosts[BuildOptions.City]);
+          this.map.resetDisplayTowns();
         }
       }
     }

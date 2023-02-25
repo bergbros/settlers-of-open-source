@@ -25,7 +25,8 @@ export function hexCoordsToPixels(hexCoords: HexCoords): PixelCoords {
   }
 }
 
-export function vertexCoordsToPixels(vertexCoords: VertexCoords): PixelCoords {
+export function vertexCoordsToPixels(vertexCoords: VertexCoords, townRadius?:number): PixelCoords {
+  let settlementRadius = townRadius? townRadius :10;
   //console.log("translating " + vertexCoords.coords.x + "," + vertexCoords.coords.y);
   let hexCoords = vertexCoords.hexCoords;
   let xCoord = hexCoords.x * HexWidth;
@@ -59,9 +60,8 @@ export function vertexCoordsToPixels(vertexCoords: VertexCoords): PixelCoords {
       break;
   }
 
-  const settlementRadius = 10;
   xCoord -= settlementRadius;
-  yCoord -= settlementRadius;
+  yCoord -= settlementRadius*1.2;
 
   return {
     x: xCoord,

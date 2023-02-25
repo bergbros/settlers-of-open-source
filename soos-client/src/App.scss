@@ -161,10 +161,31 @@ $p0-color: red;
   stroke: solid gray;
   stroke-dasharray: 8, 8.5;
   stroke-width: 3;
+  &.settlement{
+    width: 18px;
+    height: 18px;
+    border: 0;
+      border-radius:0;
+    clip-path: polygon(0% 50%, 0% 100%, 100% 100%, 100% 50%, 50% 0%);
+  }
+  &.city{
+    width: 22px;
+    height: 22px;
+    border: 0;
+    border-radius:0;
+    clip-path: polygon(0% 25%, 0% 100%, 100% 100%, 100% 50%, 50% 50%, 50% 25%, 25% 0%);
+  }
+  &.suburb{
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius:0;
+    clip-path: polygon(0% 25%, 0% 100%, 100% 100%, 100% 50%, 75% 25%, 50% 50%, 50% 25%, 25% 0%);
+  }
 }
 
 .highlight{
-  border: 2px solid yellow;
+  border: 3px solid yellow !important;
 }
 
 .Road {

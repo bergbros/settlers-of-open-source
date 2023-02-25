@@ -17,9 +17,10 @@ export default class GamePlayer {
     this.victoryPoints = 0;
   }
 
-  addCard(resource?:ResourceType){
+  addCard(resource?:ResourceType, count?:number){
+    const cardCount = count? count : 1;
     if(resource!==undefined)
-      this.cards[resource]++;
+      this.cards[resource]+=cardCount;
   }
   spend(action:number[]){
 //    console.log("spending");

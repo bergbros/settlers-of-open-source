@@ -18,6 +18,6 @@
     "composite": true,
     "outDir": "built"
   },
-  "include": ["src"],
+  "include": ["src", "src/Robber.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

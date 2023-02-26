@@ -26,12 +26,13 @@ export default class GameMap {
   towns: GameTown[];
   roads: GameRoad[];
   displayRoads:GameRoad[];
-
+  robberLocation:HexCoords;
   constructor() {
     this.board = [];
     this.towns = [];
     this.roads = [];
     this.displayRoads = [];
+    this.robberLocation = new HexCoords(0,0);
     this.initializeBoard();
   }
 
@@ -83,7 +84,8 @@ export default class GameMap {
           }
         }
         const newHex = new GameHex(new HexCoords(x, y), hexTerrain, hexResource, hexFrequency);
-
+        if(hexResource===ResourceType.None)
+          this.robberLocation=newHex.coords;
         hexRow.push(newHex);
       }
       this.board.push(hexRow);

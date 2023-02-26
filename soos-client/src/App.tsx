@@ -7,6 +7,7 @@ import './App.scss';
 import Hex from './Hex';
 import Player from './Player';
 import Road from './Road';
+import Robber from './Robber';
 import Town from './Town';
 
 export function App() {
@@ -23,6 +24,7 @@ export function App() {
   const roads = [];
   const players = [];
   const actions = [];
+  const robber = [];
 
   for (let i = 0; i < game.map.board.length; i++) {
     for (let k = 0; k < game.map.board[i].length; k++) {
@@ -81,6 +83,10 @@ export function App() {
       </button>);
   }
 
+  robber.push(
+    <Robber 
+      location = {game.map.robberLocation}></Robber>
+    );
 
   return (
     <div className="App">
@@ -99,6 +105,7 @@ export function App() {
         {hexes}
         {towns}
         {roads}
+        {robber}
       </div>
     </div>
   );

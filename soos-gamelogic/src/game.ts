@@ -40,12 +40,14 @@ export default class Game {
   map: GameMap;
   instructionText: string;
   claimedSettlement: boolean; //only applicable during gamephase.placeSettlement 1&2, if false player is placing settlement, if true they are placing a road.
+  robberLocation:HexCoords;
 
   constructor() {
     this.claimedSettlement = false;
     this.players = [new GamePlayer(0, 'Player 1'), new GamePlayer(1, 'Player 2')];
     this.currPlayerIdx = 0;
     this.map = new GameMap();
+    this.robberLocation = this.map.robberLocation;
     this.gamePhase = GamePhase.PlaceSettlement1;
     this.instructionText = 'Game Started! Player 1 place first settlement';
     this.displayEmptyTowns();

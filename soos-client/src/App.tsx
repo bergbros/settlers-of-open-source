@@ -13,11 +13,6 @@ import Town from './Town';
 export function App() {
   const [game, setGame] = useState<Game>(new Game());
 
-  // Set up force update function
-  const [count, setCount] = useState<number>(0);
-  game.forceUpdate = () => {
-    setCount(count + 1);
-  };
 
   const hexes = [];
   const towns = [];
@@ -33,6 +28,7 @@ export function App() {
         <Hex
           gameHex={gameHex}
           onClick={(hexCoords) => game.onHexClicked(hexCoords)}
+          placeRobber = {game.gamePhase===GamePhase.PlaceRobber}
           key={`h:${gameHex.coords.x},${gameHex.coords.y}`}
         />
       );
@@ -82,11 +78,16 @@ export function App() {
           {actionToString(option)}
       </button>);
   }
-
+  let theRobber = <Robber game={game}></Robber>;
   robber.push(
-    <Robber 
-      location = {game.map.robberLocation}></Robber>
+    theRobber
     );
+
+  // Set up force update function
+  const [count, setCount] = useState<number>(0);
+  game.forceUpdate = () => {
+    setCount(count + 1);
+  };
 
   return (
     <div className="App">

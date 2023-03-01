@@ -59,7 +59,7 @@ export default class VertexCoords {
 
   constructor(coords: HexCoords, direction: VertexDirection) {
     this.hexCoords = coords;
-    this.direction = direction;
+    this.direction = direction%6;
 
     this.normalize();
   }

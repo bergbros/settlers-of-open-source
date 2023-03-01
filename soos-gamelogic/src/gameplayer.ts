@@ -1,4 +1,4 @@
-import { ResourceType } from './terrain-type';
+import { AllResourceTypes, resourceToString, ResourceType } from './terrain-type';
 import VertexCoords from './utils/vertex-coords';
 
 export default class GamePlayer {
@@ -31,4 +31,22 @@ export default class GamePlayer {
       if (this.cards[i]<0) throw new Error("Negative resources!");
     }
   }
+
+  currentResources():ResourceType[]{
+    const resList:ResourceType[]= [];
+    for(const allRes of AllResourceTypes)
+      resList.push(AllResourceTypes[allRes]);
+
+    for(const res of resList){
+      if(this.cards[res]===0){
+        resList.splice(res,1);
+      }
+    }
+    return resList;
+  }
+  lose(res:ResourceType){
+    if(this.cards[res]<1) throw new Error("Player " + this.index + 1 + " cannot lose resource " + resourceToString(res));
+    this.cards[res]--;
+  }
+  
 }

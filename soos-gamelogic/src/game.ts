@@ -1,7 +1,7 @@
 import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions';
 import GameMap from './game-map';
 import GamePlayer from './gameplayer';
-import { AllResourceTypes, resourceToString } from './terrain-type';
+import { AllResourceTypes, resourceToString, ResourceType } from './terrain-type';
 import EdgeCoords from './utils/edge-coords';
 import HexCoords, { AllHexDirections } from './utils/hex-coords';
 import VertexCoords, { AllVertexDirections, edgeToVertex } from './utils/vertex-coords';
@@ -156,10 +156,26 @@ export default class Game {
       }
     }
 
-    //later... go to Robber gamephase??      
+    //go to Robber gamephase!      
+    if(diceRoll===7){
+      this.gamePhase=GamePhase.PlaceRobber;
+      
+      for(const plyr of this.players){
+        for(const res of AllResourceTypes){
+          if(plyr.cards[res]>3){
+            console.log(`Player ${plyr.index + 1} lost ${resourceToString(res)}`)
+            plyr.cards[res]=3;
+          }
+        }
+      }
 
-    //let player build if desired/possible
-    this.instructionText = `Dice roll was: ${diceRoll}\n Player ${this.currPlayerIdx + 1}'s turn!`;
+      this.instructionText = `Dice roll was: ${diceRoll} - Player ${this.currPlayerIdx + 1} place the Robber!`;
+    }
+    else {
+      //let player build if desired/possible
+      this.instructionText = `Dice roll was: ${diceRoll}\n Player ${this.currPlayerIdx + 1}'s turn!`;
+    }
+    this.forceUpdate();
   }
 
 
@@ -293,8 +309,46 @@ export default class Game {
     this.forceUpdate();
   }
 
-  onHexClicked(hex: HexCoords) {
+  onHexClicked(coords: HexCoords) {
     //useful for when we place the robber!
+    if(this.gamePhase===GamePhase.PlaceRobber){
+      const clickedHex = this.map.getHex(coords);
+      if(clickedHex?.resourceType!==undefined && clickedHex.resourceType!==ResourceType.None){
+        this.robberLocation= coords;
+        //steal a resource from a random player:
+        let robbedPlayer:(GamePlayer|undefined) = undefined;
+        let dir:number = Math.floor(Math.random() * 6);
+        let origDir =dir;
+        
+        do {
+          robbedPlayer = this.map.townAt(new VertexCoords(coords,dir))?.player;
+          if (robbedPlayer === this.players[this.currPlayerIdx]) 
+            robbedPlayer=undefined;
+
+          dir++;
+        } while (robbedPlayer===undefined && dir<origDir+6)
+        if(robbedPlayer){
+          const availableResources = robbedPlayer.currentResources();
+          const stolenResource = Math.floor(Math.random() * availableResources.length);
+          robbedPlayer.lose(availableResources[stolenResource]);
+          this.players[this.currPlayerIdx].addCard(availableResources[stolenResource]);
+          this.instructionText = 
+            `Player ${this.currPlayerIdx + 1} stole ${resourceToString(availableResources[stolenResource])} from Player ${robbedPlayer.index + 1} ---
+            Player ${this.currPlayerIdx + 1}'s turn!`;
+          
+          } else {
+            this.instructionText = 
+            `Player ${this.currPlayerIdx + 1} placed the robber ---
+            Player ${this.currPlayerIdx + 1}'s turn!`;
+          
+
+          }
+        this.gamePhase = GamePhase.MainGameplay;
+        this.map.resetDisplayRoads();
+        this.map.resetDisplayTowns();
+        this.forceUpdate();
+      }
+    }
   }
 
 }

@@ -223,7 +223,17 @@ export default class GameMap {
 
     theTown = this.townAt(new VertexCoords(road.coords.hexCoords,edgeToVertex((road.coords.direction+1)%6)));
     if(theTown) returnTowns.push(theTown);
-    console.log(returnTowns);
+    
+    return returnTowns;
+  }
+
+  getTownsAt(hex:HexCoords){
+    const returnTowns:GameTown[]=[];
+    for(const dir of AllVertexDirections){
+      let theTown = this.townAt(new VertexCoords(hex,dir));
+      if (theTown)
+        returnTowns.push(theTown);
+    }
     return returnTowns;
   }
 

@@ -29,17 +29,19 @@ function getTerrainClass(terrainType: TerrainType, resourceType?: ResourceType):
 export type HexProps = {
   gameHex: GameHex;
   onClick: (hexCoords: HexCoords) => void;
+  placeRobber: boolean;
 };
 
 export default function Hex(props: HexProps) {
-  const { gameHex, onClick } = props;
+  const { gameHex, onClick, placeRobber} = props;
 
   const terrainClass = getTerrainClass(gameHex.terrainType, gameHex.resourceType);
 
   const { x, y } = hexCoordsToPixels(gameHex.coords);
 
+  const highlightedHex = placeRobber && gameHex.resourceType!==undefined && gameHex.resourceType!==ResourceType.None? " highlight":"";
   const tileNumber = gameHex.frequency
-    ? (<div className="tileNumber">{gameHex.frequency}</div>)
+    ? (<div className={ "tileNumber" + highlightedHex } >{gameHex.frequency}</div>)
     : null;
 
   const coordsLabel = showAllCoords ? (<div className='tileCoords'>{gameHex.coords.x},{gameHex.coords.y}</div>) : null;

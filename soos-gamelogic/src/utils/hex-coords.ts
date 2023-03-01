@@ -44,6 +44,7 @@ export default class HexCoords {
   equals(other: HexCoords): boolean {
     return other && this.x === other.x && this.y === other.y;
   }
+
 }
 
 export enum HexDirection {

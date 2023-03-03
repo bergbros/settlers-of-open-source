@@ -1,7 +1,7 @@
 import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions';
 import GameMap from './game-map';
 import GamePlayer from './gameplayer';
-import { AllResourceTypes, resourceToString, ResourceType } from './terrain-type';
+import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type';
 import EdgeCoords from './utils/edge-coords';
 import HexCoords, { AllHexDirections } from './utils/hex-coords';
 import VertexCoords, { AllVertexDirections, edgeToVertex } from './utils/vertex-coords';
@@ -131,10 +131,39 @@ export default class Game {
     this.forceUpdate();
   }
 
+  endGame(maxPoints:number){
+    const winningPlayers:GamePlayer[] = [];
+    for(const plyr of this.players){
+      if (plyr.victoryPoints===maxPoints)
+        winningPlayers.push(plyr);
+    }
+    if(winningPlayers.length===0){
+      throw new Error(`Couldn't find winning players with ${maxPoints} points?!?`);
+    }
 
+    if(winningPlayers.length===1)
+      this.instructionText = `Game Over! Player ${winningPlayers[0].index+1} wins!`;
+    else {
+      let winners = "";
+      for (const plyr of winningPlayers)
+        winners = winners + ", " + plyr.index+1;
+      winners = winners.substring(2);
+      this.instructionText = `Game Over! Tie between players: ${winners}!`;
+    }
+  }
+
+  closeTradeWindow(){
+    this.gamePhase=GamePhase.MainGameplay;
+  }
 
   nextPlayerMainGameplay() {
     // check for win conditions!
+    const maxPoints = this.calculateVictoryPoints();
+    if(maxPoints>3){
+      this.gamePhase=GamePhase.GameOver;
+      this.endGame(maxPoints);
+      return;
+    }
 
     //next player
     if (this.currPlayerIdx === this.players.length - 1)
@@ -215,6 +244,20 @@ export default class Game {
       this.nextPlayer();
     }
 
+  }
+
+  calculateVictoryPoints():number{
+    let maxPoints = 0;
+    for (const plyr of this.players){
+      plyr.victoryPoints = 0;
+      for (const twn of this.map.towns){
+        if(twn.player===plyr)
+          plyr.victoryPoints+=twn.townLevel;
+      }
+      if (plyr.victoryPoints>maxPoints)
+        maxPoints = plyr.victoryPoints;
+    }
+    return maxPoints;
   }
 
   executeAction(action: BuildOptions) {
@@ -313,13 +356,14 @@ export default class Game {
     //useful for when we place the robber!
     if(this.gamePhase===GamePhase.PlaceRobber){
       const clickedHex = this.map.getHex(coords);
-      if(clickedHex?.resourceType!==undefined && clickedHex.resourceType!==ResourceType.None){
+      if(clickedHex?.terrainType === TerrainType.Land){
         this.robberLocation= coords;
         //steal a resource from a random player:
         let robbedPlayer:(GamePlayer|undefined) = undefined;
         let dir:number = Math.floor(Math.random() * 6);
         let origDir =dir;
         
+        //TODO: get a list of all the valid directions, then choose a random one; otherwise the probabilities are skewed!
         do {
           robbedPlayer = this.map.townAt(new VertexCoords(coords,dir))?.player;
           if (robbedPlayer === this.players[this.currPlayerIdx]) 
@@ -327,11 +371,13 @@ export default class Game {
 
           dir++;
         } while (robbedPlayer===undefined && dir<origDir+6)
+
         if(robbedPlayer){
           const availableResources = robbedPlayer.currentResources();
           const stolenResource = Math.floor(Math.random() * availableResources.length);
           robbedPlayer.lose(availableResources[stolenResource]);
           this.players[this.currPlayerIdx].addCard(availableResources[stolenResource]);
+
           this.instructionText = 
             `Player ${this.currPlayerIdx + 1} stole ${resourceToString(availableResources[stolenResource])} from Player ${robbedPlayer.index + 1} ---
             Player ${this.currPlayerIdx + 1}'s turn!`;
@@ -340,9 +386,8 @@ export default class Game {
             this.instructionText = 
             `Player ${this.currPlayerIdx + 1} placed the robber ---
             Player ${this.currPlayerIdx + 1}'s turn!`;
-          
-
           }
+
         this.gamePhase = GamePhase.MainGameplay;
         this.map.resetDisplayRoads();
         this.map.resetDisplayTowns();

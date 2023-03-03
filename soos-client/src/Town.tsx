@@ -13,7 +13,6 @@ export default function Town(props: TownProps) {
   const playerClass = gameTown.isUnclaimed() ? '' : 'p' + gameTown.player?.index;
   let highlighted = ''
   if (gameTown.highlighted) {
-    console.log("highlighting");
     highlighted = 'highlight';
   }
   let townLevel = '';

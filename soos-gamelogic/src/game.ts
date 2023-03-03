@@ -4,8 +4,8 @@ import GamePlayer from './gameplayer';
 import GameTown from './gametown';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type';
 import EdgeCoords from './utils/edge-coords';
-import HexCoords, { AllHexDirections } from './utils/hex-coords';
-import VertexCoords, { AllVertexDirections, edgeToVertex } from './utils/vertex-coords';
+import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords';
+import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection } from './utils/vertex-coords';
 
 // phases requiring input
 export enum GamePhase {
@@ -71,9 +71,31 @@ export default class Game {
     this.displayEmptyTowns();
 
     // TODO
-    // if (options.debugAutoPickSettlements) {
-    //   autoPickSettlements()
-    // }
+    if (options.debugAutoPickSettlements) {
+      this.autoPickSettlements()
+    }
+  }
+
+  autoPickSettlements() {
+    this.onVertexClicked(new VertexCoords(new HexCoords(3, 2), VertexDirection.N));
+    this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 2), HexDirection.NE));
+
+    this.onVertexClicked(new VertexCoords(new HexCoords(5, 2), VertexDirection.NW));
+    this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 2), HexDirection.W));
+
+    this.onVertexClicked(new VertexCoords(new HexCoords(5, 4), VertexDirection.N));
+    this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 4), HexDirection.NW));
+
+    this.onVertexClicked(new VertexCoords(new HexCoords(3, 4), VertexDirection.N));
+    this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 4), HexDirection.NW));
+
+    this.onVertexClicked(new VertexCoords(new HexCoords(2, 3), VertexDirection.N));
+    this.onEdgeClicked(new EdgeCoords(new HexCoords(2, 3), HexDirection.NW));
+
+    this.onVertexClicked(new VertexCoords(new HexCoords(4, 5), VertexDirection.N));
+    this.onEdgeClicked(new EdgeCoords(new HexCoords(4, 5), HexDirection.NW));
+
+    return;
   }
 
   //this never gets called at the moment
@@ -131,7 +153,6 @@ export default class Game {
 
     if (this.gamePhase === GamePhase.PlaceSettlement1) {
       if (this.currPlayerIdx === this.players.length - 1) {
-        console.log("next PhaseTurn!")
         this.nextPhaseTurn();
       } else {
         this.currPlayerIdx++;
@@ -383,7 +404,6 @@ export default class Game {
     if (this.gamePhase !== GamePhase.BuildRoad && this.gamePhase !== GamePhase.PlaceSettlement1 && this.gamePhase !== GamePhase.PlaceSettlement2)
       return;
 
-    //console.log('edge clicked: ' + edge.toString());
     const currPlayer = this.getCurrPlayer();
     const roadThere = this.map.roadAt(edge);
     roadThere?.claimRoad(currPlayer);
@@ -434,7 +454,9 @@ export default class Game {
     // Check if there's more than 1 player to rob
     if (robbablePlayers.length === 1) {
       // Only 1 player to rob, rob them automatically
+      console.log("robbing one player: " + robbablePlayers[0].index);
       this.stealResourceFromPlayer(robbablePlayers[0]);
+      this.clearAllDisplaysAndForceUpdate();
       return;
     }
 

@@ -2,7 +2,7 @@ import { GamePlayer, ResourceType, resourceToString } from 'soos-gamelogic';
 import { AllResourceTypes } from 'soos-gamelogic/src/terrain-type';
 
 export type PlayerProps = {
-    player:GamePlayer
+  player: GamePlayer
 };
 
 export default function Player(props: PlayerProps) {
@@ -10,23 +10,22 @@ export default function Player(props: PlayerProps) {
   //const { x, y } = vertexCoordsToPixels(gameTown.coords);
 
   const playerClass = 'p' + player.index;
-  const hand : string [] = [];
-  for(let i = 0; i<AllResourceTypes.length; i++) 
-  {
+  const hand: string[] = [];
+  for (let i = 0; i < AllResourceTypes.length; i++) {
     const resourceType = AllResourceTypes[i];
     hand.push(resourceToString(resourceType) + ': ' + player.cards[resourceType] + '\n');
   }
 
   return (
     <div className="PlayerList">
-        <div className={'Player '+ playerClass}
-            key={playerClass}
-            >
+      <div className={'Player ' + playerClass}
+        key={playerClass}
+      >
         {player.name}
         <div className={'Player'}>
-            {hand}
+          {hand}
         </div>
-    </div>
+      </div>
     </div>
   );
 }

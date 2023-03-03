@@ -9,26 +9,26 @@ export type TownProps = {
 
 export default function Town(props: TownProps) {
   const { gameTown, onClick } = props;
-  
+
   const playerClass = gameTown.isUnclaimed() ? '' : 'p' + gameTown.player?.index;
   let highlighted = ''
-  if(gameTown.highlighted){
+  if (gameTown.highlighted) {
     console.log("highlighting");
     highlighted = 'highlight';
   }
   let townLevel = '';
   let townRadius = 10;
-  switch(gameTown.townLevel){
+  switch (gameTown.townLevel) {
     case 1:
-      townLevel=' settlement';
+      townLevel = ' settlement';
       townRadius = 10;
       break;
     case 2:
-      townLevel=' city'; 
+      townLevel = ' city';
       townRadius = 12;
       break;
     case 3:
-      townLevel=' suburb'; 
+      townLevel = ' suburb';
       townRadius = 14;
       break;
   }

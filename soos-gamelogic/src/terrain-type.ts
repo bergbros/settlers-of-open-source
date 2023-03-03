@@ -38,8 +38,8 @@ export function resourceToLand(resource: ResourceType): string {
   }
 }
 
-export function resourceToString(resource: ResourceType|undefined): string {
-  if(resource===undefined) return '';
+export function resourceToString(resource: ResourceType | undefined): string {
+  if (resource === undefined) return '';
 
   switch (resource) {
     case ResourceType.Wood:

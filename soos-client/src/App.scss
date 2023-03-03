@@ -5,7 +5,7 @@ $p0-color: red;
   position: relative;
   background-color: beige;
   left: 0px;
-  width:100%;
+  width: 100%;
   border: 3px solid black;
   white-space: pre-wrap;
 
@@ -15,47 +15,54 @@ $p0-color: red;
     border: 2px solid gray;
     white-space: pre-wrap;
     width: 50%;
-    float:left;
+    float: left;
   }
+
   &.ActionButtons {
-    display:inline;
-    padding:15px;
+    display: inline;
+    padding: 15px;
   }
 }
 
 .Player {
   position: relative;
-  width:40%;
+  width: 40%;
   top: 0px;
   left: 0px;
   background-color: solid rgba(255, 255, 255, 0.466);
   white-space: pre-wrap;
-  display:inline-block;
-  padding:10px;
-  padding-left:20px;
+  display: inline-block;
+  padding: 10px;
+  padding-left: 20px;
 }
-.PlayerList{
-  margin:8px;
-  display:inline;
+
+.PlayerList {
+  margin: 8px;
+  display: inline;
 }
 
 .p0 {
-  background-color: red !important;
+  background-color: rgb(255, 34, 34) !important;
 }
 
 .p1 {
   background-color: rgb(38, 145, 252) !important;
 }
 
-
-.NextTurnButton{
-  float:right;
-  width:45%
+.p2 {
+  background-color: rgb(55, 255, 55) !important;
 }
-.ActionButton{
-  float:left;
-  width:47%;
-  margin:5px;
+
+
+.NextTurnButton {
+  float: right;
+  width: 45%
+}
+
+.ActionButton {
+  float: left;
+  width: 47%;
+  margin: 5px;
 }
 
 .Board {
@@ -162,30 +169,33 @@ $p0-color: red;
   stroke: solid gray;
   stroke-dasharray: 8, 8.5;
   stroke-width: 3;
-  &.settlement{
+
+  &.settlement {
     width: 18px;
     height: 18px;
     border: 0;
-      border-radius:0;
+    border-radius: 0;
     clip-path: polygon(0% 50%, 0% 100%, 100% 100%, 100% 50%, 50% 0%);
   }
-  &.city{
+
+  &.city {
     width: 22px;
     height: 22px;
     border: 0;
-    border-radius:0;
+    border-radius: 0;
     clip-path: polygon(0% 25%, 0% 100%, 100% 100%, 100% 50%, 50% 50%, 50% 25%, 25% 0%);
   }
-  &.suburb{
+
+  &.suburb {
     width: 26px;
     height: 26px;
     border: 0;
-    border-radius:0;
+    border-radius: 0;
     clip-path: polygon(0% 25%, 0% 100%, 100% 100%, 100% 50%, 75% 25%, 50% 50%, 50% 25%, 25% 0%);
   }
 }
 
-.highlight{
+.highlight {
   border: 3px solid yellow !important;
 }
 
@@ -219,11 +229,11 @@ $p0-color: red;
   }
 }
 
-.RobberImage{
-  position:absolute;
+.RobberImage {
+  position: absolute;
   height: 44px;
   width: 26px;
-  z-index:20;
+  z-index: 20;
 }
 
 
@@ -233,7 +243,9 @@ $p0-color: red;
   color: white;
 }
 
-.modal-body {padding: 2px 16px;}
+.modal-body {
+  padding: 2px 16px;
+}
 
 .modal-footer {
   padding: 2px 16px;

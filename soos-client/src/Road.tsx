@@ -13,15 +13,15 @@ export default function Road(props: RoadProps) {
   const { x, y } = edgeCoordsToPixels(gameRoad.coords);
 
   let playerClass = '';
-  if(gameRoad.showMe() && gameRoad.player){
+  if (gameRoad.showMe() && gameRoad.player) {
     playerClass = 'p' + gameRoad.player?.index;
   }
 
   const roadCoords = gameRoad.getCoords();
   let roadOrientation = "vertical";
-  if(roadCoords.direction === HexDirection.NW || roadCoords.direction === HexDirection.SE){
+  if (roadCoords.direction === HexDirection.NW || roadCoords.direction === HexDirection.SE) {
     roadOrientation = "neSlant"
-  } else if(roadCoords.direction === HexDirection.NE || roadCoords.direction === HexDirection.SW){
+  } else if (roadCoords.direction === HexDirection.NE || roadCoords.direction === HexDirection.SW) {
     roadOrientation = "nwSlant"
   }
 

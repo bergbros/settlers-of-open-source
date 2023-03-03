@@ -25,14 +25,14 @@ export default class GameMap {
   // TODO convert to dictionary
   towns: GameTown[];
   roads: GameRoad[];
-  displayRoads:GameRoad[];
-  robberLocation:HexCoords;
+  displayRoads: GameRoad[];
+  robberLocation: HexCoords;
   constructor() {
     this.board = [];
     this.towns = [];
     this.roads = [];
     this.displayRoads = [];
-    this.robberLocation = new HexCoords(0,0);
+    this.robberLocation = new HexCoords(0, 0);
     this.initializeBoard();
   }
 
@@ -84,8 +84,8 @@ export default class GameMap {
           }
         }
         const newHex = new GameHex(new HexCoords(x, y), hexTerrain, hexResource, hexFrequency);
-        if(hexResource===ResourceType.None)
-          this.robberLocation=newHex.coords;
+        if (hexResource === ResourceType.None)
+          this.robberLocation = newHex.coords;
         hexRow.push(newHex);
       }
       this.board.push(hexRow);
@@ -101,9 +101,9 @@ export default class GameMap {
               this.addTown(townCoords);
             }
           }
-          for (const edge of AllHexDirections){
-            const roadCoords = new EdgeCoords(new HexCoords(x,y),edge);
-            if(!this.roadExists(roadCoords)) 
+          for (const edge of AllHexDirections) {
+            const roadCoords = new EdgeCoords(new HexCoords(x, y), edge);
+            if (!this.roadExists(roadCoords))
               this.addRoad(roadCoords);
           }
         }
@@ -111,13 +111,13 @@ export default class GameMap {
     }
   }
 
-  getFrequency (diceRoll:number) :GameHex[] {
+  getFrequency(diceRoll: number): GameHex[] {
     const BoardHeight = OriginalTerrain.length;
     const BoardWidth = OriginalTerrain[0].length;
-    const hexes:GameHex[] = [];
+    const hexes: GameHex[] = [];
     for (let y = 0; y < BoardHeight; y++) {
       for (let x = 0; x < BoardWidth; x++) {
-        if (this.board[y][x].frequency && this.board[y][x].frequency===diceRoll){
+        if (this.board[y][x].frequency && this.board[y][x].frequency === diceRoll) {
           hexes.push(this.board[y][x]);
         }
       }
@@ -157,7 +157,7 @@ export default class GameMap {
     return undefined;
   }
 
-  addRoad(coords:EdgeCoords){
+  addRoad(coords: EdgeCoords) {
     this.roads.push(new GameRoad(coords));
   }
 
@@ -189,84 +189,84 @@ export default class GameMap {
     return resourcePile;
   }
 
-  resetDisplayTowns(){
-    for(const town of this.towns)
+  resetDisplayTowns() {
+    for (const town of this.towns)
       town.resetDisplay();
   }
 
-  resetDisplayRoads(){
+  resetDisplayRoads() {
     for (const road of this.roads)
       road.resetDisplay();
   }
-  updateDisplayTowns(vertex?:VertexCoords){
-    if(!vertex)return;
+  updateDisplayTowns(vertex?: VertexCoords) {
+    if (!vertex) return;
     const town = this.townAt(vertex)
-    if(town) town.display = true;
+    if (town) town.display = true;
   }
-  updateDisplayRoads(vertex?:VertexCoords){
+  updateDisplayRoads(vertex?: VertexCoords) {
     if (!vertex) return;
     const roadArray = this.getRoads(vertex)
-    for (const theRoad of roadArray){
-      if(theRoad)
+    for (const theRoad of roadArray) {
+      if (theRoad)
         theRoad.setDisplay(true);
     }
   }
 
-  getNeighboringRoads(town:GameTown): (GameRoad|undefined)[]{
+  getNeighboringRoads(town: GameTown): (GameRoad | undefined)[] {
     return this.getRoads(town.getCoords());
   }
 
-  getTowns(road:GameRoad){
-    const returnTowns:GameTown[]=[];
-    let theTown = this.townAt(new VertexCoords(road.coords.hexCoords,edgeToVertex(road.coords.direction)));
-    if(theTown) returnTowns.push(theTown);
+  getTowns(road: GameRoad) {
+    const returnTowns: GameTown[] = [];
+    let theTown = this.townAt(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
+    if (theTown) returnTowns.push(theTown);
 
-    theTown = this.townAt(new VertexCoords(road.coords.hexCoords,edgeToVertex((road.coords.direction+1)%6)));
-    if(theTown) returnTowns.push(theTown);
-    
+    theTown = this.townAt(new VertexCoords(road.coords.hexCoords, edgeToVertex((road.coords.direction + 1) % 6)));
+    if (theTown) returnTowns.push(theTown);
+
     return returnTowns;
   }
 
-  getTownsAt(hex:HexCoords){
-    const returnTowns:GameTown[]=[];
-    for(const dir of AllVertexDirections){
-      let theTown = this.townAt(new VertexCoords(hex,dir));
+  getTownsAt(hex: HexCoords) {
+    const returnTowns: GameTown[] = [];
+    for (const dir of AllVertexDirections) {
+      let theTown = this.townAt(new VertexCoords(hex, dir));
       if (theTown)
         returnTowns.push(theTown);
     }
     return returnTowns;
   }
 
-  getRoads(vertex:VertexCoords|undefined): (GameRoad|undefined)[]{
-    
+  getRoads(vertex: VertexCoords | undefined): (GameRoad | undefined)[] {
+
     //each vertex has N, SE, SW roads OR S, NE, NW roads on neighboring land.
-    const egressRoads : (GameRoad|undefined)[] = [];
+    const egressRoads: (GameRoad | undefined)[] = [];
     if (!vertex) return egressRoads;
 
     //get the two neighboring edges of this particular hex:
-    egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge( vertex.direction))));
-    egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge( (vertex.direction +5)%6 ))));
+    egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge(vertex.direction))));
+    egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge((vertex.direction + 5) % 6))));
 
     //get the one sticking out from the vertex
-    let lastRoad = this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge( vertex.direction)));
-    switch(vertex.direction){
+    let lastRoad = this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge(vertex.direction)));
+    switch (vertex.direction) {
       case VertexDirection.N:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x-((vertex.hexCoords.y+1)%2), vertex.hexCoords.y-1), HexDirection.E));
+        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - ((vertex.hexCoords.y + 1) % 2), vertex.hexCoords.y - 1), HexDirection.E));
         break;
       case VertexDirection.S:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x+vertex.hexCoords.y%2, vertex.hexCoords.y+1), HexDirection.E));
+        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + vertex.hexCoords.y % 2, vertex.hexCoords.y + 1), HexDirection.E));
         break;
       case VertexDirection.NE:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x+1, vertex.hexCoords.y), HexDirection.NW));
+        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + 1, vertex.hexCoords.y), HexDirection.NW));
         break;
       case VertexDirection.SE:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x+1, vertex.hexCoords.y), HexDirection.SW));
+        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + 1, vertex.hexCoords.y), HexDirection.SW));
         break;
       case VertexDirection.NW:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x-1, vertex.hexCoords.y), HexDirection.NE));
+        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - 1, vertex.hexCoords.y), HexDirection.NE));
         break;
       case VertexDirection.SW:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x-1, vertex.hexCoords.y), HexDirection.SE));
+        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - 1, vertex.hexCoords.y), HexDirection.SE));
         break;
       default:
         lastRoad = undefined;

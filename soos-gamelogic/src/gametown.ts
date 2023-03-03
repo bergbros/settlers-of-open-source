@@ -5,8 +5,9 @@ export default class GameTown {
     coords: VertexCoords;
     player?: Player;
     townLevel: number;
-    display:boolean;
-    highlighted:boolean;
+    display: boolean;
+    highlighted: boolean;
+
     constructor(coords: VertexCoords) {
         this.coords = coords;
         this.player = undefined;
@@ -41,14 +42,17 @@ export default class GameTown {
     getCoords() {
         return this.coords;
     }
-    showMe(){
-        this.display= true;
+
+    showMe() {
+        this.display = true;
     }
-    resetDisplay(){
-        this.display = this.player!==undefined;
+
+    resetDisplay() {
+        this.display = this.player !== undefined;
         this.highlighted = false;
     }
-    highlightMe(){
+
+    highlightMe() {
         this.highlighted = true;
     }
 }

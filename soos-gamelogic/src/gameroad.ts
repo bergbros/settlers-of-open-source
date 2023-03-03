@@ -4,7 +4,7 @@ import EdgeCoords from './utils/edge-coords';
 export default class GameRoad {
     coords: EdgeCoords;
     player?: Player;
-    display:boolean;
+    display: boolean;
 
     constructor(coords: EdgeCoords) {
         this.coords = coords;
@@ -23,13 +23,13 @@ export default class GameRoad {
             throw new Error(`town already claimed`);
 
         this.player = player;
-        
+
     }
-    setDisplay(display:boolean){
+    setDisplay(display: boolean) {
         this.display = display;
     }
-    resetDisplay(){
-        if(this.player)
+    resetDisplay() {
+        if (this.player)
             this.display = true;
         else
             this.display = false;

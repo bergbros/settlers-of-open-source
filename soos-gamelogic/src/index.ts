@@ -1,4 +1,4 @@
-import Game from './game';
+import Game, { GamePhase, RobberPhase } from './game';
 import GameHex from './gamehex';
 import GameTown from './gametown';
 import GameRoad from './gameroad';
@@ -19,5 +19,7 @@ export {
   GameRoad,
   GamePlayer,
   Game,
-  actionToString
+  actionToString,
+  GamePhase,
+  RobberPhase,
 }

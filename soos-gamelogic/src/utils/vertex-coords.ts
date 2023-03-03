@@ -59,7 +59,7 @@ export default class VertexCoords {
 
   constructor(coords: HexCoords, direction: VertexDirection) {
     this.hexCoords = coords;
-    this.direction = direction%6;
+    this.direction = direction % 6;
 
     this.normalize();
   }
@@ -87,7 +87,7 @@ export default class VertexCoords {
           this.direction = VertexDirection.NW;
           break;
         case VertexDirection.SW:
-          x += y % 2-1;
+          x += y % 2 - 1;
           y++;
           this.direction = VertexDirection.N;
           break;
@@ -106,12 +106,12 @@ export default class VertexCoords {
     return `(${this.hexCoords.x},${this.hexCoords.y},dir=${vertexDirName(this.direction)})`;
   }
 
-  
+
 }
 
-export function edgeToVertex(direction:HexDirection): VertexDirection{
+export function edgeToVertex(direction: HexDirection): VertexDirection {
   const myvert = VertexDirection.N;
-  switch(direction){
+  switch (direction) {
     case HexDirection.NE: return VertexDirection.N;
     case HexDirection.E: return VertexDirection.NE;
     case HexDirection.SE: return VertexDirection.SE;

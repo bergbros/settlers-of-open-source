@@ -13,8 +13,8 @@ export function edgeDirName(dir: HexDirection): string {
   return hexDirNames[dir];
 }
 
-export function vertexToEdge(direction:VertexDirection){
-  switch(direction){
+export function vertexToEdge(direction: VertexDirection) {
+  switch (direction) {
     case VertexDirection.N:
       return HexDirection.NE;
 
@@ -62,5 +62,5 @@ export default class EdgeCoords {
     return `(${this.hexCoords.x},${this.hexCoords.y},dir=${edgeDirName(this.direction)})`;
   }
 
-  
+
 }

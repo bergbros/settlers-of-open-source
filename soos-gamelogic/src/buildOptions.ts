@@ -15,15 +15,15 @@ export const AllBuildOptions = Object.freeze([
 ]);
 
 export const AllBuildCosts = Object.freeze([
-    [1,1,0,0,0], //road
-    [1,1,1,1,0], //settlement
-    [0,0,0,3,2], //city
-    [0,0,1,1,1], //development
-    [-4,-4,-4,-4,-4]
+    [1, 1, 0, 0, 0], //road
+    [1, 1, 1, 1, 0], //settlement
+    [0, 0, 0, 3, 2], //city
+    [0, 0, 1, 1, 1], //development
+    [-4, -4, -4, -4, -4]
 ]);
 
-export function actionToString(action:BuildOptions):string{
-    switch(action){ 
+export function actionToString(action: BuildOptions): string {
+    switch (action) {
         case BuildOptions.Road:
             return "Build Road";
         case BuildOptions.Settlement:

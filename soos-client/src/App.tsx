@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import { actionToString, AllBuildOptions, Game, GameHex } from 'soos-gamelogic';
-import { GamePhase } from 'soos-gamelogic/src/game';
-//import GameHex from 'soos-gamelogic/src/gamehex';
-//import GameTown from 'soos-gamelogic/src/gametown';
+import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase } from 'soos-gamelogic';
 import './App.scss';
 import Hex from './Hex';
 import Player from './Player';
@@ -10,9 +7,10 @@ import Road from './Road';
 import Robber from './Robber';
 import Town from './Town';
 
-export function App() {
-  const [game, setGame] = useState<Game>(new Game());
+const debugAutoPickSettlements = true;
 
+export function App() {
+  const [game, setGame] = useState<Game>(new Game({ debugAutoPickSettlements }));
 
   const hexes = [];
   const towns = [];
@@ -28,16 +26,16 @@ export function App() {
         <Hex
           gameHex={gameHex}
           onClick={(hexCoords) => game.onHexClicked(hexCoords)}
-          placeRobber = {game.gamePhase===GamePhase.PlaceRobber}
+          placeRobber={game.gamePhase === GamePhase.PlaceRobber && game.robberPhase === RobberPhase.PlaceRobber}
           key={`h:${gameHex.coords.x},${gameHex.coords.y}`}
         />
       );
     }
   }
-  
+
   for (const town of game.map.towns) {
     const townCoords = town.coords;
-    
+
     if (!town.display)
       continue;
 
@@ -52,7 +50,7 @@ export function App() {
 
   for (const road of game.map.roads) {
     const roadCoords = road.coords;
-    
+
     if (!road.showMe())
       continue;
 
@@ -65,23 +63,23 @@ export function App() {
     );
   }
 
-  for (const player of game.players){
-    players.push(<Player player = {player}></Player>);
+  for (const player of game.players) {
+    players.push(<Player player={player}></Player>);
   }
 
-  for (const option of AllBuildOptions){
+  for (const option of AllBuildOptions) {
     actions.push(
-      <button 
-        onClick = {() => game.executeAction(option)} 
-        className= "ActionButton" 
-        disabled = {!game.actionViable(option)}>
-          {actionToString(option)}
+      <button
+        onClick={() => game.executeAction(option)}
+        className="ActionButton"
+        disabled={!game.actionViable(option)}>
+        {actionToString(option)}
       </button>);
   }
   let theRobber = <Robber game={game}></Robber>;
   robber.push(
     theRobber
-    );
+  );
 
   // Set up force update function
   const [count, setCount] = useState<number>(0);
@@ -92,8 +90,8 @@ export function App() {
 
   const dialogBoxes = [];
   dialogBoxes.push(
-  <div id="myModal" className="modal">
-    <div className="modal-content">
+    <div id="myModal" className="modal">
+      <div className="modal-content">
         <div className="modal-header">
           <span className="close">&times;</span>
           <h2>Modal Header</h2>
@@ -106,21 +104,21 @@ export function App() {
           <h3>Modal Footer</h3>
         </div>
       </div>
-  </div>
+    </div>
   );
 
   return (
     <div className="App">
       <div>{game.instructionText}
-        </div>
+      </div>
       <div className="App HeaderInfo">
         {actions}
       </div>
-      <button 
-        onClick = {() => game.nextPlayer()} 
-        className= "NextTurnButton" 
-        disabled = {game.gamePhase!==GamePhase.MainGameplay}
-        >Next Turn</button>
+      <button
+        onClick={() => game.nextPlayer()}
+        className="NextTurnButton"
+        disabled={game.gamePhase !== GamePhase.MainGameplay}
+      >Next Turn</button>
       <div className="App HeaderInfo">{players}</div>
       <div className="Board">
         {hexes}

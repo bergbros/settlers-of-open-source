@@ -1,7 +1,7 @@
 import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions';
 import GameMap from './game-map';
 import GamePlayer from './gameplayer';
-import GameTown from './gametown';
+import GameTown from './game-town';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type';
 import EdgeCoords from './utils/edge-coords';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords';

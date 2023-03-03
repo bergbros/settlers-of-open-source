@@ -1,4 +1,4 @@
-import GameTown from './gametown';
+import GameTown from './game-town';
 import { resourceToLand, ResourceType, TerrainType } from './terrain-type';
 import HexCoords from './utils/hex-coords';
 import VertexCoords, { VertexDirection } from './utils/vertex-coords';

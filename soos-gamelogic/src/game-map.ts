@@ -1,6 +1,6 @@
-import GameHex from './gamehex';
-import GameRoad from './gameroad';
-import GameTown from './gametown';
+import GameHex from './game-hex';
+import GameRoad from './game-road';
+import GameTown from './game-town';
 import { ResourceType, stringToResource, TerrainType } from './terrain-type';
 import EdgeCoords, { vertexToEdge } from './utils/edge-coords';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords';

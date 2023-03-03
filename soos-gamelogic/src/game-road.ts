@@ -1,4 +1,4 @@
-import Player from './gameplayer';
+import Player from './game-player';
 import EdgeCoords from './utils/edge-coords';
 
 export default class GameRoad {

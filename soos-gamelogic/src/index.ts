@@ -1,7 +1,7 @@
 import Game, { GamePhase, RobberPhase } from './game';
-import GameHex from './gamehex';
-import GameTown from './gametown';
-import GameRoad from './gameroad';
+import GameHex from './game-hex';
+import GameTown from './game-town';
+import GameRoad from './game-road';
 import { resourceToString, ResourceType, TerrainType } from './terrain-type';
 import HexCoords from './utils/hex-coords';
 import GamePlayer from './gameplayer';

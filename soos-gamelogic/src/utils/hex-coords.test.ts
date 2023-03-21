@@ -1,4 +1,4 @@
-import HexCoords, { hexDirName, hexDirToCoords, HexDirection } from './hex-coords';
+import HexCoords, { hexDirName, hexDirToCoords, HexDirection } from './hex-coords.js';
 
 describe('HexCoords', () => {
   it('coords with odd Y coords are shoved right', () => {

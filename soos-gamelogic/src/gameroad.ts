@@ -1,5 +1,5 @@
-import Player from './gameplayer';
-import EdgeCoords from './utils/edge-coords';
+import Player from './gameplayer.js';
+import EdgeCoords from './utils/edge-coords.js';
 
 export default class GameRoad {
     coords: EdgeCoords;

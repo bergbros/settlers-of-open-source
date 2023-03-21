@@ -1,11 +1,11 @@
-import Game, { GamePhase, RobberPhase } from './game';
-import GameHex from './gamehex';
-import GameTown from './gametown';
-import GameRoad from './gameroad';
-import { resourceToString, ResourceType, TerrainType } from './terrain-type';
-import HexCoords from './utils/hex-coords';
-import GamePlayer from './gameplayer';
-import { actionToString, AllBuildOptions, BuildOptions } from './buildOptions';
+import Game, { GamePhase, RobberPhase } from './game.js';
+import GameHex from './gamehex.js';
+import GameTown from './gametown.js';
+import GameRoad from './gameroad.js';
+import { resourceToString, ResourceType, TerrainType } from './terrain-type.js';
+import HexCoords from './utils/hex-coords.js';
+import GamePlayer from './gameplayer.js';
+import { actionToString, AllBuildOptions, BuildOptions } from './buildOptions.js';
 
 export {
   HexCoords,

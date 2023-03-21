@@ -1,7 +1,7 @@
-import GameTown from './gametown';
-import { resourceToLand, ResourceType, TerrainType } from './terrain-type';
-import HexCoords from './utils/hex-coords';
-import VertexCoords, { VertexDirection } from './utils/vertex-coords';
+import GameTown from './gametown.js';
+import { resourceToLand, ResourceType, TerrainType } from './terrain-type.js';
+import HexCoords from './utils/hex-coords.js';
+import VertexCoords, { VertexDirection } from './utils/vertex-coords.js';
 
 export default class GameHex {
   coords: HexCoords;

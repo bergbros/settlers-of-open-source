@@ -1,5 +1,5 @@
-import HexCoords from './hex-coords';
-import VertexCoords, { VertexDirection } from './vertex-coords';
+import HexCoords from './hex-coords.js';
+import VertexCoords, { VertexDirection } from './vertex-coords.js';
 
 describe('VertexCoords', () => {
   it('normalizes vertex coords using VertexDirection.S on odd row', () => {

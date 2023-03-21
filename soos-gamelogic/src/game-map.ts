@@ -1,10 +1,10 @@
-import GameHex from './gamehex';
-import GameRoad from './gameroad';
-import GameTown from './gametown';
-import { ResourceType, stringToResource, TerrainType } from './terrain-type';
-import EdgeCoords, { vertexToEdge } from './utils/edge-coords';
-import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords';
-import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection, vertexDirName } from './utils/vertex-coords';
+import GameHex from './gamehex.js';
+import GameRoad from './gameroad.js';
+import GameTown from './gametown.js';
+import { ResourceType, stringToResource, TerrainType } from './terrain-type.js';
+import EdgeCoords, { vertexToEdge } from './utils/edge-coords.js';
+import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
+import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection, vertexDirName } from './utils/vertex-coords.js';
 
 const OriginalTiles = Object.freeze(['b', 'b', 'b', 'o', 'o', 'o', 'w', 'w', 'w', 'w', 'g', 'g', 'g', 'g', 's', 's', 's', 's', 'd']);
 const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]);

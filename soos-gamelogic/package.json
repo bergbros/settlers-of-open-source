@@ -1,13 +1,14 @@
 {
   "name": "soos-gamelogic",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/src/index.js",
   "author": "BERGBROS",
   "license": "ISC",
   "keywords": [],
   "description": "",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "lint": "eslint ./src --ext .ts -c ../.eslintrc.js --fix",
     "test": "jest"
   },

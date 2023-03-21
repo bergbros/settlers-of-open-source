@@ -1,5 +1,5 @@
-import { AllResourceTypes, resourceToString, ResourceType } from './terrain-type';
-import VertexCoords from './utils/vertex-coords';
+import { AllResourceTypes, resourceToString, ResourceType } from './terrain-type.js';
+import VertexCoords from './utils/vertex-coords.js';
 
 export default class GamePlayer {
   // Cards

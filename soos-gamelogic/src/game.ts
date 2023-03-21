@@ -1,11 +1,11 @@
-import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions';
-import GameMap from './game-map';
-import GamePlayer from './gameplayer';
-import GameTown from './gametown';
-import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type';
-import EdgeCoords from './utils/edge-coords';
-import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords';
-import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection } from './utils/vertex-coords';
+import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions.js';
+import GameMap from './game-map.js';
+import GamePlayer from './gameplayer.js';
+import GameTown from './gametown.js';
+import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
+import EdgeCoords from './utils/edge-coords.js';
+import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
+import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection } from './utils/vertex-coords.js';
 
 // phases requiring input
 export enum GamePhase {

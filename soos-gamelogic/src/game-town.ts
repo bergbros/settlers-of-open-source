@@ -1,5 +1,5 @@
-import Player from './gameplayer';
-import VertexCoords from './utils/vertex-coords';
+import Player from './gameplayer.js';
+import VertexCoords from './utils/vertex-coords.js';
 
 export default class GameTown {
     coords: VertexCoords;

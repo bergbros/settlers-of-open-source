@@ -1,4 +1,4 @@
-import HexCoords, { HexDirection } from './hex-coords';
+import HexCoords, { HexDirection } from './hex-coords.js';
 
 export enum VertexDirection {
   // in clockwise order

@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import express, { Express, Request, Response, NextFunction } from 'express';
-import { SOOSGame } from 'soos-gamelogic';
+import { Game } from 'soos-gamelogic';
 
 const app: Express = express();
 const port = 3000;
 
 // Middleware to log out all requests & their timings
-app.use((req: Request, res: Response, next: NextFunction ) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const startTime: number = Date.now();
 
   next();
@@ -17,8 +17,8 @@ app.use((req: Request, res: Response, next: NextFunction ) => {
 });
 
 app.get('/api/result', (req: Request, res: Response) => {
-  const game = new SOOSGame();
-  res.send('Hello World! Result of game: ' + game.playGame());
+  const game = new Game({});
+  res.send('Hello World!');
 });
 
 app.listen(port, () => {

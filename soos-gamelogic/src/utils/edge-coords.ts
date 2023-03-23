@@ -1,5 +1,5 @@
-import HexCoords, { AllHexDirections, HexDirection, hexDirOpposite, hexDirNames } from './hex-coords';
-import { VertexDirection } from './vertex-coords';
+import HexCoords, { AllHexDirections, HexDirection, hexDirOpposite, hexDirNames } from './hex-coords.js';
+import { VertexDirection } from './vertex-coords.js';
 
 
 

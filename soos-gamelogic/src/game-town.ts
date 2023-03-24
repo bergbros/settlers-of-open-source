@@ -1,4 +1,4 @@
-import Player from './gameplayer.js';
+import Player from './game-player.js';
 import VertexCoords from './utils/vertex-coords.js';
 
 export default class GameTown {

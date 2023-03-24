@@ -1,11 +1,11 @@
-import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions';
-import GameMap from './game-map';
-import GamePlayer from './gameplayer';
-import GameTown from './game-town';
-import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type';
-import EdgeCoords from './utils/edge-coords';
-import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords';
-import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection } from './utils/vertex-coords';
+import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions.js';
+import GameMap from './game-map.js';
+import GamePlayer from './game-player.js';
+import GameTown from './game-town.js';
+import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
+import EdgeCoords from './utils/edge-coords.js';
+import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
+import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection } from './utils/vertex-coords.js';
 
 // phases requiring input
 export enum GamePhase {
@@ -67,7 +67,7 @@ export default class Game {
     this.map = new GameMap();
     this.robberLocation = this.map.robberLocation;
     this.gamePhase = GamePhase.PlaceSettlement1;
-    this.instructionText = 'Game Started! Player 1 place first settlement';
+    this.instructionText = 'Game Started! Player 1 place first settlement.js';
     this.displayEmptyTowns();
 
     // TODO

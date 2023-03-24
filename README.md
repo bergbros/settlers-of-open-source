@@ -2,7 +2,7 @@
 
 ## Development
 
-How to run the server:
+### How to run the server:
 
 ```bash
 cd soos-server
@@ -15,7 +15,12 @@ npm install
 npm start
 ```
 
-How to run the client:
+Notes:
+
+1. The gamelogic files must be built with `npm run build` from the `soos-gamelogic` directory before starting the server. If you run the server with `npm start` from the `soos-server` directory, this will be taken care of for you.
+2. The server will automatically pick up changes that you make to any Typescript files under `soos-server`, however, it will _not_ automatically pick up changes made to gamelogic files under `soos-gamelogic`. If you change any gamelogic files, you have to build them again and restart the server. Both of those things can be accomplished by running `npm start` from the server dir again.
+
+### How to run the client:
 
 ```bash
 cd soos-client
@@ -28,7 +33,26 @@ npm install
 npm start
 ```
 
-Note that both the client and server will automatically pick up changes you make as you're editing code. Changes in `soos-gamelogic` should be automatically hot-reloaded by both client and server.
+Changes in `soos-client` and `soos-gamelogic` should be automatically hot-reloaded by the client.
+
+### Gamelogic
+
+- Game logic that will be used across both client and server should be contained in `soos-gamelogic`.
+- Due to some funkiness in how Node.JS modules work with TypeScript, file imports in the `gamelogic` project must specify a `.js` extension.
+  - For some reason it has to be `.js` even though the file it's actually importing from is `.ts`.
+
+```ts
+// File: soos-gamelogic/src/game-map.ts
+
+// WRONG
+import GameHex from "./game-hex";
+// ^ will cause an error: "Relative import paths need explicit file extensions"
+
+// Right!
+import GameHex from "./game-hex.js";
+```
+
+For imports within the `soos-client`/`soos-server` projects, it doesn't matter, you can leave off the `.js` extension.
 
 ## Naming conventions
 
@@ -38,10 +62,10 @@ Filenames are in `kebab-case`, class names are `UpperCamelCase`, and function/va
 // Filename: hex-coords.ts
 
 class HexCoords {
-    someMethod() { }
+  someMethod() {}
 }
 
-function someFunction() { }
+function someFunction() {}
 ```
 
 Unit test files live alongside the regular files, and just have a `test.ts` extension. For example, the test file for `hex-coords.ts` would be `hex-coords.test.ts` in the same directory.

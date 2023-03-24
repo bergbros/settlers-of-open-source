@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase } from 'soos-gamelogic';
 import './App.scss';
 import Hex from './Hex';
@@ -6,11 +6,33 @@ import Player from './Player';
 import Road from './Road';
 import Robber from './Robber';
 import Town from './Town';
+import { Socket } from 'socket.io-client';
 
 const debugAutoPickSettlements = true;
 
-export function App() {
+export type AppProps = {
+  socket: Socket
+};
+
+export function App(props: AppProps) {
+  const { socket } = props;
+
   const [game, setGame] = useState<Game>(new Game({ debugAutoPickSettlements }));
+  console.log('game: ', JSON.stringify(game));
+
+  const [playerId, setPlayerId] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    function receivePlayerId(id: number) {
+      setPlayerId(id);
+    }
+
+    socket.on('playerId', receivePlayerId);
+
+    return () => {
+      socket.off('playerId', receivePlayerId);
+    }
+  }, []);
 
   const hexes = [];
   const towns = [];
@@ -107,8 +129,14 @@ export function App() {
     </div>
   );
 
+  const talkToServer = () => {
+    socket.emit('hello');
+  };
+
   return (
     <div className="App">
+      <div>My player ID: {playerId}</div>
+      <button onClick={talkToServer}>Click the button!</button>
       <div>{game.instructionText}
       </div>
       <div className="App HeaderInfo">
@@ -129,6 +157,3 @@ export function App() {
     </div>
   );
 }
-
-
-

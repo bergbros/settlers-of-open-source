@@ -147,6 +147,10 @@ export default class Game {
     return true;
   }
 
+  // game.nextPlayer();
+  // Game.nextPlayer(game);
+  // redux
+
   nextPlayer() {
     this.claimedSettlement = false;
     this.map.resetDisplayRoads();
@@ -205,6 +209,18 @@ export default class Game {
   closeTradeWindow() {
     this.gamePhase = GamePhase.MainGameplay;
   }
+
+  // serialize() {
+  // 
+  // }
+  // redux
+  // 
+  // 
+  // JSON.parse
+  // new Game()
+  // foreach (pl)
+  // new player
+  // hydrate
 
   nextPlayerMainGameplay() {
     // check for win conditions!

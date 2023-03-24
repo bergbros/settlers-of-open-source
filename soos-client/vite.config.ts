@@ -8,7 +8,13 @@ export default defineConfig({
   server: {
     proxy: {
       // Requests to the Vite devserver under the /api path to the SOOS server on port 3000
-      '/api': 'http://localhost:3000'
+      '/api': 'http://localhost:3000',
+
+      // Proxy websocket requests too
+      '/socket.io': {
+        target: 'ws://localhost:3000',
+        ws: true
+      }
     },
     open: '/'
   }

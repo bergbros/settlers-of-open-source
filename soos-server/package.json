@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc",
     "start": "cd ../soos-gamelogic && npm run build && cd ../soos-server && nodemon --watch './**/*.ts' --exec 'ts-node --esm' src/index.ts",
+    "start2": "ts-node --esm src/index.ts",
     "lint": "eslint ./src --ext .ts -c ../.eslintrc.js --fix",
     "test": "echo \"Error: no tests yet\" && exit 1"
   },

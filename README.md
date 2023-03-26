@@ -2,6 +2,14 @@
 
 ## Development
 
+Before you do anything else, initialize `soos-gamelogic` so that the client & server can be aware of it:
+
+```
+cd soos-gamelogic
+npm install
+npm run build
+```
+
 ### How to run the server:
 
 ```bash

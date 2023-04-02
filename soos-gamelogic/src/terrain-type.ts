@@ -73,3 +73,22 @@ export function stringToResource(jsonResource: string) {
       return ResourceType.None;
   }
 }
+
+export function resourceToLetter(resource: ResourceType | undefined): string {
+  if (resource === undefined) return '/';
+
+  switch (resource) {
+    case ResourceType.Wood:
+      return 'w';
+    case ResourceType.Brick:
+      return 'b';
+    case ResourceType.Sheep:
+      return 's';
+    case ResourceType.Grain:
+      return 'g';
+    case ResourceType.Ore:
+      return 'o';
+    default:
+      return 'd'; //desert
+  }
+}

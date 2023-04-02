@@ -297,4 +297,81 @@ export default class GameMap {
     return returnString;
   }
 
+  hexToString() {
+    let returnArray = "";
+    const BoardHeight = OriginalTerrain.length;
+    const BoardWidth = OriginalTerrain[0].length;
+
+    for (let y = 0; y < BoardHeight; y++) {
+      let returnRow = "";
+      for (let x = 0; x < BoardWidth; x++) {
+        returnRow = returnRow + this.board[y][x].toString() + ";"
+      }
+      returnArray = returnArray + (returnRow) + "%";
+    }
+  }
+
+  initBoardFromString(json: string) {
+    let rowCount = 0;
+    let colCount = 0;
+    this.board = [];
+
+    for (const jsonRow of json.split("%")) {
+      const row: GameHex[] = [];
+      for (const hf of jsonRow.split(";")) {
+
+        let hexTerrain = TerrainType.Empty;
+        let hexResource: ResourceType | undefined = undefined;
+        let hexFrequency: number | undefined = undefined;
+        let pullTerrainTile = false;
+
+        const [h, f] = hf.split(",");
+        switch (h) {
+          case '/':
+            hexTerrain = TerrainType.Water;
+            break;
+          case '?':
+            hexTerrain = TerrainType.Land;
+            hexResource = stringToResource(h);
+            break;
+          default:
+            hexTerrain = TerrainType.Empty;
+            break;
+        }
+
+        if (f.length > 0)
+          hexFrequency = +f;
+
+        const hexCoords = new HexCoords(colCount, rowCount);
+        row.push(new GameHex(hexCoords, hexTerrain, hexResource, hexFrequency))
+
+        colCount++;
+      }
+
+      this.board.push(row);
+      rowCount++;
+    }
+
+    const BoardHeight = this.board.length;
+    const BoardWidth = this.board[0].length;
+
+    // add town spots & roads to each hex
+    for (let y = 0; y < BoardHeight; y++) {
+      for (let x = 0; x < BoardWidth; x++) {
+        if (this.board[y][x].terrainType === TerrainType.Land) {
+          for (const direction of AllVertexDirections) {
+            const townCoords = new VertexCoords(new HexCoords(x, y), direction);
+            if (!this.townExists(townCoords)) {
+              this.addTown(townCoords);
+            }
+          }
+          for (const edge of AllHexDirections) {
+            const roadCoords = new EdgeCoords(new HexCoords(x, y), edge);
+            if (!this.roadExists(roadCoords))
+              this.addRoad(roadCoords);
+          }
+        }
+      }
+    }
+  }
 }

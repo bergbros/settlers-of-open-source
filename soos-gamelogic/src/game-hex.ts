@@ -1,5 +1,5 @@
 import GameTown from './game-town.js';
-import { resourceToLand, ResourceType, TerrainType } from './terrain-type.js';
+import { resourceToLand, resourceToLetter, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import HexCoords from './utils/hex-coords.js';
 import VertexCoords, { VertexDirection } from './utils/vertex-coords.js';
 
@@ -27,5 +27,18 @@ export default class GameHex {
 
   getType() {
     return "GameHex";
+  }
+
+  toString() {
+    let returnString = "";
+    if (this.terrainType === TerrainType.Empty)
+      returnString = "e";
+    else
+      returnString = resourceToLetter(this.resourceType);
+
+    if (this.frequency)
+      return returnString + "," + this.frequency;
+    else
+      return returnString + ",";
   }
 }

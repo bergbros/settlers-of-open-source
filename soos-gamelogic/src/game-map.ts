@@ -1,4 +1,5 @@
 import GameHex from './game-hex.js';
+import GamePlayer from './game-player.js';
 import GameRoad from './game-road.js';
 import GameTown from './game-town.js';
 import { ResourceType, stringToResource, TerrainType } from './terrain-type.js';
@@ -171,6 +172,7 @@ export default class GameMap {
     return false;
   }
 
+
   roadAt(coords: EdgeCoords): GameRoad | undefined {
     // TODO convert to dictionary
     for (const road of this.roads) {
@@ -276,4 +278,23 @@ export default class GameMap {
 
     return egressRoads;
   }
+
+  toString() {
+    let returnString = "";
+
+    for (const road of this.roads) {
+      const roadString = road.toString();
+      if (roadString.length > 0)
+        returnString = returnString + "/" + roadString;
+    }
+
+    for (const town of this.towns) {
+      const townString = town.toString();
+      if (townString.length > 0)
+        returnString = returnString + "/" + townString;
+    }
+
+    return returnString;
+  }
+
 }

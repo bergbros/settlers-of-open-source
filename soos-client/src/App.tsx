@@ -130,7 +130,7 @@ export function App(props: AppProps) {
   );
 
   const talkToServer = () => {
-    socket.emit('hello');
+    socket.emit("hello");
   };
 
   return (

@@ -94,15 +94,7 @@ Ideally, each file in the `gamelogic` and `server` portions would be pretty well
 
 # TODO
 
-Everything!
-
-... But actually, here's a short list of what to get started on:
-
-- Map generation
-- Displaying the map hexes in the client
-- Placing/displaying settlements, roads, etc.
-
-Most of the gamelogic/client stuff is good to start on now. Once you can sort of play a game against yourself in the client, we can work on implementing AI and multiplayer.
+Working on multiplayer with socket IO and serialization with JSON!
 
 ## High-level goals:
 

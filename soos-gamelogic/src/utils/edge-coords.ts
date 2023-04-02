@@ -59,7 +59,7 @@ export default class EdgeCoords {
 
   toString(): string {
     // (3,4,dir=NW)
-    return `(${this.hexCoords.x},${this.hexCoords.y},dir=${edgeDirName(this.direction)})`;
+    return `(${this.hexCoords.x},${this.hexCoords.y},${edgeDirName(this.direction)})`;
   }
 
 

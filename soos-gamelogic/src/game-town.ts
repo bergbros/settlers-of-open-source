@@ -55,4 +55,12 @@ export default class GameTown {
     highlightMe() {
         this.highlighted = true;
     }
+    toString() {
+        if (!this.player)
+            return "";
+        else
+            return "c;" + this.coords.toString() + ";" +
+                this.player.index + ";" +
+                this.townLevel;
+    }
 }

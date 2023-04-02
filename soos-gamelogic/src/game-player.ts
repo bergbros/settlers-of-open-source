@@ -44,4 +44,13 @@ export default class GamePlayer {
     this.cards[res]--;
   }
 
+  toString() {
+    return ("p;" +
+      this.index + ";" +
+      this.name + ";" +
+      this.cards + ";" +
+      this.victoryPoints
+    );
+  }
+
 }

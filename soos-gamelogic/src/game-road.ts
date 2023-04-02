@@ -42,4 +42,11 @@ export default class GameRoad {
     getCoords() {
         return this.coords;
     }
+
+    toString() {
+        if (!this.player)
+            return "";
+        else
+            return "r;" + this.coords.toString() + ";" + this.player.index;
+    }
 }

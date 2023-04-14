@@ -28,6 +28,7 @@ app.get('/api/result', (req: Request, res: Response) => {
 });
 
 const connectedPlayers: (Socket | null)[] = [];
+const game = new Game({ debugAutoPickSettlements: true });
 
 io.on('connection', socket => {
   let id = connectedPlayers.indexOf(null);
@@ -44,16 +45,7 @@ io.on('connection', socket => {
     connectedPlayers[id] = null;
   });
 
-  socket.on('hello', () => {
-    console.log('got hello!');
-
-    // send to other sockets
-    connectedPlayers.forEach(s => {
-      if (s !== socket) {
-        s?.emit('new message');
-      }
-    });
-  });
+  socket.emit('updateGameState', game.toString());
 });
 
 server.listen(port, () => {

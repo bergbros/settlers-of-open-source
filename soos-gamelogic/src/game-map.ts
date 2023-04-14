@@ -26,13 +26,11 @@ export default class GameMap {
   // TODO convert to dictionary
   towns: GameTown[];
   roads: GameRoad[];
-  displayRoads: GameRoad[];
   robberLocation: HexCoords;
   constructor() {
     this.board = [];
     this.towns = [];
     this.roads = [];
-    this.displayRoads = [];
     this.robberLocation = new HexCoords(0, 0);
     this.initializeBoard();
   }
@@ -373,5 +371,35 @@ export default class GameMap {
         }
       }
     }
+  }
+
+  setChildPrototypes() {
+    // const BoardHeight = this.board.length;
+    // const BoardWidth = this.board[0].length;
+
+    // for (let y = 0; y < BoardHeight; y++) {
+    //   for (let x = 0; x < BoardWidth; x++) {
+    //     this.board[y][x] = 
+    //   }
+    // }
+
+    // for (const boardRow of this.board) {
+    //   for (const hex of boardRow) {
+    //     Object.assign(new GameHex(), hex);
+    //   }
+    // }
+
+    // for (const town of this.towns) {
+    //   Object.assign(new GameTown(), town);
+    // }
+
+    for (let i = 0; i < this.roads.length; i++) {
+      this.roads[i] = Object.assign(new GameRoad(), this.roads[i]);
+      this.roads[i].setChildPrototypes();
+    }
+
+    // for (const road of this.roads) {
+    //   Object.assign(new GameRoad(), road);
+    // }
   }
 }

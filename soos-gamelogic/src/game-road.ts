@@ -1,15 +1,21 @@
 import Player from './game-player.js';
+import { HexCoords } from './index.js';
 import EdgeCoords from './utils/edge-coords.js';
+import { HexDirection } from './utils/hex-coords.js';
 
 export default class GameRoad {
     coords: EdgeCoords;
     player?: Player;
     display: boolean;
 
-    constructor(coords: EdgeCoords) {
-        this.coords = coords;
+    constructor(coords?: EdgeCoords) {
+        this.coords = coords || new EdgeCoords(new HexCoords(0, 0), HexDirection.E);
         this.player = undefined;
         this.display = false;
+    }
+
+    setChildPrototypes() {
+        this.coords = new EdgeCoords(new HexCoords(this.coords.hexCoords.x, this.coords.hexCoords.y), this.coords.direction);
     }
 
     getType() {

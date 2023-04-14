@@ -59,8 +59,8 @@ export default class Game {
     this.claimedSettlement = false;
     this.players = [
       new GamePlayer(0, 'Player 1'),
-      new GamePlayer(1, 'Player 2'),
-      new GamePlayer(2, 'Player 3')
+      new GamePlayer(1, 'Player 2')
+      // new GamePlayer(2, 'Player 3')
     ];
 
     this.currPlayerIdx = 0;
@@ -83,11 +83,11 @@ export default class Game {
     this.onVertexClicked(new VertexCoords(new HexCoords(5, 2), VertexDirection.NW));
     this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 2), HexDirection.W));
 
-    this.onVertexClicked(new VertexCoords(new HexCoords(5, 4), VertexDirection.N));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 4), HexDirection.NW));
+    // this.onVertexClicked(new VertexCoords(new HexCoords(5, 4), VertexDirection.N));
+    // this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 4), HexDirection.NW));
 
-    this.onVertexClicked(new VertexCoords(new HexCoords(3, 4), VertexDirection.N));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 4), HexDirection.NW));
+    // this.onVertexClicked(new VertexCoords(new HexCoords(3, 4), VertexDirection.N));
+    // this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 4), HexDirection.NW));
 
     this.onVertexClicked(new VertexCoords(new HexCoords(2, 3), VertexDirection.N));
     this.onEdgeClicked(new EdgeCoords(new HexCoords(2, 3), HexDirection.NW));
@@ -505,75 +505,19 @@ export default class Game {
   }
 
   toString() {
-    let returnString = "";
-    for (const player of this.players) {
-      returnString = returnString + "/" + player.toString();
-    }
-    returnString = returnString + "/" + this.map.toString();
-    //add game props:
-    returnString = returnString + "/g;";
-    returnString = returnString + this.currPlayerIdx + ";";
-    returnString = returnString + this.robberLocation.toString() + ";";
-    returnString = returnString + this.gamePhase;
-    return returnString;
-  }
+    return JSON.stringify(this);
 
-  fromString(json: string) {
-    this.claimedSettlement = false;
-
-    this.currPlayerIdx = 0;
-    this.map = new GameMap();
-    this.robberLocation = this.map.robberLocation;
-    this.gamePhase = GamePhase.PlaceSettlement1;
-    this.instructionText = 'Game Started! Player 1 place first settlement.js';
-    this.displayEmptyTowns();
-
-    //wipe all existing objects!
-    for (const road of this.map.roads) {
-      road.player = undefined;
-    }
-    for (const town of this.map.towns) {
-      town.player = undefined;
-      town.townLevel = 0;
-    }
-    this.players = [ //at least two players!
-      new GamePlayer(0, 'Player 1'),
-      new GamePlayer(1, 'Player 2')
-    ];
-
-    const objects = json.split("/");
-    for (const subJSON of objects) {
-      const props = subJSON.split(";");
-      if (props[0] === "r") { //road
-        this.map.roadAt(this.getEdgeCoords(props[1]))?.claimRoad(this.players[+props[2]]);
-
-      } else if (props[0] === "c") { //city
-        const town = this.map.townAt(this.getVertexCoords(props[1]));
-        if (!town) continue;
-        town.claimTown(this.players[+props[2]]);
-        town.townLevel = +props[3];
-
-      } else if (props[0] === "p") { //player
-        let player: GamePlayer;
-        if (this.players.length < +props[1]) {
-          player = new GamePlayer(+props[1], props[2]);
-        } else {
-          player = this.players[+props[1]];
-          player.name = props[2];
-        }
-        const cards = props[3].split(",");
-        for (let i = 0; i < cards.length; i++) {
-          player.cards[i] = +cards[i];
-        }
-        player.victoryPoints = +props[4];
-        this.players.push(player);
-
-      } else if (props[0] === "g") { //game props
-        this.currPlayerIdx = +props[1];
-        this.robberLocation = this.getHexCoords(props[2]);
-        this.gamePhase = +props[3];
-      }
-    }
+    // let returnString = "";
+    // for (const player of this.players) {
+    //   returnString = returnString + "/" + player.toString();
+    // }
+    // returnString = returnString + "/" + this.map.toString();
+    // //add game props:
+    // returnString = returnString + "/g;";
+    // returnString = returnString + this.currPlayerIdx + ";";
+    // returnString = returnString + this.robberLocation.toString() + ";";
+    // returnString = returnString + this.gamePhase;
+    // return returnString;
   }
 
   getEdgeCoords(json: string) {
@@ -605,4 +549,16 @@ export default class Game {
     const coordsSplit = json.split(",");
     return new HexCoords(+coordsSplit[0], +coordsSplit[1]);
   }
+
+  setChildPrototypes() {
+    this.map = Object.assign(new GameMap(), this.map);
+    this.map.setChildPrototypes();
+  }
+}
+
+export function gameFromString(json: string): Game {
+  const game: Game = Object.assign(new Game({}), JSON.parse(json));
+  game.setChildPrototypes();
+
+  return game;
 }

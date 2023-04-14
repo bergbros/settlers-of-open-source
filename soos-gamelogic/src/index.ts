@@ -1,4 +1,4 @@
-import Game, { GamePhase, RobberPhase } from './game.js';
+import Game, { GamePhase, RobberPhase, gameFromString } from './game.js';
 import GameHex from './game-hex.js';
 import GameTown from './game-town.js';
 import GameRoad from './game-road.js';
@@ -22,4 +22,5 @@ export {
   actionToString,
   GamePhase,
   RobberPhase,
+  gameFromString,
 }

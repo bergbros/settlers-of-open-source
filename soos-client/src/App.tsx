@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase } from 'soos-gamelogic';
+import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase, gameFromString } from 'soos-gamelogic';
 import './App.scss';
 import Hex from './Hex';
 import Player from './Player';
@@ -17,20 +17,41 @@ export type AppProps = {
 export function App(props: AppProps) {
   const { socket } = props;
 
+  // TODO wrap this in another component and don't display placeholder
+  // game when waiting for multiplayer game to start
   const [game, setGame] = useState<Game>(new Game({ debugAutoPickSettlements }));
-  console.log('game: ', JSON.stringify(game));
 
   const [playerId, setPlayerId] = useState<number | undefined>(undefined);
+
+  // Set up force update function
+  const [count, setCount] = useState<number>(0);
+  game.forceUpdate = () => {
+    setCount(count + 1);
+  };
 
   useEffect(() => {
     function receivePlayerId(id: number) {
       setPlayerId(id);
     }
 
+    function updateGameState(gameState: string) {
+      // parse game
+      const updatedGame = gameFromString(gameState);
+
+      updatedGame.forceUpdate = () => {
+        setCount(count + 1);
+      };
+
+      setGame(updatedGame);
+    }
+
     socket.on('playerId', receivePlayerId);
+
+    socket.on('updateGameState', updateGameState);
 
     return () => {
       socket.off('playerId', receivePlayerId);
+      socket.off('updateGameState', updateGameState);
     }
   }, []);
 
@@ -102,13 +123,6 @@ export function App(props: AppProps) {
   robber.push(
     theRobber
   );
-
-  // Set up force update function
-  const [count, setCount] = useState<number>(0);
-  game.forceUpdate = () => {
-    setCount(count + 1);
-  };
-
 
   const dialogBoxes = [];
   dialogBoxes.push(

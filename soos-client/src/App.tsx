@@ -75,7 +75,7 @@ export function App(props: AppProps) {
           onClick={(hexCoords) => {
             if (game.onHexClicked(hexCoords)) sendGameStateToServer();
           }}
-          placeRobber={game.gamePhase === GamePhase.PlaceRobber && game.robberPhase === RobberPhase.PlaceRobber}
+          placeRobber={game.gamePhase === GamePhase.PlaceRobber && game.robberPhase === RobberPhase.PlaceRobber && game.currPlayerIdx === playerId}
           key={`h:${gameHex.coords.x},${gameHex.coords.y}`}
         />
       );
@@ -168,7 +168,7 @@ export function App(props: AppProps) {
           sendGameStateToServer();
         }}
         className="NextTurnButton"
-        disabled={game.gamePhase !== GamePhase.MainGameplay}
+        disabled={game.gamePhase !== GamePhase.MainGameplay || game.currPlayerIdx !== playerId}
       >Next Turn</button>
       <div className="App HeaderInfo">{players}</div>
       <div className="Board">

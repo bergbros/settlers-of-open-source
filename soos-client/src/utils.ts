@@ -1,7 +1,4 @@
-import { HexCoords } from 'soos-gamelogic';
-import EdgeCoords from 'soos-gamelogic/src/utils/edge-coords';
-import { HexDirection } from 'soos-gamelogic/src/utils/hex-coords';
-import VertexCoords, { VertexDirection } from 'soos-gamelogic/src/utils/vertex-coords';
+import { HexCoords, EdgeCoords, HexDirection, VertexCoords, VertexDirection } from 'soos-gamelogic';
 
 export const HexWidth = 100, HexHeight = 120;
 export const BoardWidth = 7, BoardHeight = 7;

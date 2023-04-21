@@ -55,6 +55,10 @@ export function App(props: AppProps) {
     }
   }, []);
 
+  function sendGameStateToServer() {
+    socket.emit("newGameState", game.toString());
+  };
+
   const hexes = [];
   const towns = [];
   const roads = [];
@@ -68,7 +72,9 @@ export function App(props: AppProps) {
       hexes.push(
         <Hex
           gameHex={gameHex}
-          onClick={(hexCoords) => game.onHexClicked(hexCoords)}
+          onClick={(hexCoords) => {
+            if (game.onHexClicked(hexCoords)) sendGameStateToServer();
+          }}
           placeRobber={game.gamePhase === GamePhase.PlaceRobber && game.robberPhase === RobberPhase.PlaceRobber}
           key={`h:${gameHex.coords.x},${gameHex.coords.y}`}
         />
@@ -77,7 +83,7 @@ export function App(props: AppProps) {
   }
 
   for (const town of game.map.towns) {
-    const townCoords = town.coords;
+    const townCoords = town.coords!;
 
     if (!town.display)
       continue;
@@ -85,7 +91,7 @@ export function App(props: AppProps) {
     towns.push(
       <Town
         gameTown={town}
-        onClick={(vertexCoords) => game.onVertexClicked(vertexCoords)}
+        onClick={(vertexCoords) => { if (game.onVertexClicked(vertexCoords)) sendGameStateToServer(); }}
         key={`t:${townCoords.hexCoords.x},${townCoords.hexCoords.y},${townCoords.direction}`}
       />
     );
@@ -100,7 +106,7 @@ export function App(props: AppProps) {
     roads.push(
       <Road
         gameRoad={road}
-        onClick={(edgeCoords) => game.onEdgeClicked(edgeCoords)}
+        onClick={(edgeCoords) => { if (game.onEdgeClicked(edgeCoords)) sendGameStateToServer(); }}
         key={`r:${roadCoords.hexCoords.x},${roadCoords.hexCoords.y},${roadCoords.direction}`}
       />
     );
@@ -113,7 +119,10 @@ export function App(props: AppProps) {
   for (const option of AllBuildOptions) {
     actions.push(
       <button
-        onClick={() => game.executeAction(option)}
+        onClick={() => {
+          game.executeAction(option);
+          sendGameStateToServer();
+        }}
         className="ActionButton"
         disabled={!game.actionViable(option)}>
         {actionToString(option)}
@@ -143,21 +152,21 @@ export function App(props: AppProps) {
     </div>
   );
 
-  const talkToServer = () => {
-    socket.emit("hello");
-  };
-
+  let playerName = "waiting to connect";
+  if (playerId !== undefined) playerName = game.players[playerId!].name;
   return (
     <div className="App">
-      <div>My player ID: {playerId}</div>
-      <button onClick={talkToServer}>Click the button!</button>
+      <div>My player name: {playerName}</div>
       <div>{game.instructionText}
       </div>
       <div className="App HeaderInfo">
         {actions}
       </div>
       <button
-        onClick={() => game.nextPlayer()}
+        onClick={() => {
+          game.nextPlayer();
+          sendGameStateToServer();
+        }}
         className="NextTurnButton"
         disabled={game.gamePhase !== GamePhase.MainGameplay}
       >Next Turn</button>

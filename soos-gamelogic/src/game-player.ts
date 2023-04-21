@@ -53,4 +53,8 @@ export default class GamePlayer {
     );
   }
 
+  setChildPrototypes() {
+    //nothing to serialize!
+  }
+
 }

@@ -139,7 +139,7 @@ export default class GameMap {
   townExists(coords: VertexCoords) {
     // TODO convert to dictionary
     for (const town of this.towns) {
-      if (town.coords.equals(coords)) {
+      if (town.coords && town.coords.equals(coords)) {
         return true;
       }
     }
@@ -149,7 +149,7 @@ export default class GameMap {
   townAt(coords: VertexCoords): GameTown | undefined {
     // TODO convert to dictionary
     for (const town of this.towns) {
-      if (town.coords.equals(coords)) {
+      if (town.coords && town.coords.equals(coords)) {
         return town;
       }
     }
@@ -374,14 +374,20 @@ export default class GameMap {
   }
 
   setChildPrototypes() {
-    // const BoardHeight = this.board.length;
-    // const BoardWidth = this.board[0].length;
+    const BoardHeight = this.board.length;
+    const BoardWidth = this.board[0].length;
 
-    // for (let y = 0; y < BoardHeight; y++) {
-    //   for (let x = 0; x < BoardWidth; x++) {
-    //     this.board[y][x] = 
-    //   }
-    // }
+    for (let y = 0; y < BoardHeight; y++) {
+      for (let x = 0; x < BoardWidth; x++) {
+        //this.board[y][x].coords = Object.assign(new HexCoords(), this.board[y][x].coords),
+        this.board[y][x] = new GameHex(
+          new HexCoords(this.board[y][x].coords.x, this.board[y][x].coords.y),
+          this.board[y][x].terrainType,
+          this.board[y][x].resourceType,
+          this.board[y][x].frequency
+        );
+      }
+    }
 
     // for (const boardRow of this.board) {
     //   for (const hex of boardRow) {
@@ -389,17 +395,15 @@ export default class GameMap {
     //   }
     // }
 
-    // for (const town of this.towns) {
-    //   Object.assign(new GameTown(), town);
-    // }
+    for (let i = 0; i < this.towns.length; i++) {
+      this.towns[i] = Object.assign(new GameTown(), this.towns[i]);
+      this.towns[i].setChildPrototypes();
+    }
 
     for (let i = 0; i < this.roads.length; i++) {
       this.roads[i] = Object.assign(new GameRoad(), this.roads[i]);
       this.roads[i].setChildPrototypes();
     }
 
-    // for (const road of this.roads) {
-    //   Object.assign(new GameRoad(), road);
-    // }
   }
 }

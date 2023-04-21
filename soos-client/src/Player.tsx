@@ -1,5 +1,4 @@
-import { GamePlayer, ResourceType, resourceToString } from 'soos-gamelogic';
-import { AllResourceTypes } from 'soos-gamelogic/src/terrain-type';
+import { GamePlayer, ResourceType, resourceToString, AllResourceTypes } from 'soos-gamelogic';
 
 export type PlayerProps = {
   player: GamePlayer

@@ -1,6 +1,4 @@
-import { GameRoad } from 'soos-gamelogic';
-import EdgeCoords from 'soos-gamelogic/src/utils/edge-coords';
-import { HexDirection } from 'soos-gamelogic/src/utils/hex-coords';
+import { GameRoad, EdgeCoords, HexDirection } from 'soos-gamelogic';
 import { edgeCoordsToPixels, vertexCoordsToPixels } from './utils';
 
 export type RoadProps = {

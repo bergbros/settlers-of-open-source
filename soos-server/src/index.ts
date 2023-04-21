@@ -3,7 +3,7 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 
-import { Game } from 'soos-gamelogic';
+import { Game, gameFromString } from 'soos-gamelogic';
 
 const port = 3000;
 
@@ -28,7 +28,7 @@ app.get('/api/result', (req: Request, res: Response) => {
 });
 
 const connectedPlayers: (Socket | null)[] = [];
-const game = new Game({ debugAutoPickSettlements: true });
+let game = new Game({ debugAutoPickSettlements: true });
 
 io.on('connection', socket => {
   let id = connectedPlayers.indexOf(null);
@@ -40,6 +40,12 @@ io.on('connection', socket => {
   connectedPlayers[id] = socket;
   socket.emit('playerId', id);
 
+  socket.on('newGameState', (newGameState) => {
+    console.log(`got New Game State`);
+    game = gameFromString(newGameState);
+    socket.broadcast.emit('updateGameState', newGameState);
+  });
+
   socket.on('disconnect', () => {
     console.log(`user ${id} disconnected`);
     connectedPlayers[id] = null;
@@ -47,6 +53,7 @@ io.on('connection', socket => {
 
   socket.emit('updateGameState', game.toString());
 });
+
 
 server.listen(port, () => {
   console.log(`Settlers of Open Source server listening on port ${port}`);

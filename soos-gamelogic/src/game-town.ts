@@ -1,38 +1,39 @@
 import Player from './game-player.js';
+import HexCoords from './utils/hex-coords.js';
 import VertexCoords from './utils/vertex-coords.js';
 
 export default class GameTown {
-    coords: VertexCoords;
-    player?: Player;
+    coords?: VertexCoords;
+    playerIdx?: number;
     townLevel: number;
     display: boolean;
     highlighted: boolean;
 
-    constructor(coords: VertexCoords) {
-        this.coords = coords;
-        this.player = undefined;
+    constructor(coords?: VertexCoords) {
+        if (coords) this.coords = coords;
+        this.playerIdx = undefined;
         this.townLevel = 0;
         this.display = false;
         this.highlighted = false;
     }
 
-    claimTown(player: Player) {
-        if (!player)
+    claimTown(playerIdx: number) {
+        if (playerIdx === undefined)
             throw new Error(`Can't claim town without player`);
-        if (this.player)
+        if (this.playerIdx)
             throw new Error(`town already claimed`);
 
-        this.player = player;
+        this.playerIdx = playerIdx;
         this.townLevel = 1;
     }
 
     upgradeCity() {
-        if (!this.player) throw Error;
+        if (this.playerIdx === undefined) throw Error;
         this.townLevel++;
     }
 
     isUnclaimed(): boolean {
-        return !this.player;
+        return this.playerIdx === undefined;
     }
 
     getType() {
@@ -48,19 +49,17 @@ export default class GameTown {
     }
 
     resetDisplay() {
-        this.display = this.player !== undefined;
+        this.display = this.playerIdx !== undefined;
         this.highlighted = false;
     }
 
     highlightMe() {
         this.highlighted = true;
     }
-    toString() {
-        if (!this.player)
-            return "";
-        else
-            return "c;" + this.coords.toString() + ";" +
-                this.player.index + ";" +
-                this.townLevel;
+
+    setChildPrototypes() {
+
+        this.coords = new VertexCoords(new HexCoords(this.coords!.hexCoords.x, this.coords!.hexCoords.y), this.coords!.direction);
     }
+
 }

@@ -245,8 +245,8 @@ export default class Game {
     for (const hex of hexes) {
       for (const dir of AllVertexDirections) {
         const town = this.map.townAt(new VertexCoords(hex.coords, dir));
-        if (town && town.player) {
-          town.player.addCard(hex.resourceType, town.townLevel);
+        if (town && town.playerIdx !== undefined) {
+          this.players[town.playerIdx].addCard(hex.resourceType, town.townLevel);
         }
       }
     }
@@ -319,7 +319,7 @@ export default class Game {
     for (const plyr of this.players) {
       plyr.victoryPoints = 0;
       for (const twn of this.map.towns) {
-        if (twn.player === plyr)
+        if (twn.playerIdx === plyr.index)
           plyr.victoryPoints += twn.townLevel;
       }
       if (plyr.victoryPoints > maxPoints)
@@ -360,7 +360,7 @@ export default class Game {
         for (const town of this.map.towns) {
           if (town.isUnclaimed())
             continue;
-          if (town.player === this.players[this.currPlayerIdx])
+          if (town.playerIdx === this.currPlayerIdx)
             town.highlightMe();
         }
         this.claimedSettlement = false;
@@ -375,17 +375,18 @@ export default class Game {
     this.forceUpdate();
   }
 
-  onVertexClicked(vertex: VertexCoords) {
+  onVertexClicked(vertex: VertexCoords): boolean {
     if (this.claimedSettlement)
-      return;
+      return false;
     const currPlayer = this.getCurrPlayer();
     const townThere = this.map.townAt(vertex);
 
+    let actionPerformed = false;
     if (this.gamePhase === GamePhase.PlaceSettlement1
       || this.gamePhase === GamePhase.PlaceSettlement2
       || this.gamePhase === GamePhase.BuildSettlement) {
 
-      townThere?.claimTown(currPlayer);
+      townThere?.claimTown(currPlayer.index);
       this.map.resetDisplayRoads();
       this.map.resetDisplayTowns();
 
@@ -396,29 +397,31 @@ export default class Game {
         currPlayer.spend(AllBuildCosts[BuildOptions.Settlement]);
         this.gamePhase = GamePhase.MainGameplay;
       }
-
+      actionPerformed = true;
     } else if (this.gamePhase === GamePhase.BuildCity && townThere?.highlighted) {
       townThere.upgradeCity();
       this.gamePhase = GamePhase.MainGameplay;
       currPlayer.spend(AllBuildCosts[BuildOptions.City]);
       this.map.resetDisplayTowns();
-
+      actionPerformed = true;
     } else if (this.gamePhase === GamePhase.PlaceRobber
       && this.robberPhase === RobberPhase.ChooseWhoToRob
-      && townThere?.player
-      && townThere?.player !== this.getCurrPlayer()) {
+      && townThere?.playerIdx !== undefined
+      && townThere?.playerIdx !== this.currPlayerIdx) {
 
-      this.stealResourceFromPlayer(townThere.player);
+      this.stealResourceFromPlayer(townThere.playerIdx);
+      actionPerformed = true;
     }
 
     this.forceUpdate();
+    return actionPerformed;
   }
 
-  onEdgeClicked(edge: EdgeCoords) {
+  onEdgeClicked(edge: EdgeCoords): boolean {
     if (!this.claimedSettlement && (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2))
-      return;
+      return false;
     if (this.gamePhase !== GamePhase.BuildRoad && this.gamePhase !== GamePhase.PlaceSettlement1 && this.gamePhase !== GamePhase.PlaceSettlement2)
-      return;
+      return false;
 
     const currPlayer = this.getCurrPlayer();
     const roadThere = this.map.roadAt(edge);
@@ -426,13 +429,16 @@ export default class Game {
     if (this.gamePhase == GamePhase.BuildRoad) currPlayer.spend(AllBuildCosts[BuildOptions.Road]);
     this.nextPlayer();
     this.forceUpdate();
+    return true;
   }
 
-  onHexClicked(coords: HexCoords) {
+  onHexClicked(coords: HexCoords): boolean {
     //useful for when we place the robber!
     if (this.gamePhase === GamePhase.PlaceRobber && this.robberPhase === RobberPhase.PlaceRobber) {
       this.onHexClicked_PlaceRobber(coords);
+      return true;
     }
+    return false;
   }
 
   onHexClicked_PlaceRobber(coords: HexCoords) {
@@ -445,14 +451,14 @@ export default class Game {
     this.robberLocation = coords;
 
     // Choose who to steal from
-    const robbablePlayers: GamePlayer[] = [];
+    const robbablePlayers: number[] = [];
     for (const dir of AllVertexDirections) {
       const town = this.map.townAt(new VertexCoords(clickedHex.coords, dir));
-      if (town && town.player && town.player !== this.getCurrPlayer()) {
+      if (town && town.playerIdx !== undefined && town.playerIdx !== this.currPlayerIdx) {
         // Highlight town for player choosing who to steal from
         town.highlightMe();
 
-        if (!robbablePlayers.includes(town.player)) robbablePlayers.push(town.player);
+        if (!robbablePlayers.includes(town.playerIdx)) robbablePlayers.push(town.playerIdx);
       }
     }
 
@@ -470,7 +476,6 @@ export default class Game {
     // Check if there's more than 1 player to rob
     if (robbablePlayers.length === 1) {
       // Only 1 player to rob, rob them automatically
-      console.log("robbing one player: " + robbablePlayers[0].index);
       this.stealResourceFromPlayer(robbablePlayers[0]);
       this.clearAllDisplaysAndForceUpdate();
       return;
@@ -481,7 +486,8 @@ export default class Game {
     this.forceUpdate();
   }
 
-  stealResourceFromPlayer(robbedPlayer: GamePlayer) {
+  stealResourceFromPlayer(robbedPlayerIdx: number) {
+    const robbedPlayer = this.players[robbedPlayerIdx];
     const availableResources = robbedPlayer.currentResources();
     if (availableResources.length === 0) {
       this.instructionText =
@@ -506,18 +512,6 @@ export default class Game {
 
   toString() {
     return JSON.stringify(this);
-
-    // let returnString = "";
-    // for (const player of this.players) {
-    //   returnString = returnString + "/" + player.toString();
-    // }
-    // returnString = returnString + "/" + this.map.toString();
-    // //add game props:
-    // returnString = returnString + "/g;";
-    // returnString = returnString + this.currPlayerIdx + ";";
-    // returnString = returnString + this.robberLocation.toString() + ";";
-    // returnString = returnString + this.gamePhase;
-    // return returnString;
   }
 
   getEdgeCoords(json: string) {
@@ -553,6 +547,15 @@ export default class Game {
   setChildPrototypes() {
     this.map = Object.assign(new GameMap(), this.map);
     this.map.setChildPrototypes();
+
+    for (let i = 0; i < this.players.length; i++) {
+      this.players[i] = Object.assign(new GamePlayer(i, this.players[i].name), this.players[i]);
+      this.players[i].setChildPrototypes();
+    }
+
+    this.robberLocation = new HexCoords(this.robberLocation.x, this.robberLocation.y)
+
+
   }
 }
 

@@ -1,6 +1,5 @@
-import GameTown from 'soos-gamelogic/src/gametown';
-import VertexCoords from 'soos-gamelogic/src/utils/vertex-coords';
 import { vertexCoordsToPixels } from './utils';
+import { GameTown, VertexCoords } from 'soos-gamelogic';
 
 export type TownProps = {
   gameTown: GameTown;
@@ -10,7 +9,7 @@ export type TownProps = {
 export default function Town(props: TownProps) {
   const { gameTown, onClick } = props;
 
-  const playerClass = gameTown.isUnclaimed() ? '' : 'p' + gameTown.player?.index;
+  const playerClass = gameTown.isUnclaimed() ? '' : 'p' + gameTown.playerIdx;
   let highlighted = ''
   if (gameTown.highlighted) {
     highlighted = 'highlight';
@@ -32,16 +31,16 @@ export default function Town(props: TownProps) {
       break;
   }
 
-  const { x, y } = vertexCoordsToPixels(gameTown.coords);
+  const { x, y } = vertexCoordsToPixels(gameTown.coords!);
 
   return (
     <div className={'Town' + townLevel + ' ' + playerClass + ' ' + highlighted}
-      key={`t:${gameTown.coords.hexCoords.x},${gameTown.coords.hexCoords.y},${gameTown.coords.direction}`}
+      key={`t:${gameTown.coords!.hexCoords.x},${gameTown.coords!.hexCoords.y},${gameTown.coords!.direction}`}
       style={{
         left: x + 'px',
         top: y + 'px'
       }}
-      onClick={() => onClick(gameTown.coords)}
+      onClick={() => onClick(gameTown.coords!)}
     >
 
     </div>

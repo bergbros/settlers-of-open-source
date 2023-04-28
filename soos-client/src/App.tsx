@@ -124,7 +124,7 @@ export function App(props: AppProps) {
           sendGameStateToServer();
         }}
         className="ActionButton"
-        disabled={!game.actionViable(option)}>
+        disabled={!game.actionViable(option) || game.currPlayerIdx !== playerId}>
         {actionToString(option)}
       </button>);
   }
@@ -157,6 +157,7 @@ export function App(props: AppProps) {
   return (
     <div className="App">
       <div>My player name: {playerName}</div>
+      <div>Round #0{game.turnNumber}</div>
       <div>{game.instructionText}
       </div>
       <div className="App HeaderInfo">

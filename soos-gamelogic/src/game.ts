@@ -54,8 +54,9 @@ export default class Game {
   claimedSettlement: boolean; //only applicable during gamephase.placeSettlement 1&2, if false player is placing settlement, if true they are placing a road.
   robberLocation: HexCoords;
   robberPhase?: RobberPhase;
-
+  turnNumber: number;
   constructor(options: { debugAutoPickSettlements?: boolean }) {
+    this.turnNumber = 0;
     this.claimedSettlement = false;
     this.players = [
       new GamePlayer(0, 'Player 1'),
@@ -70,7 +71,6 @@ export default class Game {
     this.instructionText = 'Game Started! Player 1 place first settlement.js';
     this.displayEmptyTowns();
 
-    // TODO
     if (options.debugAutoPickSettlements) {
       this.autoPickSettlements()
     }
@@ -146,10 +146,6 @@ export default class Game {
   isLocalPlayerTurn(): boolean {
     return true;
   }
-
-  // game.nextPlayer();
-  // Game.nextPlayer(game);
-  // redux
 
   nextPlayer() {
     this.claimedSettlement = false;
@@ -232,8 +228,10 @@ export default class Game {
     }
 
     //next player
-    if (this.currPlayerIdx === this.players.length - 1)
+    if (this.currPlayerIdx === this.players.length - 1) {
       this.currPlayerIdx = 0;
+      this.turnNumber++;
+    }
     else
       this.currPlayerIdx++;
 

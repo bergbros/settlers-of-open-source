@@ -25,6 +25,7 @@ export default class GameTown {
 
         this.playerIdx = playerIdx;
         this.townLevel = 1;
+        //TODO: update trade ratio if this city borders on a port
     }
 
     upgradeCity() {

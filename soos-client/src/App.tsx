@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase, gameFromString } from 'soos-gamelogic';
+import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase, gameFromString, AllResourceTypes, resourceToString } from 'soos-gamelogic';
 import './App.scss';
 import Hex from './Hex';
 import Player from './Player';
@@ -134,29 +134,33 @@ export function App(props: AppProps) {
   );
 
   const dialogBoxes = [];
+  const tradeOptions = [];
+  if (playerId !== undefined) {
+    for (const resource of AllResourceTypes) {
+      tradeOptions.push(<button className="ActionButton" disabled={false}>{'Trade ' + game.players[playerId].tradeRatio[resource] + ' ' + resourceToString(resource)}</button>);
+    }
+  }
   dialogBoxes.push(
-    <div id="myModal" className="modal">
+    <div id="tradeModal" className="modal">
       <div className="modal-content">
         <div className="modal-header">
           <span className="close">&times;</span>
-          <h2>Modal Header</h2>
+          <h2>Available Trades:</h2>
         </div>
         <div className="modal-body">
-          <p>Some text in the Modal Body</p>
-          <p>Some other text...</p>
-        </div>
-        <div className="modal-footer">
-          <h3>Modal Footer</h3>
+          <div className="TradeInButtons">{tradeOptions}</div>
+          <div className="TradeForSelector"></div>
         </div>
       </div>
     </div>
   );
 
+
   let playerName = "waiting to connect";
   if (playerId !== undefined) playerName = game.players[playerId!].name;
   return (
     <div className="App">
-      <div>My player name: {playerName}</div>
+      <div className={'p' + playerId}>My player name: {playerName}</div>
       <div>Round #0{game.turnNumber}</div>
       <div>{game.instructionText}
       </div>
@@ -178,6 +182,7 @@ export function App(props: AppProps) {
         {roads}
         {robber}
       </div>
+      {dialogBoxes}
     </div>
   );
 }

@@ -8,6 +8,7 @@ $p0-color: red;
   width: 100%;
   border: 3px solid black;
   white-space: pre-wrap;
+  padding: 10px;
 
   &.HeaderInfo {
     position: relative;
@@ -21,6 +22,21 @@ $p0-color: red;
   &.ActionButtons {
     display: inline;
     padding: 15px;
+  }
+
+  &.TradeInButtons {
+    width: 50%;
+  }
+
+  &.TradeForSelector {
+    width: 50%;
+    left: 50%;
+  }
+
+  &.TradeButtons {
+    display: inline;
+    padding: 15px;
+    width: 100%;
   }
 }
 
@@ -69,9 +85,9 @@ $p0-color: red;
   display: flex;
   flex-direction: row;
   position: relative;
-  top: 50px;
-  left: 50px;
-  height: 800px;
+  top: 0px;
+  left: 10px;
+  height: 780px;
   width: 900px;
   background-color: lightblue;
 }
@@ -93,69 +109,79 @@ $p0-color: red;
   clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
   z-index: 1;
 
-  .tileNumber {
-    color: black;
-    text-align: center;
-    margin: auto;
-    margin-top: 40px;
 
-    width: $tileNumberSize;
-    height: $tileNumberSize;
-    line-height: $tileNumberSize; // center text vertically
-
-    font-size: 25px;
-    z-index: 5;
-
-    background-color: bisque;
-    border-radius: calc($tileNumberSize/2);
-  }
 
   .tileCoords {
     position: absolute;
-    font-size: 14px;
+    font-size: 10px;
     top: 80px;
     right: 20px;
   }
+}
 
-  &.water {
-    background-color: rgba(173, 216, 230, 0);
-    z-index: 3;
-  }
+.port,
+.tileNumber {
+  color: black;
+  text-align: center;
+  margin: auto;
+  margin-top: 40px;
 
-  &.water {
-    background-color: lightskyblue;
-    z-index: 3;
-  }
+  width: $tileNumberSize;
+  height: $tileNumberSize;
+  line-height: $tileNumberSize; // center text vertically
 
-  &.wood {
-    background-color: rgb(0, 90, 0);
-    z-index: 3;
-  }
+  font-size: 25px;
+  z-index: 5;
 
-  &.sheep {
-    background-color: rgb(97, 222, 97);
-    z-index: 3;
-  }
+  border-radius: calc($tileNumberSize/2);
+}
 
-  &.brick {
-    background-color: rgb(146, 26, 8);
-    z-index: 3;
-  }
+.port {
+  border: 3px solid black;
+  font-size: 20px;
+}
 
-  &.ore {
-    background-color: rgb(75, 75, 75);
-    z-index: 3;
-  }
+.none {
+  background-color: bisque;
+}
 
-  &.grain {
-    background-color: rgb(237, 213, 30);
-    z-index: 3;
-  }
+.water {
+  background-color: lightskyblue;
+  z-index: 3;
+}
 
-  &.desert {
-    background-color: rgb(243, 213, 152);
-    z-index: 3;
-  }
+.wood {
+  background-color: rgb(0, 90, 0);
+  z-index: 3;
+  color: white;
+}
+
+.sheep {
+  background-color: rgb(97, 222, 97);
+  z-index: 3;
+}
+
+.brick {
+  //background-color: rgb(146, 26, 8);
+  background-color: rgb(146, 26, 8) !important;
+  z-index: 3;
+  color: white;
+}
+
+.ore {
+  background-color: rgb(75, 75, 75);
+  z-index: 3;
+  color: white;
+}
+
+.grain {
+  background-color: rgb(237, 213, 30);
+  z-index: 3;
+}
+
+.desert {
+  background-color: rgb(243, 213, 152);
+  z-index: 3;
 }
 
 .Town {
@@ -245,6 +271,10 @@ $p0-color: red;
 
 .modal-body {
   padding: 2px 16px;
+}
+
+.modal {
+  width: 50%;
 }
 
 .modal-footer {

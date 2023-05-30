@@ -8,12 +8,14 @@ export default class GamePlayer {
   index: number;
   name: string;
   cards: number[];
+  tradeRatio: number[];
   victoryPoints: number;
 
   constructor(index: number, name: string) {
     this.index = index;
     this.name = name;
     this.cards = [0, 0, 0, 0, 0];
+    this.tradeRatio = [4, 4, 4, 4, 4];
     this.victoryPoints = 0;
   }
 

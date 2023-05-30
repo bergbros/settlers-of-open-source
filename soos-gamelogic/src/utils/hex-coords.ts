@@ -22,6 +22,9 @@ export default class HexCoords {
 
   // Returns the coordinates of the hex in the given direction from this hex.
   add(direction: HexDirection): HexCoords {
+    return this.addHC(direction);
+  }
+  addHC(direction: HexDirection): HexCoords {
     const coords = hexDirToCoords(direction);
 
     let x = this.x + coords.x;
@@ -91,6 +94,7 @@ const _dirToCoords = Object.freeze({
 
 // Convert a HexDirection enum to a HexCoords object containing the actual x/y offset for that direction.
 export function hexDirToCoords(dir: HexDirection): HexCoords {
+
   return _dirToCoords[dir];
 }
 

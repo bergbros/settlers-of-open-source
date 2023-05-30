@@ -2,23 +2,35 @@ import GameHex from './game-hex.js';
 import GamePlayer from './game-player.js';
 import GameRoad from './game-road.js';
 import GameTown from './game-town.js';
-import { ResourceType, stringToResource, TerrainType } from './terrain-type.js';
+import { isSeaType, ResourceType, stringToResource, TerrainType } from './terrain-type.js';
 import EdgeCoords, { vertexToEdge } from './utils/edge-coords.js';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
 import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection, vertexDirName } from './utils/vertex-coords.js';
 
 const OriginalTiles = Object.freeze(['b', 'b', 'b', 'o', 'o', 'o', 'w', 'w', 'w', 'w', 'g', 'g', 'g', 'g', 's', 's', 's', 's', 'd']);
-const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]);
+//const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]);
+const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12]); //with creative seatile maps 
+const OriginalSeaTiles = Object.freeze(['b', 'o', 'w', 's', 'g', '/', '/', '/', '/', '/b', '/o', '/w', '/g', '/s', '/a', '/a', '/a', '/a']);
+// const OriginalTerrain = Object.freeze([
+//   ['e', 'e', '/', '/', '/', '/', 'e'],
+//   ['e', '/', '?', '?', '?', '/', 'e'],
+//   ['e', '/', '?', '?', '?', '?', '/'],
+//   ['/', '?', '?', '?', '?', '?', '/'],
+//   ['e', '/', '?', '?', '?', '?', '/'],
+//   ['e', '/', '?', '?', '?', '/', 'e'],
+//   ['e', 'e', '/', '/', '/', '/', 'e'],
+// ]);
 
 const OriginalTerrain = Object.freeze([
-  ['e', 'e', '/', '/', '/', '/', 'e'],
-  ['e', '/', '?', '?', '?', '/', 'e'],
-  ['e', '/', '?', '?', '?', '?', '/'],
-  ['/', '?', '?', '?', '?', '?', '/'],
-  ['e', '/', '?', '?', '?', '?', '/'],
-  ['e', '/', '?', '?', '?', '/', 'e'],
-  ['e', 'e', '/', '/', '/', '/', 'e'],
+  ['e', 'e', '~', '~', '~', '~', 'e'],
+  ['e', '~', '~', '~', '~', '~', 'e'],
+  ['e', '~', '~', '~', '~', '~', '~'],
+  ['~', '~', '~', '~', '~', '~', '~'],
+  ['e', '~', '~', '~', '~', '~', '~'],
+  ['e', '~', '~', '~', '~', '~', 'e'],
+  ['e', 'e', '~', '~', '~', '~', 'e'],
 ]);
+
 
 export default class GameMap {
   board: GameHex[][];
@@ -38,7 +50,13 @@ export default class GameMap {
   initializeBoard() {
     const BoardHeight = OriginalTerrain.length;
     const BoardWidth = OriginalTerrain[0].length;
-    const tilePile = this.stringToResourcePile(OriginalTiles);
+    let tilePile = this.stringToResourcePile(OriginalTiles);
+    const seaTilePile = this.stringToResourcePile(OriginalSeaTiles);
+    const creativeMap = true;
+    if (creativeMap) {
+      tilePile = tilePile.concat(seaTilePile);
+    }
+
     const numberPile = OriginalNumbers.slice();
     for (let y = 0; y < BoardHeight; y++) {
       const isOffset: boolean = y % 2 === 1;
@@ -53,6 +71,9 @@ export default class GameMap {
         let hexFrequency: number | undefined = undefined;
         let pullTerrainTile = false;
         switch (OriginalTerrain[y][x]) {
+          case '~': //either water OR land!
+            pullTerrainTile = true;
+            break;
           case '/':
             hexTerrain = TerrainType.Water;
             break;
@@ -76,10 +97,16 @@ export default class GameMap {
           }
           tilePile.splice(tileIndex, 1);
 
-          const frequencyIndex = Math.floor(Math.random() * numberPile.length);
-          if (hexResource !== ResourceType.None) {
+          if (hexResource !== ResourceType.None && !isSeaType(hexResource)) {
+            const frequencyIndex = Math.floor(Math.random() * numberPile.length);
             hexFrequency = numberPile[frequencyIndex];
             numberPile.splice(frequencyIndex, 1);
+          }
+
+          if (isSeaType(hexResource)) {
+            hexTerrain = TerrainType.Water;
+          } else {
+            hexTerrain = TerrainType.Land; //empty tiles don't get to pull a tile
           }
         }
         const newHex = new GameHex(new HexCoords(x, y), hexTerrain, hexResource, hexFrequency);

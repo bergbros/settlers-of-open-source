@@ -5,7 +5,7 @@ import GameTown from './game-town.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import EdgeCoords from './utils/edge-coords.js';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
-import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection } from './utils/vertex-coords.js';
+import VertexCoords, { AllVertexDirections, edgeToVertex, getHexes, VertexDirection } from './utils/vertex-coords.js';
 
 // phases requiring input
 export enum GamePhase {
@@ -368,6 +368,7 @@ export default class Game {
 
         break;
       case BuildOptions.Trade:
+
         break;
     }
     this.forceUpdate();
@@ -387,6 +388,7 @@ export default class Game {
       townThere?.claimTown(currPlayer.index);
       this.map.resetDisplayRoads();
       this.map.resetDisplayTowns();
+      this.updatePlayerTradeRatios(townThere);
 
       if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
         this.claimedSettlement = true;
@@ -555,6 +557,54 @@ export default class Game {
 
 
   }
+
+
+  updatePlayerTradeRatios(townThere: GameTown | undefined) {
+    if (!townThere) return;
+    if (!townThere.coords) return;
+    const hcoords = townThere.coords.hexCoords;
+    for (const hcoords of getHexes(townThere.coords)) {
+      let newRatios = this.getTradeRatios(hcoords);
+      if (newRatios) {
+        this.setLowerRatio(newRatios);
+      }
+    }
+  }
+
+  setLowerRatio(ratio: number[]) {
+    for (let i = 0; i < ratio.length; i++) {
+      if (this.players[this.currPlayerIdx].tradeRatio[i] > ratio[i])
+        this.players[this.currPlayerIdx].tradeRatio[i] = ratio[i];
+    }
+  }
+
+  getTradeRatios(coords: HexCoords) {
+    if (coords.y < 0 || coords.x < 0) return undefined;
+    if (coords.y >= this.map.board.length || coords.x >= this.map.board[coords.y].length) return undefined;
+    if (!this.map.board[coords.y][coords.x].resourceType) return undefined;
+
+    switch (this.map.board[coords.y][coords.x].resourceType) {
+      case ResourceType.AnyPort:
+        return [3, 3, 3, 3, 3];
+      case ResourceType.WoodPort:
+        return [2, 4, 4, 4, 4];
+      case ResourceType.BrickPort:
+        return [4, 2, 4, 4, 4];
+      case ResourceType.SheepPort:
+        return [4, 4, 2, 4, 4];
+      case ResourceType.GrainPort:
+        return [4, 4, 4, 2, 4];
+      case ResourceType.OrePort:
+        return [4, 4, 4, 4, 2];
+      default:
+        return undefined;
+    }
+  }
+  // Wood = 0,
+  // Brick = 1,
+  // Sheep = 2,
+  // Grain = 3,
+  // Ore = 4,
 }
 
 export function gameFromString(json: string): Game {

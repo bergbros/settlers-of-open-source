@@ -8,13 +8,14 @@ export default class GameTown {
     townLevel: number;
     display: boolean;
     highlighted: boolean;
-
+    production: number;
     constructor(coords?: VertexCoords) {
         if (coords) this.coords = coords;
         this.playerIdx = undefined;
         this.townLevel = 0;
         this.display = false;
         this.highlighted = false;
+        this.production = 0;
     }
 
     claimTown(playerIdx: number) {
@@ -25,7 +26,6 @@ export default class GameTown {
 
         this.playerIdx = playerIdx;
         this.townLevel = 1;
-        //TODO: update trade ratio if this city borders on a port
     }
 
     upgradeCity() {

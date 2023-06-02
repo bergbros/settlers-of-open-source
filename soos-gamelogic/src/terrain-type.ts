@@ -41,6 +41,7 @@ export const AllResourceTypes = Object.freeze([
 export function resourceToLand(resource: ResourceType | undefined): string {
   if (resource === undefined)
     return "none";
+  //console.log(resource.toString());
   switch (resource) {
     case ResourceType.Ore:
       return 'ore';

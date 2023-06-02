@@ -28,7 +28,7 @@ app.get('/api/result', (req: Request, res: Response) => {
 });
 
 const connectedPlayers: (Socket | null)[] = [];
-let game = new Game({ debugAutoPickSettlements: true });
+let game = new Game({ debugAutoPickSettlements: false });
 
 io.on('connection', socket => {
   let id = connectedPlayers.indexOf(null);

@@ -77,8 +77,21 @@ export default class Game {
   }
 
   autoPickSettlements() {
-    this.onVertexClicked(new VertexCoords(new HexCoords(3, 2), VertexDirection.N));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 2), HexDirection.NE));
+    //evaluate all possible towns by production
+    // for (let i = 0; i < 4; i++) {
+    //   let bestTown: GameTown = this.map.towns[0];
+    //   for (const town of this.map.towns) {
+    //     if (town.isUnclaimed() && town.production > bestTown.production)
+    //       bestTown = town;
+    //   }
+    //   if (!bestTown.coords) throw new Error("Undefined coords on best town??");
+    //   this.onVertexClicked(bestTown.coords);
+    //   this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 2), HexDirection.NE));
+
+    // }
+
+
+
 
     this.onVertexClicked(new VertexCoords(new HexCoords(5, 2), VertexDirection.NW));
     this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 2), HexDirection.W));
@@ -579,11 +592,11 @@ export default class Game {
   }
 
   getTradeRatios(coords: HexCoords) {
-    if (coords.y < 0 || coords.x < 0) return undefined;
-    if (coords.y >= this.map.board.length || coords.x >= this.map.board[coords.y].length) return undefined;
-    if (!this.map.board[coords.y][coords.x].resourceType) return undefined;
+    const hex = this.map.getHex(coords);
+    if (!hex) return undefined;
+    if (!hex.resourceType) return undefined;
 
-    switch (this.map.board[coords.y][coords.x].resourceType) {
+    switch (hex.resourceType) {
       case ResourceType.AnyPort:
         return [3, 3, 3, 3, 3];
       case ResourceType.WoodPort:

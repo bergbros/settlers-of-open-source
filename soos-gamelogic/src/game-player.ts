@@ -20,10 +20,12 @@ export default class GamePlayer {
   }
 
   addCard(resource?: ResourceType, count?: number) {
-    const cardCount = count ? count : 1;
+    const cardCount = count !== undefined ? count : 1;
     if (resource !== undefined)
       this.cards[resource] += cardCount;
+    console.log("added " + resource + ":" + cardCount);
   }
+
   spend(action: number[]) {
     for (let i = 0; i < action.length; i++) {
       if (i >= this.cards.length) return;

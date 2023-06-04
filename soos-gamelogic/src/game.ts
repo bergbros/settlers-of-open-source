@@ -77,18 +77,15 @@ export default class Game {
   }
 
   autoPickSettlements() {
-    //evaluate all possible towns by production
-    // for (let i = 0; i < 4; i++) {
-    //   let bestTown: GameTown = this.map.towns[0];
-    //   for (const town of this.map.towns) {
-    //     if (town.isUnclaimed() && town.production > bestTown.production)
-    //       bestTown = town;
-    //   }
-    //   if (!bestTown.coords) throw new Error("Undefined coords on best town??");
-    //   this.onVertexClicked(bestTown.coords);
-    //   this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 2), HexDirection.NE));
-
-    // }
+    //evaluate all possible towns by production, get the top 4
+    let bestTown: GameTown = this.map.towns[0];
+    for (const town of this.map.towns) {
+      if (town.isUnclaimed() && town.production > bestTown.production)
+        bestTown = town;
+    }
+    if (!bestTown.coords) throw new Error("Undefined coords on best town??");
+    this.onVertexClicked(bestTown.coords);
+    this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 2), HexDirection.NE));
 
 
 
@@ -113,7 +110,6 @@ export default class Game {
 
   //this never gets called at the moment
   initializeBoard() {
-    console.log("initializing board");
     this.map.initializeBoard();
     this.claimedSettlement = false;
     this.gamePhase = GamePhase.PlaceSettlement1;
@@ -271,7 +267,6 @@ export default class Game {
       for (const plyr of this.players) {
         for (const res of AllResourceTypes) {
           if (plyr.cards[res] > 3) {
-            console.log(`Player ${plyr.index + 1} lost ${resourceToString(res)}`)
             plyr.cards[res] = 3;
           }
         }
@@ -339,6 +334,17 @@ export default class Game {
     return maxPoints;
   }
 
+  executeTrade(tradeInResource: number, tradeForResource: number, playerId: number) {
+    const player = this.players[playerId];
+    if (player.cards[tradeInResource] >= player.tradeRatio[tradeInResource]) {
+      let cost = [0, 0, 0, 0, 0];
+      cost[tradeInResource] = player.tradeRatio[tradeInResource];
+      console.log("executing trade:" + cost);
+      player.spend(cost);
+      player.addCard(AllResourceTypes[tradeForResource]);
+    }
+  }
+
   executeAction(action: BuildOptions) {
     switch (action) {
       case BuildOptions.Road:
@@ -380,9 +386,7 @@ export default class Game {
       case BuildOptions.Development:
 
         break;
-      case BuildOptions.Trade:
 
-        break;
     }
     this.forceUpdate();
   }

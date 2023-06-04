@@ -52,7 +52,6 @@ function getTradeRatio(resource: ResourceType) {
 function centerIcon(gameHex: GameHex, highlightedHex: string) {
   let myDiv: null | JSX.Element = <div></div>;
 
-  console.log(gameHex.resourceType);
   if (gameHex.frequency) {
     myDiv = <div className={"tileNumber none" + highlightedHex} >{gameHex.frequency}</div>;
   } else if (gameHex.terrainType && gameHex.terrainType === TerrainType.Water && gameHex.resourceType && gameHex.resourceType !== ResourceType.WaterNone) {

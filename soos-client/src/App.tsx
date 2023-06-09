@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase, gameFromString } from 'soos-gamelogic';
+import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase, gameFromString, AllResourceTypes, resourceToString } from 'soos-gamelogic';
 import './App.scss';
 import Hex from './Hex';
 import Player from './Player';
@@ -7,6 +7,7 @@ import Road from './Road';
 import Robber from './Robber';
 import Town from './Town';
 import { Socket } from 'socket.io-client';
+import TradeWindow from './Trade-window';
 
 const debugAutoPickSettlements = true;
 
@@ -22,6 +23,8 @@ export function App(props: AppProps) {
   const [game, setGame] = useState<Game>(new Game({ debugAutoPickSettlements }));
 
   const [playerId, setPlayerId] = useState<number | undefined>(undefined);
+
+  const [isTradeWindowShowing, setIsTradeWindowShowing] = useState<boolean>(false);
 
   // Set up force update function
   const [count, setCount] = useState<number>(0);
@@ -128,40 +131,66 @@ export function App(props: AppProps) {
         {actionToString(option)}
       </button>);
   }
+
+  const tradeButton =
+    <button
+      onClick={() => { setIsTradeWindowShowing(true) }}
+      className="ActionButton"
+      disabled={game.currPlayerIdx !== playerId}>
+      {'Trade Resources'}
+    </button>
+
   let theRobber = <Robber game={game}></Robber>;
   robber.push(
     theRobber
   );
 
   const dialogBoxes = [];
-  dialogBoxes.push(
-    <div id="myModal" className="modal">
-      <div className="modal-content">
-        <div className="modal-header">
-          <span className="close">&times;</span>
-          <h2>Modal Header</h2>
-        </div>
-        <div className="modal-body">
-          <p>Some text in the Modal Body</p>
-          <p>Some other text...</p>
-        </div>
-        <div className="modal-footer">
-          <h3>Modal Footer</h3>
-        </div>
-      </div>
-    </div>
-  );
+  if (isTradeWindowShowing && playerId !== undefined) {
+    dialogBoxes.push(<TradeWindow
+      tradeRatio={game.players[playerId].tradeRatio}
+      resources={game.players[playerId].cards}
+      closeWindowHandler={() => setIsTradeWindowShowing(false)}
+      executeTradeHandler={(tradeIn: number, tradeFor: number) => {
+        game.executeTrade(tradeIn, tradeFor, playerId);
+        game.forceUpdate();
+      }}></TradeWindow>)
+  }
+  // const tradeOptions = [];
+  // if (playerId !== undefined) {
+  //   for (const resource of AllResourceTypes) {
+  //     tradeOptions.push(<button className="ActionButton" disabled={false}>{'Trade ' + game.players[playerId].tradeRatio[resource] + ' ' + resourceToString(resource)}</button>);
+  //   }
+  // }
+  // dialogBoxes.push(
+  //   <div id="tradeModal" className="modal">
+  //     <div className="modal-content">
+  //       <div className="modal-header">
+  //         <span className="close">&times;</span>
+  //         <h2>Available Trades:</h2>
+  //       </div>
+  //       <div className="modal-body">
+  //         <div className="TradeInButtons">{tradeOptions}</div>
+  //         <div className="TradeForSelector"></div>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+
 
   let playerName = "waiting to connect";
   if (playerId !== undefined) playerName = game.players[playerId!].name;
   return (
     <div className="App">
-      <div>My player name: {playerName}</div>
+      <div className={'p' + playerId}>My player name: {playerName}</div>
       <div>Round #0{game.turnNumber}</div>
       <div>{game.instructionText}
       </div>
       <div className="App HeaderInfo">
         {actions}
+      </div>
+      <div className="App HeaderInfo">
+        {tradeButton}
       </div>
       <button
         onClick={() => {
@@ -178,6 +207,8 @@ export function App(props: AppProps) {
         {roads}
         {robber}
       </div>
-    </div>
+      <div>{dialogBoxes}</div>
+      <div><button onClick={() => { game.autoPickSettlements(); game.forceUpdate() }}>{'Pick My Settlements!'}</button></div>
+    </div >
   );
 }

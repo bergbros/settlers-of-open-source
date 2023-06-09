@@ -23,7 +23,7 @@ describe('HexCoords', () => {
     for (const _direction in results) {
       const direction: HexDirection = Number(_direction) as HexDirection;
       const expected = results[direction];
-      const result = startingCoords.add(direction);
+      const result = startingCoords.addHC(direction);
       const msg = `${startingCoords.toString()} plus ${hexDirName(direction)} ${hexDirToCoords(direction)} = ${result.toString()}, expected ${expected.toString()}`;
       expect(result.x, msg).toEqual(expected.x);
       expect(result.y, msg).toEqual(expected.y);
@@ -45,7 +45,7 @@ describe('HexCoords', () => {
     for (const _direction in results) {
       const direction: HexDirection = Number(_direction) as HexDirection;
       const expected = results[direction];
-      const result = startingCoords.add(direction);
+      const result = startingCoords.addHC(direction);
       const msg = `${startingCoords.toString()} plus ${hexDirName(direction)} ${hexDirToCoords(direction)} = ${result.toString()}, expected ${expected.toString()}`;
       expect(result.x, msg).toEqual(expected.x);
       expect(result.y, msg).toEqual(expected.y);

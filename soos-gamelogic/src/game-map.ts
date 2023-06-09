@@ -2,23 +2,35 @@ import GameHex from './game-hex.js';
 import GamePlayer from './game-player.js';
 import GameRoad from './game-road.js';
 import GameTown from './game-town.js';
-import { ResourceType, stringToResource, TerrainType } from './terrain-type.js';
+import { AllResourceTypes, isSeaType, ResourceType, stringToResource, TerrainType } from './terrain-type.js';
 import EdgeCoords, { vertexToEdge } from './utils/edge-coords.js';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
-import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection, vertexDirName } from './utils/vertex-coords.js';
+import VertexCoords, { AllVertexDirections, edgeToVertex, getEdges, getHexes, VertexDirection, vertexDirName } from './utils/vertex-coords.js';
 
 const OriginalTiles = Object.freeze(['b', 'b', 'b', 'o', 'o', 'o', 'w', 'w', 'w', 'w', 'g', 'g', 'g', 'g', 's', 's', 's', 's', 'd']);
-const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]);
+//const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12]);
+const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12]); //with creative seatile maps 
+const OriginalSeaTiles = Object.freeze(['b', 'o', 'w', 's', 'g', '/', '/', '/', '/', '/b', '/o', '/w', '/g', '/s', '/a', '/a', '/a', '/a']);
+// const OriginalTerrain = Object.freeze([
+//   ['e', 'e', '/', '/', '/', '/', 'e'],
+//   ['e', '/', '?', '?', '?', '/', 'e'],
+//   ['e', '/', '?', '?', '?', '?', '/'],
+//   ['/', '?', '?', '?', '?', '?', '/'],
+//   ['e', '/', '?', '?', '?', '?', '/'],
+//   ['e', '/', '?', '?', '?', '/', 'e'],
+//   ['e', 'e', '/', '/', '/', '/', 'e'],
+// ]);
 
 const OriginalTerrain = Object.freeze([
-  ['e', 'e', '/', '/', '/', '/', 'e'],
-  ['e', '/', '?', '?', '?', '/', 'e'],
-  ['e', '/', '?', '?', '?', '?', '/'],
-  ['/', '?', '?', '?', '?', '?', '/'],
-  ['e', '/', '?', '?', '?', '?', '/'],
-  ['e', '/', '?', '?', '?', '/', 'e'],
-  ['e', 'e', '/', '/', '/', '/', 'e'],
+  ['e', 'e', '~', '~', '~', '~', 'e'],
+  ['e', '~', '~', '~', '~', '~', 'e'],
+  ['e', '~', '~', '~', '~', '~', '~'],
+  ['~', '~', '~', '~', '~', '~', '~'],
+  ['e', '~', '~', '~', '~', '~', '~'],
+  ['e', '~', '~', '~', '~', '~', 'e'],
+  ['e', 'e', '~', '~', '~', '~', 'e'],
 ]);
+
 
 export default class GameMap {
   board: GameHex[][];
@@ -38,7 +50,13 @@ export default class GameMap {
   initializeBoard() {
     const BoardHeight = OriginalTerrain.length;
     const BoardWidth = OriginalTerrain[0].length;
-    const tilePile = this.stringToResourcePile(OriginalTiles);
+    let tilePile = this.stringToResourcePile(OriginalTiles);
+    const seaTilePile = this.stringToResourcePile(OriginalSeaTiles);
+    const creativeMap = true;
+    if (creativeMap) {
+      tilePile = tilePile.concat(seaTilePile);
+    }
+
     const numberPile = OriginalNumbers.slice();
     for (let y = 0; y < BoardHeight; y++) {
       const isOffset: boolean = y % 2 === 1;
@@ -53,6 +71,9 @@ export default class GameMap {
         let hexFrequency: number | undefined = undefined;
         let pullTerrainTile = false;
         switch (OriginalTerrain[y][x]) {
+          case '~': //either water OR land!
+            pullTerrainTile = true;
+            break;
           case '/':
             hexTerrain = TerrainType.Water;
             break;
@@ -76,13 +97,21 @@ export default class GameMap {
           }
           tilePile.splice(tileIndex, 1);
 
-          const frequencyIndex = Math.floor(Math.random() * numberPile.length);
-          if (hexResource !== ResourceType.None) {
+          if (hexResource !== ResourceType.None && !isSeaType(hexResource)) {
+            const frequencyIndex = Math.floor(Math.random() * numberPile.length);
             hexFrequency = numberPile[frequencyIndex];
             numberPile.splice(frequencyIndex, 1);
           }
+
+          if (isSeaType(hexResource)) {
+            hexTerrain = TerrainType.Water;
+          } else {
+            hexTerrain = TerrainType.Land; //empty tiles don't get to pull a tile
+          }
         }
         const newHex = new GameHex(new HexCoords(x, y), hexTerrain, hexResource, hexFrequency);
+
+
         if (hexResource === ResourceType.None)
           this.robberLocation = newHex.coords;
         hexRow.push(newHex);
@@ -133,7 +162,39 @@ export default class GameMap {
   }
 
   addTown(coords: VertexCoords) {
-    this.towns.push(new GameTown(coords));
+    const newTown = new GameTown(coords);
+    let production = 0;
+    //let trade = 0;
+    if (newTown.coords) {
+      for (const hc of getHexes(newTown.coords)) {
+        const hex = this.getHex(hc);
+        if (hex && hex.frequency && hex.resourceType) {
+          newTown.production[hex.resourceType] += hex.production;
+          //trade = Math.max(trade, hex.getTrade());
+        }
+      }
+    }
+    this.towns.push(newTown);
+  }
+
+  getTownProductionResources(coords: VertexCoords): number[] | undefined {
+    const town = this.townAt(coords);
+    if (!town) return undefined;
+
+    const production: number[] = [];
+    for (let i = 0; i < AllResourceTypes.length; i++) {
+      production.push(0);
+    }
+
+    if (town.coords) {
+      for (const hc of getHexes(town.coords)) {
+        const hex = this.getHex(hc);
+        if (hex && hex.frequency && hex.resourceType) {
+          production[hex.resourceType] += hex.production;
+        }
+      }
+    }
+    return production;
   }
 
   townExists(coords: VertexCoords) {
@@ -243,38 +304,42 @@ export default class GameMap {
     const egressRoads: (GameRoad | undefined)[] = [];
     if (!vertex) return egressRoads;
 
-    //get the two neighboring edges of this particular hex:
-    egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge(vertex.direction))));
-    egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge((vertex.direction + 5) % 6))));
-
-    //get the one sticking out from the vertex
-    let lastRoad = this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge(vertex.direction)));
-    switch (vertex.direction) {
-      case VertexDirection.N:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - ((vertex.hexCoords.y + 1) % 2), vertex.hexCoords.y - 1), HexDirection.E));
-        break;
-      case VertexDirection.S:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + vertex.hexCoords.y % 2, vertex.hexCoords.y + 1), HexDirection.E));
-        break;
-      case VertexDirection.NE:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + 1, vertex.hexCoords.y), HexDirection.NW));
-        break;
-      case VertexDirection.SE:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + 1, vertex.hexCoords.y), HexDirection.SW));
-        break;
-      case VertexDirection.NW:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - 1, vertex.hexCoords.y), HexDirection.NE));
-        break;
-      case VertexDirection.SW:
-        lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - 1, vertex.hexCoords.y), HexDirection.SE));
-        break;
-      default:
-        lastRoad = undefined;
-        break;
+    for (const edge of getEdges(vertex)) {
+      egressRoads.push(this.roadAt(edge));
     }
-    egressRoads.push(lastRoad);
-
     return egressRoads;
+    //get the two neighboring edges of this particular hex:
+    // egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge(vertex.direction))));
+    // egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge((vertex.direction + 5) % 6))));
+
+    // //get the one sticking out from the vertex
+    // let lastRoad = this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge(vertex.direction)));
+    // switch (vertex.direction) {
+    //   case VertexDirection.N:
+    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - ((vertex.hexCoords.y + 1) % 2), vertex.hexCoords.y - 1), HexDirection.E));
+    //     break;
+    //   case VertexDirection.S:
+    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + vertex.hexCoords.y % 2, vertex.hexCoords.y + 1), HexDirection.E));
+    //     break;
+    //   case VertexDirection.NE:
+    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + 1, vertex.hexCoords.y), HexDirection.NW));
+    //     break;
+    //   case VertexDirection.SE:
+    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + 1, vertex.hexCoords.y), HexDirection.SW));
+    //     break;
+    //   case VertexDirection.NW:
+    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - 1, vertex.hexCoords.y), HexDirection.NE));
+    //     break;
+    //   case VertexDirection.SW:
+    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - 1, vertex.hexCoords.y), HexDirection.SE));
+    //     break;
+    //   default:
+    //     lastRoad = undefined;
+    //     break;
+    // }
+    // egressRoads.push(lastRoad);
+
+    // return egressRoads;
   }
 
   toString() {

@@ -5,7 +5,7 @@ import GameTown from './game-town.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import EdgeCoords from './utils/edge-coords.js';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
-import VertexCoords, { AllVertexDirections, edgeToVertex, VertexDirection } from './utils/vertex-coords.js';
+import VertexCoords, { AllVertexDirections, edgeToVertex, getEdges, getHexes, VertexDirection } from './utils/vertex-coords.js';
 
 // phases requiring input
 export enum GamePhase {
@@ -71,36 +71,81 @@ export default class Game {
     this.instructionText = 'Game Started! Player 1 place first settlement.js';
     this.displayEmptyTowns();
 
-    if (options.debugAutoPickSettlements) {
-      this.autoPickSettlements()
-    }
+    // if (options.debugAutoPickSettlements) {
+    //   this.autoPickSettlements()
+    // }
   }
 
   autoPickSettlements() {
-    this.onVertexClicked(new VertexCoords(new HexCoords(3, 2), VertexDirection.N));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 2), HexDirection.NE));
+    //evaluate all possible towns by production, get the top 4
+    let bestTown: GameTown = this.map.towns[0];
+    console.log("picking settlements!");
+    const playerProduction: number[][] = [];
+    for (let i = 0; i < 4; i++) {
+      //FIND & CLAIM THE BEST TOWN
+      bestTown = this.map.towns[0];
+      let bestProd = 0;
+      for (const town of this.map.towns) {
+        if (town.isUnclaimed()) {
+          const newProd = this.evaluateTown(town);
+          if (newProd > bestProd) {
+            bestTown = town;
+            bestProd = newProd;
+          }
+        }
+      }
+      if (!bestTown.coords) throw new Error("Undefined coords on best town??");
+      this.onVertexClicked(bestTown.coords);
+      console.log("Claimed town: " + bestTown.coords?.toString() + " prod: " + bestTown.production);
 
-    this.onVertexClicked(new VertexCoords(new HexCoords(5, 2), VertexDirection.NW));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 2), HexDirection.W));
-
-    // this.onVertexClicked(new VertexCoords(new HexCoords(5, 4), VertexDirection.N));
-    // this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 4), HexDirection.NW));
-
-    // this.onVertexClicked(new VertexCoords(new HexCoords(3, 4), VertexDirection.N));
-    // this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 4), HexDirection.NW));
-
-    this.onVertexClicked(new VertexCoords(new HexCoords(2, 3), VertexDirection.N));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(2, 3), HexDirection.NW));
-
-    this.onVertexClicked(new VertexCoords(new HexCoords(4, 5), VertexDirection.N));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(4, 5), HexDirection.NW));
-
+      const roads = this.map.getRoads(bestTown.coords);
+      let weClaimedARoad = false;
+      for (let jj = 0; jj < roads.length; jj++) {
+        console.log("road " + roads[jj]?.coords.toString() + " : " + roads[jj]?.isClaimed());
+        if (!roads[jj]?.isClaimed()) {
+          this.onEdgeClicked(getEdges(bestTown.coords)[0]);
+          console.log("claimed road: " + roads[jj]?.coords.toString());
+          weClaimedARoad = true;
+          break;
+        }
+      }
+      if (!weClaimedARoad) throw new Error("uh... we didn't claim a road...??");
+    }
     return;
+  }
+
+  evaluateTown(newTown: GameTown): number {
+    let prodScore = 0;
+    const tradeBenefit: number[] = [];
+    const potentialNewProduction: number[] = [];
+    const currPlayer = this.players[this.currPlayerIdx];
+    for (const resource of AllResourceTypes) {
+      prodScore += newTown.production[resource] * ((currPlayer.tradeRatio[resource] - 4) / 3 + 1);
+      potentialNewProduction.push(currPlayer.resourceProduction[resource] + newTown.production[resource]);
+      tradeBenefit.push(0);
+    }
+    if (!newTown.coords) throw new Error("evaluated town has no coords??");
+
+    let tradeScore = 0;
+    for (const coords of getHexes(newTown.coords)) {
+      if (this.map.getHex(coords)?.getTrade() === 1) {
+        const newTR = this.getTradeRatios(coords);
+        for (const resource of AllResourceTypes) {
+          if (!newTR) continue;
+          tradeBenefit[resource] = Math.max(0, newTR[resource] - currPlayer.tradeRatio[resource]) * potentialNewProduction[resource];
+        }
+      }
+    }
+    for (const resource of AllResourceTypes) {
+      tradeScore += tradeBenefit[resource] / 3;
+    }
+
+    newTown.eval = prodScore + tradeScore;
+    return newTown.eval;
   }
 
   //this never gets called at the moment
   initializeBoard() {
-    console.log("initializing board");
     this.map.initializeBoard();
     this.claimedSettlement = false;
     this.gamePhase = GamePhase.PlaceSettlement1;
@@ -258,7 +303,6 @@ export default class Game {
       for (const plyr of this.players) {
         for (const res of AllResourceTypes) {
           if (plyr.cards[res] > 3) {
-            console.log(`Player ${plyr.index + 1} lost ${resourceToString(res)}`)
             plyr.cards[res] = 3;
           }
         }
@@ -326,6 +370,17 @@ export default class Game {
     return maxPoints;
   }
 
+  executeTrade(tradeInResource: number, tradeForResource: number, playerId: number) {
+    const player = this.players[playerId];
+    if (player.cards[tradeInResource] >= player.tradeRatio[tradeInResource]) {
+      let cost = [0, 0, 0, 0, 0];
+      cost[tradeInResource] = player.tradeRatio[tradeInResource];
+      console.log("executing trade:" + cost);
+      player.spend(cost);
+      player.addCard(AllResourceTypes[tradeForResource]);
+    }
+  }
+
   executeAction(action: BuildOptions) {
     switch (action) {
       case BuildOptions.Road:
@@ -367,8 +422,7 @@ export default class Game {
       case BuildOptions.Development:
 
         break;
-      case BuildOptions.Trade:
-        break;
+
     }
     this.forceUpdate();
   }
@@ -387,10 +441,19 @@ export default class Game {
       townThere?.claimTown(currPlayer.index);
       this.map.resetDisplayRoads();
       this.map.resetDisplayTowns();
+      this.updatePlayerTradeRatios(townThere);
+      this.updatePlayerProduction(townThere);
 
       if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
         this.claimedSettlement = true;
         this.map.updateDisplayRoads(vertex);
+        if (this.gamePhase === GamePhase.PlaceSettlement2) {
+          for (const coords of getHexes(vertex)) {
+            const hex = this.map.getHex(coords);
+            if (hex && hex.frequency && townThere)
+              currPlayer.addCard(hex.resourceType, 1);
+          }
+        }
       } else {
         currPlayer.spend(AllBuildCosts[BuildOptions.Settlement]);
         this.gamePhase = GamePhase.MainGameplay;
@@ -555,6 +618,61 @@ export default class Game {
 
 
   }
+
+
+  updatePlayerTradeRatios(townThere: GameTown | undefined) {
+    if (!townThere) return;
+    if (!townThere.coords) return;
+    for (const hcoords of getHexes(townThere.coords)) {
+      let newRatios = this.getTradeRatios(hcoords);
+      if (newRatios) {
+        this.setLowerRatio(newRatios);
+      }
+    }
+  }
+
+  updatePlayerProduction(townThere: GameTown | undefined) {
+    if (!townThere) return;
+    if (!townThere.coords) return;
+    for (const resource of AllResourceTypes) {
+      this.players[this.currPlayerIdx].resourceProduction[resource] += townThere.production[resource];
+    }
+  }
+
+  setLowerRatio(ratio: number[]) {
+    for (let i = 0; i < ratio.length; i++) {
+      if (this.players[this.currPlayerIdx].tradeRatio[i] > ratio[i])
+        this.players[this.currPlayerIdx].tradeRatio[i] = ratio[i];
+    }
+  }
+
+  getTradeRatios(coords: HexCoords) {
+    const hex = this.map.getHex(coords);
+    if (!hex) return undefined;
+    if (!hex.resourceType) return undefined;
+
+    switch (hex.resourceType) {
+      case ResourceType.AnyPort:
+        return [3, 3, 3, 3, 3];
+      case ResourceType.WoodPort:
+        return [2, 4, 4, 4, 4];
+      case ResourceType.BrickPort:
+        return [4, 2, 4, 4, 4];
+      case ResourceType.SheepPort:
+        return [4, 4, 2, 4, 4];
+      case ResourceType.GrainPort:
+        return [4, 4, 4, 2, 4];
+      case ResourceType.OrePort:
+        return [4, 4, 4, 4, 2];
+      default:
+        return undefined;
+    }
+  }
+  // Wood = 0,
+  // Brick = 1,
+  // Sheep = 2,
+  // Grain = 3,
+  // Ore = 4,
 }
 
 export function gameFromString(json: string): Game {

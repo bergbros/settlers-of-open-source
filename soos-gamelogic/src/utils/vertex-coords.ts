@@ -1,4 +1,5 @@
-import HexCoords, { HexDirection } from './hex-coords.js';
+import EdgeCoords from './edge-coords.js';
+import HexCoords, { HexDirection, hexDirToCoords } from './hex-coords.js';
 
 export enum VertexDirection {
   // in clockwise order
@@ -119,4 +120,52 @@ export function edgeToVertex(direction: HexDirection): VertexDirection {
     case HexDirection.W: return VertexDirection.SW;
     case HexDirection.NW: return VertexDirection.NW;
   }
+}
+
+export function vertexDirToHexDirection(direction: VertexDirection) {
+  switch (direction) {
+    case VertexDirection.N: return HexDirection.NE;
+    case VertexDirection.NE: return HexDirection.E;
+    case VertexDirection.SE: return HexDirection.SE;
+    case VertexDirection.S: return HexDirection.SW;
+    case VertexDirection.SW: return HexDirection.W;
+    case VertexDirection.NW: return HexDirection.NW;
+  }
+}
+export function vertexDirToHexDirectionStaggered(direction: VertexDirection) {
+  switch (direction) {
+    case VertexDirection.N: return HexDirection.NW;
+    case VertexDirection.NE: return HexDirection.NE;
+    case VertexDirection.SE: return HexDirection.E;
+    case VertexDirection.S: return HexDirection.SE;
+    case VertexDirection.SW: return HexDirection.SW;
+    case VertexDirection.NW: return HexDirection.W;
+  }
+}
+
+export function getHexes(vertex: VertexCoords) {
+  const adjHexes: HexCoords[] = [];
+  adjHexes.push(vertex.hexCoords);
+  adjHexes.push(vertex.hexCoords.addHC(vertexDirToHexDirection(vertex.direction)));
+  adjHexes.push(vertex.hexCoords.addHC(vertexDirToHexDirectionStaggered(vertex.direction)));
+  return adjHexes;
+}
+
+export function getEdges(vertex: VertexCoords) {
+  const adjEdges: EdgeCoords[] = [];
+  adjEdges.push(new EdgeCoords(vertex.hexCoords, vertexDirToHexDirection(vertex.direction)));
+  adjEdges.push(new EdgeCoords(vertex.hexCoords, vertexDirToHexDirectionStaggered(vertex.direction)));
+  //protruding edge:
+  let newHC = vertex.hexCoords.addHC(vertexDirToHexDirection(vertex.direction))
+  let newDir: HexDirection = HexDirection.E;
+  switch (vertex.direction) {
+    case VertexDirection.N: newDir = HexDirection.W; break;
+    case VertexDirection.NE: newDir = HexDirection.NW; break;
+    case VertexDirection.SE: newDir = HexDirection.NE; break;
+    case VertexDirection.S: newDir = HexDirection.E; break;
+    case VertexDirection.SW: newDir = HexDirection.SE; break;
+    case VertexDirection.NW: newDir = HexDirection.SW; break;
+  }
+  adjEdges.push(new EdgeCoords(newHC, newDir));
+  return adjEdges;
 }

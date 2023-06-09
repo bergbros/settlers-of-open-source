@@ -5,13 +5,30 @@ export enum TerrainType {
 };
 
 export enum ResourceType {
+  WaterNone = -2,
   None = -1, // desert
   Wood = 0,
   Brick = 1,
   Sheep = 2,
   Grain = 3,
   Ore = 4,
+  WoodPort = 5,
+  BrickPort = 6,
+  SheepPort = 7,
+  GrainPort = 8,
+  OrePort = 9,
+  AnyPort = 10
 }
+
+export const SeaResourceTypes = Object.freeze([
+  ResourceType.WaterNone,
+  ResourceType.WoodPort,
+  ResourceType.BrickPort,
+  ResourceType.SheepPort,
+  ResourceType.GrainPort,
+  ResourceType.OrePort,
+  ResourceType.AnyPort
+]);
 
 export const AllResourceTypes = Object.freeze([
   ResourceType.Wood,
@@ -21,20 +38,32 @@ export const AllResourceTypes = Object.freeze([
   ResourceType.Ore
 ]);
 
-export function resourceToLand(resource: ResourceType): string {
+export function resourceToLand(resource: ResourceType | undefined): string {
+  if (resource === undefined)
+    return "none";
   switch (resource) {
     case ResourceType.Ore:
-      return 'Mountain';
+      return 'ore';
     case ResourceType.Brick:
-      return 'Hill';
+      return 'brick';
     case ResourceType.Grain:
-      return 'Field';
+      return 'grain';
     case ResourceType.Wood:
-      return 'Forest';
+      return 'wood';
     case ResourceType.Sheep:
-      return 'Pasture';
+      return 'sheep';
+    case ResourceType.OrePort:
+      return 'ore';
+    case ResourceType.BrickPort:
+      return 'brick';
+    case ResourceType.GrainPort:
+      return 'grain';
+    case ResourceType.WoodPort:
+      return 'wood';
+    case ResourceType.SheepPort:
+      return 'sheep';
     default:
-      return 'Desert';
+      return 'none';
   }
 }
 
@@ -69,9 +98,28 @@ export function stringToResource(jsonResource: string) {
       return ResourceType.Wood;
     case 's':
       return ResourceType.Sheep;
+    case '/o':
+      return ResourceType.OrePort;
+    case '/b':
+      return ResourceType.BrickPort;
+    case '/g':
+      return ResourceType.GrainPort;
+    case '/w':
+      return ResourceType.WoodPort;
+    case '/s':
+      return ResourceType.SheepPort;
+    case '/a':
+      return ResourceType.AnyPort;
+    case '/':
+      return ResourceType.WaterNone;
     default:
       return ResourceType.None;
   }
+}
+
+export function isSeaType(resource: ResourceType | undefined) {
+  if (resource === undefined) return false;
+  return SeaResourceTypes.includes(resource);
 }
 
 export function resourceToLetter(resource: ResourceType | undefined): string {

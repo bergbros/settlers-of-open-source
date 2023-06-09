@@ -3,7 +3,7 @@ export enum BuildOptions {
     Settlement = 1,
     City = 2,
     Development = 3,
-    Trade = 4
+    //Trade = 4
 };
 
 export const AllBuildOptions = Object.freeze([
@@ -11,7 +11,7 @@ export const AllBuildOptions = Object.freeze([
     BuildOptions.Settlement,
     BuildOptions.City,
     BuildOptions.Development,
-    BuildOptions.Trade
+    //BuildOptions.Trade
 ]);
 
 export const AllBuildCosts = Object.freeze([
@@ -19,7 +19,7 @@ export const AllBuildCosts = Object.freeze([
     [1, 1, 1, 1, 0], //settlement
     [0, 0, 0, 3, 2], //city
     [0, 0, 1, 1, 1], //development
-    [-4, -4, -4, -4, -4]
+    //[-4, -4, -4, -4, -4] //resource trading
 ]);
 
 export function actionToString(action: BuildOptions): string {
@@ -32,8 +32,8 @@ export function actionToString(action: BuildOptions): string {
             return "Build City";
         case BuildOptions.Development:
             return "Buy Development Card";
-        case BuildOptions.Trade:
-            return "Trade Resources";
+        //case BuildOptions.Trade:
+        //    return "Trade Resources";
     }
     return '';
 }

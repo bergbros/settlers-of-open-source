@@ -132,12 +132,12 @@ export default class Game {
         const newTR = this.getTradeRatios(coords);
         for (const resource of AllResourceTypes) {
           if (!newTR) continue;
-          tradeBenefit[resource] = Math.max(0, newTR[resource] - currPlayer.tradeRatio[resource]) * potentialNewProduction[resource];
+          tradeBenefit[resource] = Math.max(0, newTR[resource] - currPlayer.tradeRatio[resource]) * (potentialNewProduction[resource] + 1);
         }
       }
     }
     for (const resource of AllResourceTypes) {
-      tradeScore += tradeBenefit[resource] / 3;
+      tradeScore += tradeBenefit[resource] / 4;
     }
 
     newTown.eval = prodScore + tradeScore;

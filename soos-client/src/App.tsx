@@ -208,6 +208,7 @@ export function App(props: AppProps) {
         {robber}
       </div>
       <div>{dialogBoxes}</div>
-    </div>
+      <div><button onClick={() => { game.autoPickSettlements(); game.forceUpdate() }}>{'Pick My Settlements!'}</button></div>
+    </div >
   );
 }

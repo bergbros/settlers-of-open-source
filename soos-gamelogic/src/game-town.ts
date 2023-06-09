@@ -1,4 +1,5 @@
 import Player from './game-player.js';
+import { AllResourceTypes } from './terrain-type.js';
 import HexCoords from './utils/hex-coords.js';
 import VertexCoords from './utils/vertex-coords.js';
 
@@ -8,14 +9,19 @@ export default class GameTown {
     townLevel: number;
     display: boolean;
     highlighted: boolean;
-    production: number;
+    production: number[];
+    eval: number;
     constructor(coords?: VertexCoords) {
         if (coords) this.coords = coords;
         this.playerIdx = undefined;
         this.townLevel = 0;
+        this.eval = 0;//player specific eval number
         this.display = false;
         this.highlighted = false;
-        this.production = 0;
+        this.production = [];
+        for (const resource of AllResourceTypes) {
+            this.production.push(0);
+        }
     }
 
     claimTown(playerIdx: number) {
@@ -59,7 +65,6 @@ export default class GameTown {
     }
 
     setChildPrototypes() {
-
         this.coords = new VertexCoords(new HexCoords(this.coords!.hexCoords.x, this.coords!.hexCoords.y), this.coords!.direction);
     }
 

@@ -2,7 +2,7 @@ import GameHex from './game-hex.js';
 import GamePlayer from './game-player.js';
 import GameRoad from './game-road.js';
 import GameTown from './game-town.js';
-import { isSeaType, ResourceType, stringToResource, TerrainType } from './terrain-type.js';
+import { AllResourceTypes, isSeaType, ResourceType, stringToResource, TerrainType } from './terrain-type.js';
 import EdgeCoords, { vertexToEdge } from './utils/edge-coords.js';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
 import VertexCoords, { AllVertexDirections, edgeToVertex, getEdges, getHexes, VertexDirection, vertexDirName } from './utils/vertex-coords.js';
@@ -164,18 +164,37 @@ export default class GameMap {
   addTown(coords: VertexCoords) {
     const newTown = new GameTown(coords);
     let production = 0;
-    let trade = 0;
+    //let trade = 0;
     if (newTown.coords) {
       for (const hc of getHexes(newTown.coords)) {
         const hex = this.getHex(hc);
-        if (hex) {
-          production += hex.production;
-          trade = Math.max(trade, hex.getTrade());
+        if (hex && hex.frequency && hex.resourceType) {
+          newTown.production[hex.resourceType] += hex.production;
+          //trade = Math.max(trade, hex.getTrade());
         }
       }
     }
-    newTown.production = production + trade * 3;
     this.towns.push(newTown);
+  }
+
+  getTownProductionResources(coords: VertexCoords): number[] | undefined {
+    const town = this.townAt(coords);
+    if (!town) return undefined;
+
+    const production: number[] = [];
+    for (let i = 0; i < AllResourceTypes.length; i++) {
+      production.push(0);
+    }
+
+    if (town.coords) {
+      for (const hc of getHexes(town.coords)) {
+        const hex = this.getHex(hc);
+        if (hex && hex.frequency && hex.resourceType) {
+          production[hex.resourceType] += hex.production;
+        }
+      }
+    }
+    return production;
   }
 
   townExists(coords: VertexCoords) {

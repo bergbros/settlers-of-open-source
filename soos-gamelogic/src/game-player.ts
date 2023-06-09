@@ -10,13 +10,20 @@ export default class GamePlayer {
   cards: number[];
   tradeRatio: number[];
   victoryPoints: number;
+  resourceProduction: number[];
 
   constructor(index: number, name: string) {
     this.index = index;
     this.name = name;
-    this.cards = [0, 0, 0, 0, 0];
-    this.tradeRatio = [4, 4, 4, 4, 4];
+    this.cards = [];
+    this.tradeRatio = [];
     this.victoryPoints = 0;
+    this.resourceProduction = [];
+    for (const resourceType of AllResourceTypes) {
+      this.cards.push(0);
+      this.tradeRatio.push(4);
+      this.resourceProduction.push(0);
+    }
   }
 
   addCard(resource?: ResourceType, count?: number) {

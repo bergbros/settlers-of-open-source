@@ -5,7 +5,7 @@ import GameTown from './game-town.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import EdgeCoords from './utils/edge-coords.js';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
-import VertexCoords, { AllVertexDirections, edgeToVertex, getHexes, VertexDirection } from './utils/vertex-coords.js';
+import VertexCoords, { AllVertexDirections, edgeToVertex, getEdges, getHexes, VertexDirection } from './utils/vertex-coords.js';
 
 // phases requiring input
 export enum GamePhase {
@@ -71,41 +71,77 @@ export default class Game {
     this.instructionText = 'Game Started! Player 1 place first settlement.js';
     this.displayEmptyTowns();
 
-    if (options.debugAutoPickSettlements) {
-      this.autoPickSettlements()
-    }
+    // if (options.debugAutoPickSettlements) {
+    //   this.autoPickSettlements()
+    // }
   }
 
   autoPickSettlements() {
     //evaluate all possible towns by production, get the top 4
     let bestTown: GameTown = this.map.towns[0];
-    for (const town of this.map.towns) {
-      if (town.isUnclaimed() && town.production > bestTown.production)
-        bestTown = town;
+    console.log("picking settlements!");
+    const playerProduction: number[][] = [];
+    for (let i = 0; i < 4; i++) {
+      //FIND & CLAIM THE BEST TOWN
+      bestTown = this.map.towns[0];
+      let bestProd = 0;
+      for (const town of this.map.towns) {
+        if (town.isUnclaimed()) {
+          const newProd = this.evaluateTown(town);
+          if (newProd > bestProd) {
+            bestTown = town;
+            bestProd = newProd;
+          }
+        }
+      }
+      if (!bestTown.coords) throw new Error("Undefined coords on best town??");
+      this.onVertexClicked(bestTown.coords);
+      console.log("Claimed town: " + bestTown.coords?.toString() + " prod: " + bestTown.production);
+
+      const roads = this.map.getRoads(bestTown.coords);
+      let weClaimedARoad = false;
+      for (let jj = 0; jj < roads.length; jj++) {
+        console.log("road " + roads[jj]?.coords.toString() + " : " + roads[jj]?.isClaimed());
+        if (!roads[jj]?.isClaimed()) {
+          this.onEdgeClicked(getEdges(bestTown.coords)[0]);
+          console.log("claimed road: " + roads[jj]?.coords.toString());
+          weClaimedARoad = true;
+          break;
+        }
+      }
+      if (!weClaimedARoad) throw new Error("uh... we didn't claim a road...??");
     }
-    if (!bestTown.coords) throw new Error("Undefined coords on best town??");
-    this.onVertexClicked(bestTown.coords);
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 2), HexDirection.NE));
-
-
-
-
-    this.onVertexClicked(new VertexCoords(new HexCoords(5, 2), VertexDirection.NW));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 2), HexDirection.W));
-
-    // this.onVertexClicked(new VertexCoords(new HexCoords(5, 4), VertexDirection.N));
-    // this.onEdgeClicked(new EdgeCoords(new HexCoords(5, 4), HexDirection.NW));
-
-    // this.onVertexClicked(new VertexCoords(new HexCoords(3, 4), VertexDirection.N));
-    // this.onEdgeClicked(new EdgeCoords(new HexCoords(3, 4), HexDirection.NW));
-
-    this.onVertexClicked(new VertexCoords(new HexCoords(2, 3), VertexDirection.N));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(2, 3), HexDirection.NW));
-
-    this.onVertexClicked(new VertexCoords(new HexCoords(4, 5), VertexDirection.N));
-    this.onEdgeClicked(new EdgeCoords(new HexCoords(4, 5), HexDirection.NW));
-
     return;
+  }
+
+  evaluateTown(newTown: GameTown): number {
+    let prodScore = 0;
+    const tradeBenefit: number[] = [];
+    const potentialNewProduction: number[] = [];
+    const currPlayer = this.players[this.currPlayerIdx];
+    for (const resource of AllResourceTypes) {
+      prodScore += newTown.production[resource] * ((currPlayer.tradeRatio[resource] - 4) / 3 + 1);
+      potentialNewProduction.push(currPlayer.resourceProduction[resource] + newTown.production[resource]);
+      tradeBenefit.push(0);
+    }
+    if (!newTown.coords) throw new Error("evaluated town has no coords??");
+
+    let tradeScore = 0;
+    for (const coords of getHexes(newTown.coords)) {
+      if (this.map.getHex(coords)?.getTrade() === 1) {
+        const newTR = this.getTradeRatios(coords);
+        for (const resource of AllResourceTypes) {
+          if (!newTR) continue;
+          tradeBenefit[resource] = Math.max(0, newTR[resource] - currPlayer.tradeRatio[resource]) * potentialNewProduction[resource];
+        }
+      }
+    }
+    for (const resource of AllResourceTypes) {
+      tradeScore += tradeBenefit[resource] / 3;
+    }
+
+    newTown.eval = prodScore + tradeScore;
+    return newTown.eval;
   }
 
   //this never gets called at the moment
@@ -406,10 +442,18 @@ export default class Game {
       this.map.resetDisplayRoads();
       this.map.resetDisplayTowns();
       this.updatePlayerTradeRatios(townThere);
+      this.updatePlayerProduction(townThere);
 
       if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
         this.claimedSettlement = true;
         this.map.updateDisplayRoads(vertex);
+        if (this.gamePhase === GamePhase.PlaceSettlement2) {
+          for (const coords of getHexes(vertex)) {
+            const hex = this.map.getHex(coords);
+            if (hex && hex.frequency && townThere)
+              currPlayer.addCard(hex.resourceType, 1);
+          }
+        }
       } else {
         currPlayer.spend(AllBuildCosts[BuildOptions.Settlement]);
         this.gamePhase = GamePhase.MainGameplay;
@@ -579,12 +623,19 @@ export default class Game {
   updatePlayerTradeRatios(townThere: GameTown | undefined) {
     if (!townThere) return;
     if (!townThere.coords) return;
-    const hcoords = townThere.coords.hexCoords;
     for (const hcoords of getHexes(townThere.coords)) {
       let newRatios = this.getTradeRatios(hcoords);
       if (newRatios) {
         this.setLowerRatio(newRatios);
       }
+    }
+  }
+
+  updatePlayerProduction(townThere: GameTown | undefined) {
+    if (!townThere) return;
+    if (!townThere.coords) return;
+    for (const resource of AllResourceTypes) {
+      this.players[this.currPlayerIdx].resourceProduction[resource] += townThere.production[resource];
     }
   }
 

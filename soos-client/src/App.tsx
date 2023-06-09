@@ -127,7 +127,7 @@ export function App(props: AppProps) {
           sendGameStateToServer();
         }}
         className="ActionButton"
-        disabled={!game.actionViable(option) || game.currPlayerIdx !== playerId}>
+        disabled={!game.actionViable(option)}>
         {actionToString(option)}
       </button>);
   }
@@ -136,7 +136,7 @@ export function App(props: AppProps) {
     <button
       onClick={() => { setIsTradeWindowShowing(true) }}
       className="ActionButton"
-      disabled={game.currPlayerIdx !== playerId}>
+      disabled={false}>
       {'Trade Resources'}
     </button>
 
@@ -198,7 +198,7 @@ export function App(props: AppProps) {
           sendGameStateToServer();
         }}
         className="NextTurnButton"
-        disabled={game.gamePhase !== GamePhase.MainGameplay || game.currPlayerIdx !== playerId}
+        disabled={game.gamePhase !== GamePhase.MainGameplay}
       >Next Turn</button>
       <div className="App HeaderInfo">{players}</div>
       <div className="Board">

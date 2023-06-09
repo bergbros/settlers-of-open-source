@@ -1,6 +1,6 @@
 import { HexCoords, ResourceType, TerrainType, GameHex, Game } from 'soos-gamelogic';
 import { hexCoordsToPixels } from './utils';
-import { isSeaType, resourceToLand } from 'soos-gamelogic/src/terrain-type';
+import { isSeaType, resourceToLand, resourceToSymbol } from 'soos-gamelogic/src/terrain-type';
 
 // Debug thing to show the HexCoords of every hex on the board.
 const showAllCoords = true;
@@ -55,7 +55,7 @@ function centerIcon(gameHex: GameHex, highlightedHex: string) {
   if (gameHex.frequency) {
     myDiv = <div className={"tileNumber none" + highlightedHex} >{gameHex.frequency}</div>;
   } else if (gameHex.terrainType && gameHex.terrainType === TerrainType.Water && gameHex.resourceType && gameHex.resourceType !== ResourceType.WaterNone) {
-    myDiv = <div className={"port " + resourceToLand(gameHex.resourceType)}>{getTradeRatio(gameHex.resourceType)}</div>;
+    myDiv = <div className={"port " + resourceToLand(gameHex.resourceType)}>{resourceToSymbol(gameHex.resourceType) + getTradeRatio(gameHex.resourceType)}</div>;
   } else {
     myDiv = null;
   }

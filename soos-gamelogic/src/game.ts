@@ -137,7 +137,7 @@ export default class Game {
       }
     }
     for (const resource of AllResourceTypes) {
-      tradeScore += tradeBenefit[resource] / 4;
+      tradeScore += tradeBenefit[resource] / 2;
     }
 
     newTown.eval = prodScore + tradeScore;

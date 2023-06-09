@@ -1,19 +1,24 @@
 import { GamePlayer, ResourceType, resourceToString, AllResourceTypes } from 'soos-gamelogic';
 
 export type PlayerProps = {
-  player: GamePlayer
+  player: GamePlayer,
+  details: boolean
 };
 
 export default function Player(props: PlayerProps) {
-  const { player } = props;
+  const { player, details } = props;
   //const { x, y } = vertexCoordsToPixels(gameTown.coords);
 
   const playerClass = 'p' + player.index;
   const hand: string[] = [];
+  let totalResources = 0;
   for (let i = 0; i < AllResourceTypes.length; i++) {
     const resourceType = AllResourceTypes[i];
-    hand.push(resourceToString(resourceType) + ': ' + player.cards[resourceType] + '\n');
+    totalResources += player.cards[resourceType];
+    if (details)
+      hand.push(resourceToString(resourceType) + ': ' + player.cards[resourceType] + '\n');
   }
+  hand.push("Total Resources: " + totalResources);
 
   return (
     <div className="PlayerList">

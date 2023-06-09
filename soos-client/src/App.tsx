@@ -116,7 +116,10 @@ export function App(props: AppProps) {
   }
 
   for (const player of game.players) {
-    players.push(<Player player={player}></Player>);
+    if (player.index === playerId)
+      players.push(<Player player={player} details={true}></Player>);
+    else
+      players.push(<Player player={player} details={false}></Player>);
   }
 
   for (const option of AllBuildOptions) {

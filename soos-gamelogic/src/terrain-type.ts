@@ -72,15 +72,47 @@ export function resourceToString(resource: ResourceType | undefined): string {
 
   switch (resource) {
     case ResourceType.Wood:
-      return 'Wood';
+      return '🌳 Wood';
     case ResourceType.Brick:
-      return 'Brick';
+      return '🧱Brick';
     case ResourceType.Sheep:
-      return 'Sheep';
+      return '🐑Sheep';
     case ResourceType.Grain:
-      return 'Grain';
+      return '🌾Grain';
     case ResourceType.Ore:
-      return 'Ore';
+      return '🗿  Ore';
+    default:
+      return '';
+  }
+}
+
+
+export function resourceToSymbol(resource: ResourceType | undefined): string {
+  if (resource === undefined) return '';
+
+  switch (resource) {
+    case ResourceType.Wood:
+      return '🌳';
+    case ResourceType.Brick:
+      return '🧱';
+    case ResourceType.Sheep:
+      return '🐑';
+    case ResourceType.Grain:
+      return '🌾';
+    case ResourceType.Ore:
+      return '🗿';
+    case ResourceType.WoodPort:
+      return '🌳';
+    case ResourceType.BrickPort:
+      return '🧱';
+    case ResourceType.SheepPort:
+      return '🐑';
+    case ResourceType.GrainPort:
+      return '🌾';
+    case ResourceType.OrePort:
+      return '🗿';
+    case ResourceType.AnyPort:
+      return '❔';
     default:
       return '';
   }

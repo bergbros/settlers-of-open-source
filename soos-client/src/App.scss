@@ -128,18 +128,29 @@ $p0-color: red;
 
   width: $tileNumberSize;
   height: $tileNumberSize;
-  line-height: $tileNumberSize; // center text vertically
+  line-height: $tileNumberSize*.8; // center text vertically
 
-  font-size: 25px;
+  font-size: 22px;
   z-index: 5;
 
   border-radius: calc($tileNumberSize/2);
 }
 
 .port {
+  line-height: $tileNumberSize; // center text vertically
   border: 3px solid black;
   font-size: 18px;
 }
+
+.dots {
+  color: black;
+  font-size: 6px;
+  text-align: center;
+  margin: auto;
+  line-height: 10px;
+  margin-top: - 10px;
+}
+
 
 .none {
   background-color: bisque;

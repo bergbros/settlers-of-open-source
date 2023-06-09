@@ -52,17 +52,14 @@ function getTradeRatio(resource: ResourceType) {
 function centerIcon(gameHex: GameHex, highlightedHex: string) {
   let myDiv: null | JSX.Element = <div></div>;
 
-  //const dots = !gameHex.frequency ? [] : <div className='tileNumber dots'>{Array(6 - Math.abs(gameHex.frequency - 7)).map(function (o) { return resourceToSymbol(gameHex.resourceType) })}</div>
-  //const dots = <div className='dots'>{resourceToSymbol(gameHex.resourceType)}</div>
   if (gameHex.frequency) {
-    const dots = <div className='dots'>{resourceToSymbol(gameHex.resourceType).repeat(6 - Math.abs(gameHex.frequency - 7))}</div>;
+    const dots = <div className='dots'>{resourceToSymbol(gameHex.resourceType).repeat(gameHex.production)}</div>;
     myDiv = <div className={"tileNumber none" + highlightedHex} >{gameHex.frequency}{dots}</div>;
   } else if (gameHex.terrainType && gameHex.terrainType === TerrainType.Water && gameHex.resourceType && gameHex.resourceType !== ResourceType.WaterNone) {
     myDiv = <div className={"port " + resourceToLand(gameHex.resourceType)}>{resourceToSymbol(gameHex.resourceType) + getTradeRatio(gameHex.resourceType)}</div>;
   } else {
     myDiv = null;
   }
-  //myDiv = <div className={"tileNumber none" + highlightedHex}>{resourceToLand(gameHex.resourceType)}</div>
   return myDiv;
 }
 

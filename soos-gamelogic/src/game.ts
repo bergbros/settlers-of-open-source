@@ -54,6 +54,7 @@ export default class Game {
   claimedSettlement: boolean; //only applicable during gamephase.placeSettlement 1&2, if false player is placing settlement, if true they are placing a road.
   robberLocation: HexCoords;
   robberPhase?: RobberPhase;
+  robberHexes: HexCoords[];
   turnNumber: number;
   constructor(options: { debugAutoPickSettlements?: boolean }) {
     this.turnNumber = 0;
@@ -70,7 +71,7 @@ export default class Game {
     this.gamePhase = GamePhase.PlaceSettlement1;
     this.instructionText = 'Game Started! Player 1 place first settlement.js';
     this.displayEmptyTowns();
-
+    this.robberHexes = [];
     // if (options.debugAutoPickSettlements) {
     //   this.autoPickSettlements()
     // }
@@ -95,8 +96,9 @@ export default class Game {
         }
       }
       if (!bestTown.coords) throw new Error("Undefined coords on best town??");
-      this.onVertexClicked(bestTown.coords);
       console.log("Claimed town: " + bestTown.coords?.toString() + " prod: " + bestTown.production);
+      //this.evaluateTown(bestTown, true);
+      this.onVertexClicked(bestTown.coords);
 
       const roads = this.map.getRoads(bestTown.coords);
       let weClaimedARoad = false;
@@ -114,7 +116,7 @@ export default class Game {
     return;
   }
 
-  evaluateTown(newTown: GameTown): number {
+  evaluateTown(newTown: GameTown, log?: boolean): number {
     let prodScore = 0;
     const tradeBenefit: number[] = [];
     const potentialNewProduction: number[] = [];
@@ -132,15 +134,20 @@ export default class Game {
         const newTR = this.getTradeRatios(coords);
         for (const resource of AllResourceTypes) {
           if (!newTR) continue;
-          tradeBenefit[resource] = Math.max(0, newTR[resource] - currPlayer.tradeRatio[resource]) * (potentialNewProduction[resource] + 1);
+          tradeBenefit[resource] = Math.max(0, currPlayer.tradeRatio[resource] - newTR[resource]) * (potentialNewProduction[resource] + .5);
         }
+        console.log("port: ");
+        console.log(tradeBenefit);
       }
     }
     for (const resource of AllResourceTypes) {
-      tradeScore += tradeBenefit[resource] / 2;
+      tradeScore += tradeBenefit[resource];
     }
-
-    newTown.eval = prodScore + tradeScore;
+    if (log) {
+      console.log(potentialNewProduction);
+      console.log(tradeBenefit);
+    }
+    newTown.eval = prodScore + tradeScore / 2;
     return newTown.eval;
   }
 
@@ -307,10 +314,18 @@ export default class Game {
           }
         }
       }
+      //MANUAL robber placement:
+      //this.robberPhase = RobberPhase.PlaceRobber;
+      //this.instructionText = `Dice roll was: ${diceRoll} - ${this.getCurrPlayer().name} place the Robber!`;
 
-      this.robberPhase = RobberPhase.PlaceRobber;
+      //AUTOMATIC robber placement
+      if (this.robberHexes.length < 1) {
+        this.onHexClicked_PlaceRobber(this.robberLocation, true);
+      } else {
+        const newRobHexIndex = Math.floor(Math.random() * this.robberHexes.length)
+        this.onHexClicked_PlaceRobber(this.robberHexes[newRobHexIndex], true);
+      }
 
-      this.instructionText = `Dice roll was: ${diceRoll} - ${this.getCurrPlayer().name} place the Robber!`;
     }
     else {
       //let player build if desired/possible
@@ -443,6 +458,7 @@ export default class Game {
       this.map.resetDisplayTowns();
       this.updatePlayerTradeRatios(townThere);
       this.updatePlayerProduction(townThere);
+      this.updateRobberHexes(townThere);
 
       if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
         this.claimedSettlement = true;
@@ -502,7 +518,8 @@ export default class Game {
     return false;
   }
 
-  onHexClicked_PlaceRobber(coords: HexCoords) {
+
+  onHexClicked_PlaceRobber(coords: HexCoords, automate?: boolean) {
     const clickedHex = this.map.getHex(coords);
 
     if (clickedHex?.terrainType !== TerrainType.Land) {
@@ -534,10 +551,11 @@ export default class Game {
       return;
     }
 
-    // Check if there's more than 1 player to rob
-    if (robbablePlayers.length === 1) {
+    // Check if there's more than 1 player to rob or automatically pick a player to rob
+    if (robbablePlayers.length === 1 || automate) {
       // Only 1 player to rob, rob them automatically
-      this.stealResourceFromPlayer(robbablePlayers[0]);
+      const randPlayer = Math.floor(Math.random() * robbablePlayers.length)
+      this.stealResourceFromPlayer(robbablePlayers[randPlayer]);
       this.clearAllDisplaysAndForceUpdate();
       return;
     }
@@ -636,6 +654,19 @@ export default class Game {
     if (!townThere.coords) return;
     for (const resource of AllResourceTypes) {
       this.players[this.currPlayerIdx].resourceProduction[resource] += townThere.production[resource];
+    }
+  }
+
+
+  updateRobberHexes(townThere: GameTown | undefined) {
+    if (!townThere) return;
+    if (!townThere.coords) return;
+    for (const hcoords of getHexes(townThere.coords)) {
+      const hex = this.map.getHex(hcoords);
+      if (hex && hex.production > 4 && !this.robberHexes.indexOf(hcoords)) {
+        this.robberHexes.push(hcoords);
+        console.log(this.robberHexes);
+      }
     }
   }
 

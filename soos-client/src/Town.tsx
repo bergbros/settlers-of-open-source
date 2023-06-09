@@ -42,7 +42,7 @@ export default function Town(props: TownProps) {
       }}
       onClick={() => onClick(gameTown.coords!)}
     >
-      {gameTown.eval}
+      {gameTown.highlighted && gameTown.eval}
     </div>
   );
 }

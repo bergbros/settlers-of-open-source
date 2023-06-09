@@ -185,9 +185,9 @@ export function App(props: AppProps) {
   if (playerId !== undefined) playerName = game.players[playerId!].name;
   return (
     <div className="App">
-      <div className={'p' + playerId}>My player name: {playerName}</div>
+      <div>You are player: {playerName}</div>
       <div>Round #0{game.turnNumber}</div>
-      <div>{game.instructionText}
+      <div className={'p' + game.currPlayerIdx}>{game.instructionText}
       </div>
       <div className="App HeaderInfo">
         {actions}
@@ -211,7 +211,7 @@ export function App(props: AppProps) {
         {robber}
       </div>
       <div>{dialogBoxes}</div>
-      <div><button onClick={() => { game.autoPickSettlements(); game.forceUpdate() }}>{'Pick My Settlements!'}</button></div>
+      {game.gamePhase !== GamePhase.MainGameplay && <div><button onClick={() => { game.autoPickSettlements(); game.forceUpdate() }}>{'Pick My Settlements!'}</button></div>}
     </div >
   );
 }

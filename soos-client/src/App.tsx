@@ -100,14 +100,18 @@ export function App(props: AppProps) {
         gameTown={town}
         premove={premove && town.playerIdx === playerId}
         onClick={(vertexCoords) => {
-          const gameResponse = game.onClientVertex(vertexCoords, premove);
-          if (!gameResponse)
+          let gameResponse = game.onClientVertex(vertexCoords, premove);
+          //gameResponse = gameResponse.toString();
+          console.log(gameResponse);
+          if (!gameResponse.length || gameResponse.length < 1) {
+            socket.emit('check');
             return;
-          else if (gameResponse === 'true')
+          }
+          if (gameResponse === 'true') {
+            socket.emit('logPremoves');
             sendGameStateToServer();
-          else {
-            console.log(gameResponse);
-            socket.emit("premove", gameResponse.toString());
+          } else {
+            socket.emit('premove', gameResponse);
           }
         }}
         key={`t:${townCoords.hexCoords.x},${townCoords.hexCoords.y},${townCoords.direction}`}

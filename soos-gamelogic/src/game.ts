@@ -445,12 +445,13 @@ export default class Game {
 
   onClientVertex(vertex: VertexCoords, premove?: boolean): string {
     if (premove) {
-      console.log(JSON.stringify(this.map.townAt(vertex)));
+      const myresult = (JSON.stringify(this.map.townAt(vertex)));
+      //console.log(myresult);
+      return myresult;
     } else {
       const result = this.claimTownAt(vertex).toString();
       return result;
     }
-    return '';
   }
 
   executeTownActionJSON(json: string, playerID: number): boolean {

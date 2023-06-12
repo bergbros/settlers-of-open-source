@@ -214,6 +214,7 @@ export default class GameMap {
         return town;
       }
     }
+    console.log('town not found!');
     return undefined;
   }
 

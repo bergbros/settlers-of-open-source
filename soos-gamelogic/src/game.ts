@@ -98,7 +98,7 @@ export default class Game {
       if (!bestTown.coords) throw new Error("Undefined coords on best town??");
       console.log("Claimed town: " + bestTown.coords?.toString() + " prod: " + bestTown.production);
       //this.evaluateTown(bestTown, true);
-      this.onVertexClicked(bestTown.coords);
+      this.claimTownAt(bestTown.coords);
 
       const roads = this.map.getRoads(bestTown.coords);
       let weClaimedARoad = false;
@@ -113,10 +113,11 @@ export default class Game {
       }
       if (!weClaimedARoad) throw new Error("uh... we didn't claim a road...??");
     }
+    //this.nextPlayer();
     return;
   }
 
-  evaluateTown(newTown: GameTown, log?: boolean): number {
+  evaluateTown(newTown: GameTown, log = false): number {
     let prodScore = 0;
     const tradeBenefit: number[] = [];
     const potentialNewProduction: number[] = [];
@@ -136,8 +137,8 @@ export default class Game {
           if (!newTR) continue;
           tradeBenefit[resource] = Math.max(0, currPlayer.tradeRatio[resource] - newTR[resource]) * (potentialNewProduction[resource] + .5);
         }
-        console.log("port: ");
-        console.log(tradeBenefit);
+        //console.log("port: ");
+        //console.log(tradeBenefit);
       }
     }
     for (const resource of AllResourceTypes) {
@@ -147,7 +148,7 @@ export default class Game {
       console.log(potentialNewProduction);
       console.log(tradeBenefit);
     }
-    newTown.eval = prodScore + tradeScore / 2;
+    newTown.eval = prodScore + tradeScore / 8;
     return newTown.eval;
   }
 
@@ -442,7 +443,38 @@ export default class Game {
     this.forceUpdate();
   }
 
-  onVertexClicked(vertex: VertexCoords): boolean {
+  onClientVertex(vertex: VertexCoords, premove?: boolean): string {
+    if (premove) {
+      console.log(JSON.stringify(this.map.townAt(vertex)));
+    } else {
+      const result = this.claimTownAt(vertex).toString();
+      return result;
+    }
+    return '';
+  }
+
+  executeTownActionJSON(json: string, playerID: number): boolean {
+    const town: GameTown = Object.assign(new GameTown(), JSON.parse(json));
+    town.setChildPrototypes();
+    if (!town.coords) return false;
+    const mapTown = this.map.townAt(town.coords);
+    if (!mapTown || !mapTown.coords) return false;
+    //claim a town
+    if (mapTown.isUnclaimed()) {
+      return this.claimTownAt(mapTown.coords); //currently handles initial settlements, later settlements, upgrades, and robber placement.
+    }
+    //upgrade a town
+    else {
+      if (!mapTown.playerIdx || mapTown.playerIdx !== playerID) return false; //no settlement or belongs to another player
+      if (this.players[playerID].spend(AllBuildCosts[BuildOptions.City]))
+        mapTown.upgradeCity();
+      else return false; // player didn't have the money
+    }
+
+    return true;
+  }
+
+  claimTownAt(vertex: VertexCoords): boolean {
     if (this.claimedSettlement)
       return false;
     const currPlayer = this.getCurrPlayer();
@@ -451,14 +483,22 @@ export default class Game {
     let actionPerformed = false;
     if (this.gamePhase === GamePhase.PlaceSettlement1
       || this.gamePhase === GamePhase.PlaceSettlement2
-      || this.gamePhase === GamePhase.BuildSettlement) {
+      || this.gamePhase === GamePhase.BuildSettlement
+      || this.gamePhase === GamePhase.MainGameplay) {
 
-      townThere?.claimTown(currPlayer.index);
+      // claim the town
+
+      if (this.gamePhase === GamePhase.PlaceSettlement1
+        || this.gamePhase === GamePhase.PlaceSettlement2
+        || currPlayer.spend(AllBuildCosts[BuildOptions.Settlement])) {
+        townThere?.claimTown(currPlayer.index);
+        this.updatePlayerTradeRatios(townThere);
+        this.updatePlayerProduction(townThere);
+        this.updateRobberHexes(townThere);
+      }
       this.map.resetDisplayRoads();
       this.map.resetDisplayTowns();
-      this.updatePlayerTradeRatios(townThere);
-      this.updatePlayerProduction(townThere);
-      this.updateRobberHexes(townThere);
+
 
       if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
         this.claimedSettlement = true;
@@ -471,14 +511,13 @@ export default class Game {
           }
         }
       } else {
-        currPlayer.spend(AllBuildCosts[BuildOptions.Settlement]);
         this.gamePhase = GamePhase.MainGameplay;
       }
       actionPerformed = true;
     } else if (this.gamePhase === GamePhase.BuildCity && townThere?.highlighted) {
-      townThere.upgradeCity();
+      if (currPlayer.spend(AllBuildCosts[BuildOptions.City]))
+        townThere.upgradeCity();
       this.gamePhase = GamePhase.MainGameplay;
-      currPlayer.spend(AllBuildCosts[BuildOptions.City]);
       this.map.resetDisplayTowns();
       actionPerformed = true;
     } else if (this.gamePhase === GamePhase.PlaceRobber

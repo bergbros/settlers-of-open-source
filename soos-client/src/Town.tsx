@@ -4,14 +4,15 @@ import { GameTown, VertexCoords } from 'soos-gamelogic';
 export type TownProps = {
   gameTown: GameTown;
   onClick: (vertexCoords: VertexCoords) => void;
+  premove: boolean;
 };
 
 export default function Town(props: TownProps) {
-  const { gameTown, onClick } = props;
+  const { gameTown, onClick, premove } = props;
 
   const playerClass = gameTown.isUnclaimed() ? '' : 'p' + gameTown.playerIdx;
   let highlighted = ''
-  if (gameTown.highlighted) {
+  if (gameTown.highlighted || premove) {
     highlighted = 'highlight';
   }
   let townLevel = '';

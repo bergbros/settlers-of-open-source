@@ -25,7 +25,7 @@ export default function Road(props: RoadProps) {
 
   return (
     <div className={'Road ' + roadOrientation + " " + playerClass}
-      key={`t:${gameRoad.coords.hexCoords.x},${gameRoad.coords.hexCoords.y},${gameRoad.coords.direction}`}
+      key={`r:${gameRoad.coords.hexCoords.x},${gameRoad.coords.hexCoords.y},${gameRoad.coords.direction}`}
       style={{
         left: x + 'px',
         top: y + 'px'

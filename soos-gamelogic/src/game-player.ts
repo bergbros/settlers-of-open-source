@@ -30,15 +30,21 @@ export default class GamePlayer {
     const cardCount = count !== undefined ? count : 1;
     if (resource !== undefined)
       this.cards[resource] += cardCount;
-    console.log("added " + resource + ":" + cardCount);
+    //console.log("added " + resource + ":" + cardCount);
   }
 
-  spend(action: number[]) {
+  spend(action: number[]): boolean {
+    //does the player have the resources?
     for (let i = 0; i < action.length; i++) {
-      if (i >= this.cards.length) return;
-      this.cards[i] = this.cards[i] - action[i];
-      if (this.cards[i] < 0) throw new Error("Negative resources!");
+      if (i >= this.cards.length) throw new Error("wrong number of costs for this action??");
+      if (this.cards[i] < action[i] || this.cards[i] < 0) return false;
     }
+
+    //actually spend it since we know player has it
+    for (let i = 0; i < action.length; i++) {
+      this.cards[i] = this.cards[i] - action[i];
+    }
+    return true;
   }
 
   currentResources(): ResourceType[] {

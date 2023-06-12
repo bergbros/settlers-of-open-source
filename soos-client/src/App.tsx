@@ -10,7 +10,7 @@ import { Socket } from 'socket.io-client';
 import TradeWindow from './Trade-window';
 
 const debugAutoPickSettlements = true;
-
+const premoves: string[] = [];
 export type AppProps = {
   socket: Socket
 };
@@ -21,11 +21,9 @@ export function App(props: AppProps) {
   // TODO wrap this in another component and don't display placeholder
   // game when waiting for multiplayer game to start
   const [game, setGame] = useState<Game>(new Game({ debugAutoPickSettlements }));
-
   const [playerId, setPlayerId] = useState<number | undefined>(undefined);
-
   const [isTradeWindowShowing, setIsTradeWindowShowing] = useState<boolean>(false);
-
+  const [premove, setPremove] = useState<boolean>(false);
   // Set up force update function
   const [count, setCount] = useState<number>(0);
   game.forceUpdate = () => {
@@ -46,11 +44,17 @@ export function App(props: AppProps) {
       };
 
       setGame(updatedGame);
+      console.log("got new game state");
+    }
+    function addPremove(serverJSON: string) {
+      premoves.push(serverJSON);
     }
 
     socket.on('playerId', receivePlayerId);
 
     socket.on('updateGameState', updateGameState);
+
+    socket.on('addedPremove', addPremove);
 
     return () => {
       socket.off('playerId', receivePlayerId);
@@ -88,13 +92,24 @@ export function App(props: AppProps) {
   for (const town of game.map.towns) {
     const townCoords = town.coords!;
 
-    if (!town.display)
+    if (!town.display && !premove)
       continue;
 
     towns.push(
       <Town
         gameTown={town}
-        onClick={(vertexCoords) => { if (game.onVertexClicked(vertexCoords)) sendGameStateToServer(); }}
+        premove={premove && town.playerIdx === playerId}
+        onClick={(vertexCoords) => {
+          const gameResponse = game.onClientVertex(vertexCoords, premove);
+          if (!gameResponse)
+            return;
+          else if (gameResponse === 'true')
+            sendGameStateToServer();
+          else {
+            console.log(gameResponse);
+            socket.emit("premove", gameResponse.toString());
+          }
+        }}
         key={`t:${townCoords.hexCoords.x},${townCoords.hexCoords.y},${townCoords.direction}`}
       />
     );
@@ -138,10 +153,17 @@ export function App(props: AppProps) {
   const tradeButton =
     <button
       onClick={() => { setIsTradeWindowShowing(true) }}
-      className="ActionButton"
-      disabled={false}>
+      className="ActionButton">
       {'Trade Resources'}
     </button>
+  const premoveButton =
+    <button
+      className="ActionButton"
+      onClick={() => {
+        setPremove(!premove)
+      }}>
+      {premove ? "Done Planning" : 'Set Premoves'}
+    </button >
 
   let theRobber = <Robber game={game}></Robber>;
   robber.push(
@@ -194,6 +216,7 @@ export function App(props: AppProps) {
       </div>
       <div className="App HeaderInfo">
         {tradeButton}
+        {premoveButton}
       </div>
       <button
         onClick={() => {

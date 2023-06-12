@@ -80,7 +80,7 @@ export function resourceToString(resource: ResourceType | undefined): string {
     case ResourceType.Grain:
       return '🌾Grain';
     case ResourceType.Ore:
-      return '🗿  Ore';
+      return '⛰️  Ore';
     default:
       return '';
   }
@@ -110,7 +110,7 @@ export function resourceToSymbol(resource: ResourceType | undefined): string {
     case ResourceType.GrainPort:
       return '🌾';
     case ResourceType.OrePort:
-      return '🗿';
+      return '⛰️';
     case ResourceType.AnyPort:
       return '❔';
     default:

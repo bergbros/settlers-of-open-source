@@ -3,7 +3,8 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 
-import { Game, gameFromString } from 'soos-gamelogic';
+import { Game, GamePhase, gameFromString } from 'soos-gamelogic';
+import ServerAction from './server-action.js';
 
 const port = 3000;
 
@@ -28,6 +29,7 @@ app.get('/api/result', (req: Request, res: Response) => {
 });
 
 const connectedPlayers: (Socket | null)[] = [];
+const premoveActions: ServerAction[] = [];
 let game = new Game({ debugAutoPickSettlements: false });
 
 io.on('connection', socket => {
@@ -40,10 +42,36 @@ io.on('connection', socket => {
   connectedPlayers[id] = socket;
   socket.emit('playerId', id);
 
+  setInterval(() => {
+    if (game.gamePhase === GamePhase.MainGameplay && id == 0) {
+      game.nextPlayer();
+      for (let i = premoveActions.length - 1; i >= 0; i--) {
+        const premove = premoveActions[i];
+        if (game.executeTownActionJSON(premove.actionJSON, premove.playerID)) {
+          console.log('Completed action!' + premove.actionJSON);
+          premoveActions.splice(i);
+          //notify the client that executed the action that the premove is finished!
+          //socket.emit('executedPremove', premove.actionJSON);
+        }
+      }
+      socket.broadcast.emit('updateGameState', game.toString())
+      socket.emit('updateGameState', game.toString())
+    }
+  }, 10000)
+
   socket.on('newGameState', (newGameState) => {
     console.log(`got New Game State`);
     game = gameFromString(newGameState);
     socket.broadcast.emit('updateGameState', newGameState);
+  });
+
+  socket.on('premove', (myJSON) => {
+    console.log(`got new premove:` + id + ` wants ` + myJSON);
+    socket.broadcast.emit('updateGameState', game.toString());
+    // const newAction = new ServerAction(myJSON, id);
+    // console.log(newAction);
+    // premoveActions.push(newAction);
+    //socket.emit('addedPremove', newAction);
   });
 
   socket.on('disconnect', () => {

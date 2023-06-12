@@ -66,13 +66,27 @@ io.on('connection', socket => {
   });
 
   socket.on('premove', (myJSON) => {
-    console.log(`got new premove:` + id + ` wants ` + myJSON);
-    socket.broadcast.emit('updateGameState', game.toString());
-    // const newAction = new ServerAction(myJSON, id);
-    // console.log(newAction);
-    // premoveActions.push(newAction);
+    console.log('got new premove:' + id + ' wants ' + myJSON);
+    //socket.broadcast.emit('updateGameState', game.toString());
+    const newAction = new ServerAction(myJSON, id);
+    console.log(newAction);
+    premoveActions.push(newAction);
     //socket.emit('addedPremove', newAction);
   });
+
+  socket.on('logPremoves', () => {
+    console.log();
+    console.log();
+    console.log();
+
+    for (const serverAction of premoveActions) {
+      console.log('premoves: ' + serverAction.playerID + ' wants ' + serverAction.actionJSON);
+    }
+  });
+
+  socket.on('check', () => {
+    console.log('check');
+  })
 
   socket.on('disconnect', () => {
     console.log(`user ${id} disconnected`);

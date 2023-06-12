@@ -164,6 +164,14 @@ export function App(props: AppProps) {
       }}>
       {premove ? "Done Planning" : 'Set Premoves'}
     </button >
+  const checkButton = <button
+    className="ActionButton"
+    onClick={() => { socket.emit('check'); socket.emit('premove', '{"townLevel":0,"eval":5.1875,"display":false,"highlighted":false,"production":[0,0,0,0,3],"coords":{"hexCoords":{"x":3,"y":6},"direction":5}}'); }}
+  >Check Me</button>
+  const logPremoves = <button
+    className="ActionButton"
+    onClick={() => { socket.emit('logPremoves'); }}
+  >Log Premoves</button>
 
   let theRobber = <Robber game={game}></Robber>;
   robber.push(
@@ -217,6 +225,8 @@ export function App(props: AppProps) {
       <div className="App HeaderInfo">
         {tradeButton}
         {premoveButton}
+        {checkButton}
+        {logPremoves}
       </div>
       <button
         onClick={() => {

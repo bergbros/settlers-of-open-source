@@ -41,6 +41,8 @@ export default class GamePlayer {
     }
 
     //actually spend it since we know player has it
+    console.log('Spending! ');
+    console.log(action);
     for (let i = 0; i < action.length; i++) {
       this.cards[i] = this.cards[i] - action[i];
     }

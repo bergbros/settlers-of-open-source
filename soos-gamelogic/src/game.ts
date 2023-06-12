@@ -310,8 +310,8 @@ export default class Game {
       // Stand-in -- Discard down to 3
       for (const plyr of this.players) {
         for (const res of AllResourceTypes) {
-          if (plyr.cards[res] > 3) {
-            plyr.cards[res] = 3;
+          if (plyr.cards[res] > 5) {
+            plyr.cards[res] = 5;
           }
         }
       }
@@ -492,13 +492,13 @@ export default class Game {
         || this.gamePhase === GamePhase.PlaceSettlement2
         || currPlayer.spend(AllBuildCosts[BuildOptions.Settlement])) {
         townThere?.claimTown(currPlayer.index);
+        actionPerformed = true;
         this.updatePlayerTradeRatios(townThere);
         this.updatePlayerProduction(townThere);
         this.updateRobberHexes(townThere);
       }
       this.map.resetDisplayRoads();
       this.map.resetDisplayTowns();
-
 
       if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
         this.claimedSettlement = true;
@@ -513,7 +513,6 @@ export default class Game {
       } else {
         this.gamePhase = GamePhase.MainGameplay;
       }
-      actionPerformed = true;
     } else if (this.gamePhase === GamePhase.BuildCity && townThere?.highlighted) {
       if (currPlayer.spend(AllBuildCosts[BuildOptions.City]))
         townThere.upgradeCity();

@@ -1,14 +1,13 @@
 import { Game, HexCoords } from 'soos-gamelogic';
 import RobberImg from "/Robber.png";
-import { hexCoordsToPixels, HexHeight, HexWidth } from './utils';
-
-
+import { hexCoordsToPixels, HexHeight, HexWidth } from '../../utils';
+import './Robber.scss';
 
 export type RobberProps = {
     game: Game;
 };
 
-export default function Robber(props: RobberProps) {
+export const Robber = (props: RobberProps) => {
     const { game } = props;
     let { x, y } = hexCoordsToPixels(game.robberLocation);
     x += HexWidth * 0.6;

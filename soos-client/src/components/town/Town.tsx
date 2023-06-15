@@ -1,5 +1,6 @@
-import { vertexCoordsToPixels } from './utils';
+import { vertexCoordsToPixels } from '../../utils';
 import { GameTown, VertexCoords } from 'soos-gamelogic';
+import './Town.scss';
 
 export type TownProps = {
   gameTown: GameTown;
@@ -7,7 +8,7 @@ export type TownProps = {
   premove: boolean;
 };
 
-export default function Town(props: TownProps) {
+export const Town = (props: TownProps) => {
   const { gameTown, onClick, premove } = props;
 
   const playerClass = gameTown.isUnclaimed() ? '' : 'p' + gameTown.playerIdx;

@@ -1,12 +1,13 @@
 import { GameRoad, EdgeCoords, HexDirection } from 'soos-gamelogic';
-import { edgeCoordsToPixels, vertexCoordsToPixels } from './utils';
+import { edgeCoordsToPixels, vertexCoordsToPixels } from '../../utils';
+import './Road.scss';
 
 export type RoadProps = {
   gameRoad: GameRoad;
   onClick: (edgeCoords: EdgeCoords) => void;
 };
 
-export default function Road(props: RoadProps) {
+export const Road = (props: RoadProps) => {
   const { gameRoad, onClick } = props;
   const { x, y } = edgeCoordsToPixels(gameRoad.coords);
 

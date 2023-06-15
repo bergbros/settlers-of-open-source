@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase, gameFromString, AllResourceTypes, resourceToString } from 'soos-gamelogic';
-import './App.scss';
-import Hex from './Hex';
-import Player from './Player';
-import Road from './Road';
-import Robber from './Robber';
-import Town from './Town';
 import { Socket } from 'socket.io-client';
-import TradeWindow from './Trade-window';
+import { Hex, Town, Road, Player, Robber } from './components';
+import { TradeWindow } from './features/';
+import './App.scss';
 
 const debugAutoPickSettlements = true;
 const premoves: string[] = [];
@@ -223,24 +219,29 @@ export function App(props: AppProps) {
       <div>Round #0{game.turnNumber}</div>
       <div className={'p' + game.currPlayerIdx}>{game.instructionText}
       </div>
-      <div className="App HeaderInfo">
-        {actions}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="App HeaderInfo">
+          {actions}
+        </div>
+        <div>
+          <div className="App HeaderInfo">
+            {tradeButton}
+            {premoveButton}
+            {checkButton}
+            {logPremoves}
+          </div>
+          <button
+            onClick={() => {
+              game.nextPlayer();
+              sendGameStateToServer();
+            }}
+            className="NextTurnButton"
+            disabled={game.gamePhase !== GamePhase.MainGameplay}
+          >Next Turn</button>
+        </div>
+        <div className="App HeaderInfo">{players}</div>
+
       </div>
-      <div className="App HeaderInfo">
-        {tradeButton}
-        {premoveButton}
-        {checkButton}
-        {logPremoves}
-      </div>
-      <button
-        onClick={() => {
-          game.nextPlayer();
-          sendGameStateToServer();
-        }}
-        className="NextTurnButton"
-        disabled={game.gamePhase !== GamePhase.MainGameplay}
-      >Next Turn</button>
-      <div className="App HeaderInfo">{players}</div>
       <div className="Board">
         {hexes}
         {towns}

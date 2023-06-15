@@ -1,11 +1,12 @@
 import { GamePlayer, ResourceType, resourceToString, AllResourceTypes } from 'soos-gamelogic';
+import './Player.scss';
 
 export type PlayerProps = {
   player: GamePlayer,
   details: boolean
 };
 
-export default function Player(props: PlayerProps) {
+export const Player = (props: PlayerProps) => {
   const { player, details } = props;
   //const { x, y } = vertexCoordsToPixels(gameTown.coords);
 

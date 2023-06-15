@@ -1,6 +1,7 @@
 import { HexCoords, ResourceType, TerrainType, GameHex, Game } from 'soos-gamelogic';
-import { hexCoordsToPixels } from './utils';
+import { hexCoordsToPixels } from '../../utils';
 import { isSeaType, resourceToLand, resourceToSymbol } from 'soos-gamelogic/src/terrain-type';
+import './Hex.scss';
 
 // Debug thing to show the HexCoords of every hex on the board.
 const showAllCoords = true;
@@ -63,7 +64,7 @@ function centerIcon(gameHex: GameHex, highlightedHex: string) {
   return myDiv;
 }
 
-export default function Hex(props: HexProps) {
+export const Hex = (props: HexProps) => {
   const { gameHex, onClick, placeRobber } = props;
 
   const terrainClass = isSeaType(gameHex.resourceType) ? 'water' : getTerrainClass(gameHex.terrainType, gameHex.resourceType);

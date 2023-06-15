@@ -1,0 +1,94 @@
+@import '../../scss/variables.scss';
+
+.Hex {
+    position: absolute;
+    width: 100px;
+    height: 120px;
+    clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
+    z-index: 1;
+
+
+
+    .tileCoords {
+        position: absolute;
+        font-size: 10px;
+        top: 85px;
+        right: 12px;
+    }
+}
+
+.port,
+.tileNumber {
+    color: black;
+    text-align: center;
+    margin: auto;
+    margin-top: 40px;
+
+    width: $tileNumberSize;
+    height: $tileNumberSize;
+    line-height: $tileNumberSize*.8; // center text vertically
+
+    font-size: 22px;
+    z-index: 5;
+
+    border-radius: calc($tileNumberSize/2);
+}
+
+.port {
+    line-height: $tileNumberSize; // center text vertically
+    border: 3px solid black;
+    font-size: 18px;
+}
+
+.dots {
+    color: black;
+    font-size: 6px;
+    text-align: center;
+    margin: auto;
+    line-height: 10px;
+    margin-top: - 10px;
+}
+
+
+.none {
+    background-color: bisque;
+}
+
+.water {
+    background-color: lightskyblue;
+    z-index: 3;
+}
+
+.wood {
+    background-color: rgb(0, 90, 0);
+    z-index: 3;
+    color: white;
+}
+
+.sheep {
+    background-color: rgb(97, 222, 97);
+    z-index: 3;
+}
+
+.brick {
+    //background-color: rgb(146, 26, 8);
+    background-color: rgb(146, 26, 8) !important;
+    z-index: 3;
+    color: white;
+}
+
+.ore {
+    background-color: rgb(75, 75, 75);
+    z-index: 3;
+    color: white;
+}
+
+.grain {
+    background-color: rgb(237, 213, 30);
+    z-index: 3;
+}
+
+.desert {
+    background-color: rgb(243, 213, 152);
+    z-index: 3;
+}

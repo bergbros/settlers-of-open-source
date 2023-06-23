@@ -34,6 +34,8 @@ export default class GamePlayer {
   }
 
   spend(action: number[]): boolean {
+    // TODO use hasResources() here
+
     //does the player have the resources?
     for (let i = 0; i < action.length; i++) {
       if (i >= this.cards.length) throw new Error("wrong number of costs for this action??");
@@ -45,6 +47,15 @@ export default class GamePlayer {
     console.log(action);
     for (let i = 0; i < action.length; i++) {
       this.cards[i] = this.cards[i] - action[i];
+    }
+    return true;
+  }
+
+  hasResources(action: number[]): boolean {
+    //does the player have the resources?
+    for (let i = 0; i < action.length; i++) {
+      if (i >= this.cards.length) throw new Error("wrong number of costs for this action??");
+      if (this.cards[i] < action[i] || this.cards[i] < 0) return false;
     }
     return true;
   }

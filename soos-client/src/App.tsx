@@ -4,9 +4,10 @@ import { Socket } from 'socket.io-client';
 import { Hex, Town, Road, Player, Robber } from './components';
 import { TradeWindow } from './features/';
 import './App.scss';
+import { BuildAction, BuildOptions, NullBuildAction } from 'soos-gamelogic/dist/src/buildOptions';
 
 const debugAutoPickSettlements = true;
-const premoves: string[] = [];
+let premoves: BuildAction[] = [];
 export type AppProps = {
   socket: Socket
 };
@@ -34,23 +35,20 @@ export function App(props: AppProps) {
     function updateGameState(gameState: string) {
       // parse game
       const updatedGame = gameFromString(gameState);
-
       updatedGame.forceUpdate = () => {
         setCount(count + 1);
       };
-
       setGame(updatedGame);
       console.log("got new game state");
     }
-    function addPremove(serverJSON: string) {
-      premoves.push(serverJSON);
+
+    function setPremoves(serverPremoves: BuildAction[]) {
+      premoves = serverPremoves;
     }
 
     socket.on('playerId', receivePlayerId);
-
     socket.on('updateGameState', updateGameState);
-
-    socket.on('addedPremove', addPremove);
+    socket.on('premoves', setPremoves);
 
     return () => {
       socket.off('playerId', receivePlayerId);
@@ -96,18 +94,15 @@ export function App(props: AppProps) {
         gameTown={town}
         premove={premove && town.playerIdx === playerId}
         onClick={(vertexCoords) => {
-          let gameResponse = game.onClientVertex(vertexCoords, premove);
-          //gameResponse = gameResponse.toString();
-          console.log(gameResponse);
-          if (!gameResponse.length || gameResponse.length < 1) {
-            socket.emit('check');
-            return;
-          }
-          if (gameResponse === 'true') {
-            socket.emit('logPremoves');
+          if (playerId === undefined) return;
+          const actionResponse = game.onClientVertex(vertexCoords, playerId, premove);
+          console.log(actionResponse);
+          if (actionResponse.type === BuildOptions.actionCompleted) {
             sendGameStateToServer();
+          } else if (actionResponse.type = BuildOptions.invalidAction) {
+            //no action
           } else {
-            socket.emit('premove', gameResponse);
+            socket.emit('premove', actionResponse);
           }
         }}
         key={`t:${townCoords.hexCoords.x},${townCoords.hexCoords.y},${townCoords.direction}`}
@@ -118,13 +113,22 @@ export function App(props: AppProps) {
   for (const road of game.map.roads) {
     const roadCoords = road.coords;
 
-    if (!road.showMe())
+    if (!road.showMe() && !premove)
       continue;
 
     roads.push(
       <Road
         gameRoad={road}
-        onClick={(edgeCoords) => { if (game.onEdgeClicked(edgeCoords)) sendGameStateToServer(); }}
+        onClick={(edgeCoords) => {
+          if (playerId === undefined) return;
+          const actionResponse = game.onClientEdge(edgeCoords, playerId, premove);
+          console.log(actionResponse)
+          if (actionResponse.type === BuildOptions.actionCompleted)
+            sendGameStateToServer();
+          else if (actionResponse.type !== BuildOptions.invalidAction) {
+            socket.emit('premove', actionResponse);
+          }
+        }}
         key={`r:${roadCoords.hexCoords.x},${roadCoords.hexCoords.y},${roadCoords.direction}`}
       />
     );
@@ -164,15 +168,11 @@ export function App(props: AppProps) {
       }}>
       {premove ? "Done Planning" : 'Set Premoves'}
     </button >
-  const checkButton = <button
-    className="ActionButton"
-    onClick={() => { socket.emit('check'); socket.emit('premove', '{"townLevel":0,"eval":5.1875,"display":false,"highlighted":false,"production":[0,0,0,0,3],"coords":{"hexCoords":{"x":3,"y":6},"direction":5}}'); }}
-  >Check Me</button>
-  const logPremoves = <button
-    className="ActionButton"
-    onClick={() => { socket.emit('logPremoves'); }}
-  >Log Premoves</button>
 
+
+  const premoveItems = premoves.map((action: BuildAction) => (
+    <li>{action.displayString()}</li>));
+  const premoveDisplay = <div> < ol > Your Premoves:{premoveItems}</ol></div>
   let theRobber = <Robber game={game}></Robber>;
   robber.push(
     theRobber
@@ -189,27 +189,6 @@ export function App(props: AppProps) {
         game.forceUpdate();
       }}></TradeWindow>)
   }
-  // const tradeOptions = [];
-  // if (playerId !== undefined) {
-  //   for (const resource of AllResourceTypes) {
-  //     tradeOptions.push(<button className="ActionButton" disabled={false}>{'Trade ' + game.players[playerId].tradeRatio[resource] + ' ' + resourceToString(resource)}</button>);
-  //   }
-  // }
-  // dialogBoxes.push(
-  //   <div id="tradeModal" className="modal">
-  //     <div className="modal-content">
-  //       <div className="modal-header">
-  //         <span className="close">&times;</span>
-  //         <h2>Available Trades:</h2>
-  //       </div>
-  //       <div className="modal-body">
-  //         <div className="TradeInButtons">{tradeOptions}</div>
-  //         <div className="TradeForSelector"></div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
-
 
   let playerName = "waiting to connect";
   if (playerId !== undefined) playerName = game.players[playerId!].name;
@@ -227,8 +206,6 @@ export function App(props: AppProps) {
           <div className="App HeaderInfo">
             {tradeButton}
             {premoveButton}
-            {checkButton}
-            {logPremoves}
           </div>
           <button
             onClick={() => {
@@ -238,6 +215,7 @@ export function App(props: AppProps) {
             className="NextTurnButton"
             disabled={game.gamePhase !== GamePhase.MainGameplay}
           >Next Turn</button>
+          <div>{premoveDisplay}</div>
         </div>
         <div className="App HeaderInfo">{players}</div>
 

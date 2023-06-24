@@ -1,4 +1,4 @@
-import { AllBuildCosts, AllBuildOptions, BuildOptions } from './buildOptions.js';
+import { AllBuildCosts, AllBuildOptions, BuildAction, BuildCityAction, BuildOptions, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction } from './buildOptions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
@@ -56,6 +56,8 @@ export default class Game {
   robberPhase?: RobberPhase;
   robberHexes: HexCoords[];
   turnNumber: number;
+  premoveActions: BuildAction[];
+
   constructor(options: { debugAutoPickSettlements?: boolean }) {
     this.turnNumber = 0;
     this.claimedSettlement = false;
@@ -72,9 +74,14 @@ export default class Game {
     this.instructionText = 'Game Started! Player 1 place first settlement.js';
     this.displayEmptyTowns();
     this.robberHexes = [];
+    this.premoveActions = [];
     // if (options.debugAutoPickSettlements) {
     //   this.autoPickSettlements()
     // }
+  }
+
+  setupPhase(): boolean {
+    return this.gamePhase == GamePhase.PlaceSettlement1 || this.gamePhase == GamePhase.PlaceSettlement2;
   }
 
   autoPickSettlements() {
@@ -230,6 +237,7 @@ export default class Game {
     } else if (this.gamePhase === GamePhase.BuildRoad) {
       this.gamePhase = GamePhase.MainGameplay;
     }
+    //Check if any premoves can be executed
 
     this.forceUpdate();
   }
@@ -323,7 +331,10 @@ export default class Game {
       if (this.robberHexes.length < 1) {
         this.onHexClicked_PlaceRobber(this.robberLocation, true);
       } else {
-        const newRobHexIndex = Math.floor(Math.random() * this.robberHexes.length)
+        const newRobHexIndex = Math.floor(Math.random() * this.robberHexes.length);
+        if (this.robberHexes[newRobHexIndex] === undefined) {
+          throw new Error("undefined robber hex!");
+        }
         this.onHexClicked_PlaceRobber(this.robberHexes[newRobHexIndex], true);
       }
 
@@ -443,20 +454,45 @@ export default class Game {
     this.forceUpdate();
   }
 
-  onClientVertex(vertex: VertexCoords, premove?: boolean): string {
-    if (premove) {
-      const myresult = (JSON.stringify(this.map.townAt(vertex)));
-      //console.log(myresult);
-      return myresult;
+  onClientVertex(vertex: VertexCoords, playerID: number, premove: boolean = false): BuildAction {
+    const town = this.map.townAt(vertex);
+    if (town === undefined) return new NullBuildAction();
+
+    if (this.setupPhase()) {
+      if (this.claimTownAt(vertex).toString()) {
+        return new CompletedBuildAction(); //action was successful
+      } else {
+        return new NullBuildAction(); //no action taken!
+      }
     } else {
-      const result = this.claimTownAt(vertex).toString();
-      return result;
+      if (town.townLevel > 0 && playerID === town.playerIdx) {
+        console.log("Added premove to upgrade city");
+        return new BuildCityAction(playerID, vertex);
+      } else {
+        //is there a premove to build a settlement there from this player?
+        const settleMove = new BuildSettlementAction(playerID, vertex);
+        if (this.premoveActions.indexOf(settleMove) > -1) {
+          console.log("Found settle move, created upgrade to city premove");
+          return new BuildCityAction(playerID, vertex);
+        } else {
+          console.log("Created new settle move");
+          return settleMove;
+        }
+      }
     }
   }
 
+  addPremove(buildAction: BuildAction) {
+    console.log(buildAction.displayString());
+    if (buildAction.shouldDisqualify(this) === false)
+      this.premoveActions.push(buildAction);
+  }
+
   executeTownActionJSON(json: string, playerID: number): boolean {
+    //todo: delete? Not currently using JSON town actions
     const town: GameTown = Object.assign(new GameTown(), JSON.parse(json));
     town.setChildPrototypes();
+
     if (!town.coords) return false;
     const mapTown = this.map.townAt(town.coords);
     if (!mapTown || !mapTown.coords) return false;
@@ -533,6 +569,27 @@ export default class Game {
     return actionPerformed;
   }
 
+  onClientEdge(edge: EdgeCoords, playerID: number, premove: boolean = false): BuildAction {
+    console.log("on client edge");
+    if (this.setupPhase()) {
+      console.log("set up phase");
+      if (!this.claimedSettlement)
+        return new NullBuildAction();
+
+      if (this.onEdgeClicked(edge))       //setup phase build road code
+        return new CompletedBuildAction();
+      else
+        return new NullBuildAction();
+
+    } else {
+      console.log("working on premove");
+      if (this.gamePhase !== GamePhase.BuildRoad && !premove) {
+        return new NullBuildAction();
+      }
+      return new BuildRoadAction(playerID, edge);
+    }
+  }
+
   onEdgeClicked(edge: EdgeCoords): boolean {
     if (!this.claimedSettlement && (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2))
       return false;
@@ -546,6 +603,14 @@ export default class Game {
     this.nextPlayer();
     this.forceUpdate();
     return true;
+  }
+
+  getPremoves(playerId: number) {
+    const playerMoves: BuildAction[] = [];
+    for (const move of this.premoveActions)
+      if (move.playerId === playerId)
+        playerMoves.push(move);
+    return playerMoves;
   }
 
   onHexClicked(coords: HexCoords): boolean {
@@ -673,6 +738,13 @@ export default class Game {
 
     this.robberLocation = new HexCoords(this.robberLocation.x, this.robberLocation.y)
 
+    for (let i = 0; i < this.premoveActions.length; i++) {
+      if (this.premoveActions[i].type === BuildOptions.Road) {
+        const action = this.premoveActions[i] as BuildRoadAction;
+        this.premoveActions[i] = new BuildRoadAction(action.playerId, action.location);
+        this.premoveActions[i].setChildPrototypes();
+      }
+    }
 
   }
 
@@ -702,7 +774,8 @@ export default class Game {
     if (!townThere.coords) return;
     for (const hcoords of getHexes(townThere.coords)) {
       const hex = this.map.getHex(hcoords);
-      if (hex && hex.production > 4 && !this.robberHexes.indexOf(hcoords)) {
+      if (hex && this.robberHexes.indexOf(hcoords) === -1) {
+        console.log("updated robberhexes!");
         this.robberHexes.push(hcoords);
         console.log(this.robberHexes);
       }

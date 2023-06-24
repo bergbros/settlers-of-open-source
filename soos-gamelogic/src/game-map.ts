@@ -158,7 +158,7 @@ export default class GameMap {
     if (!row) {
       return undefined;
     }
-    return row[coords.x];
+    return row[coords.x] ? row[coords.x] : undefined;
   }
 
   addTown(coords: VertexCoords) {
@@ -300,7 +300,6 @@ export default class GameMap {
   }
 
   getRoads(vertex: VertexCoords | undefined): (GameRoad | undefined)[] {
-
     //each vertex has N, SE, SW roads OR S, NE, NW roads on neighboring land.
     const egressRoads: (GameRoad | undefined)[] = [];
     if (!vertex) return egressRoads;
@@ -309,38 +308,6 @@ export default class GameMap {
       egressRoads.push(this.roadAt(edge));
     }
     return egressRoads;
-    //get the two neighboring edges of this particular hex:
-    // egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge(vertex.direction))));
-    // egressRoads.push(this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge((vertex.direction + 5) % 6))));
-
-    // //get the one sticking out from the vertex
-    // let lastRoad = this.roadAt(new EdgeCoords(vertex.hexCoords, vertexToEdge(vertex.direction)));
-    // switch (vertex.direction) {
-    //   case VertexDirection.N:
-    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - ((vertex.hexCoords.y + 1) % 2), vertex.hexCoords.y - 1), HexDirection.E));
-    //     break;
-    //   case VertexDirection.S:
-    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + vertex.hexCoords.y % 2, vertex.hexCoords.y + 1), HexDirection.E));
-    //     break;
-    //   case VertexDirection.NE:
-    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + 1, vertex.hexCoords.y), HexDirection.NW));
-    //     break;
-    //   case VertexDirection.SE:
-    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x + 1, vertex.hexCoords.y), HexDirection.SW));
-    //     break;
-    //   case VertexDirection.NW:
-    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - 1, vertex.hexCoords.y), HexDirection.NE));
-    //     break;
-    //   case VertexDirection.SW:
-    //     lastRoad = this.roadAt(new EdgeCoords(new HexCoords(vertex.hexCoords.x - 1, vertex.hexCoords.y), HexDirection.SE));
-    //     break;
-    //   default:
-    //     lastRoad = undefined;
-    //     break;
-    // }
-    // egressRoads.push(lastRoad);
-
-    // return egressRoads;
   }
 
   toString() {

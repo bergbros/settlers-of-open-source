@@ -3,8 +3,9 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 
-import { Game, GamePhase, gameFromString } from 'soos-gamelogic';
+import { Game, GamePhase, actionToString, gameFromString } from 'soos-gamelogic';
 import ServerAction from './server-action.js';
+import { BuildAction } from 'soos-gamelogic/dist/src/buildOptions.js';
 
 const port = 3000;
 
@@ -45,15 +46,16 @@ io.on('connection', socket => {
   setInterval(() => {
     if (game.gamePhase === GamePhase.MainGameplay && id == 0) {
       game.nextPlayer();
-      for (let i = premoveActions.length - 1; i >= 0; i--) {
-        const premove = premoveActions[i];
-        if (game.executeTownActionJSON(premove.actionJSON, premove.playerID)) {
-          console.log('Completed action!' + premove.actionJSON);
-          premoveActions.splice(i);
-          //notify the client that executed the action that the premove is finished!
-          //socket.emit('executedPremove', premove.actionJSON);
-        }
-      }
+      // moving this code to the GAME object
+      // for (let i = premoveActions.length - 1; i >= 0; i--) {
+      //   const premove = premoveActions[i];
+      //   if (game.executeTownActionJSON(premove.actionJSON, premove.playerID)) {
+      //     console.log('Completed action!' + premove.actionJSON);
+      //     premoveActions.splice(i);
+      //     //notify the client that executed the action that the premove is finished!
+      //     //socket.emit('executedPremove', premove.actionJSON);
+      //   }
+      // }
       socket.broadcast.emit('updateGameState', game.toString())
       socket.emit('updateGameState', game.toString())
     }
@@ -65,13 +67,11 @@ io.on('connection', socket => {
     socket.broadcast.emit('updateGameState', newGameState);
   });
 
-  socket.on('premove', (myJSON) => {
-    console.log('got new premove:' + id + ' wants ' + myJSON);
+  socket.on('premove', (myBuildAction: BuildAction) => {
+    console.log('got new premove:' + id + ' wants ' + myBuildAction.displayString());
     //socket.broadcast.emit('updateGameState', game.toString());
-    const newAction = new ServerAction(myJSON, id);
-    console.log(newAction);
-    premoveActions.push(newAction);
-    //socket.emit('addedPremove', newAction);
+    game.addPremove(myBuildAction);
+    socket.emit('premoves', game.getPremoves(id));
   });
 
   socket.on('logPremoves', () => {

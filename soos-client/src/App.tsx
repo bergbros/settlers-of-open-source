@@ -99,7 +99,8 @@ export function App(props: AppProps) {
           console.log(actionResponse);
           if (actionResponse.type === BuildOptions.actionCompleted) {
             sendGameStateToServer();
-          } else if (actionResponse.type = BuildOptions.invalidAction) {
+          } else if (actionResponse.type === BuildOptions.invalidAction) {
+            socket.emit('check');
             //no action
           } else {
             socket.emit('premove', actionResponse);
@@ -120,6 +121,7 @@ export function App(props: AppProps) {
       <Road
         gameRoad={road}
         onClick={(edgeCoords) => {
+          socket.emit('check');
           if (playerId === undefined) return;
           const actionResponse = game.onClientEdge(edgeCoords, playerId, premove);
           console.log(actionResponse)

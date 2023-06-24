@@ -56,8 +56,8 @@ io.on('connection', socket => {
       //     //socket.emit('executedPremove', premove.actionJSON);
       //   }
       // }
-      socket.broadcast.emit('updateGameState', game.toString())
-      socket.emit('updateGameState', game.toString())
+      io.emit('updateGameState', game.toString());
+      console.log("sent updated game state");
     }
   }, 10000)
 

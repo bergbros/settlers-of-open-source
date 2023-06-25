@@ -1,4 +1,7 @@
 import { HexCoords, EdgeCoords, HexDirection, VertexCoords, VertexDirection } from 'soos-gamelogic';
+import { hydrateEdgeCoords, vertexToEdge } from 'soos-gamelogic/dist/src/utils/edge-coords';
+import { hydrateHexCoords } from 'soos-gamelogic/dist/src/utils/hex-coords';
+import { hydrateVertexCoords } from 'soos-gamelogic/dist/src/utils/vertex-coords';
 
 export const HexWidth = 100, HexHeight = 120;
 export const BoardWidth = 7, BoardHeight = 7;
@@ -9,6 +12,7 @@ export type PixelCoords = {
 };
 
 export function hexCoordsToPixels(hexCoords: HexCoords): PixelCoords {
+  hexCoords = hydrateHexCoords(hexCoords);
   let xCoord = hexCoords.x * HexWidth;
   if (hexCoords.isShovedRight()) {
     xCoord += HexWidth * .5;
@@ -23,6 +27,7 @@ export function hexCoordsToPixels(hexCoords: HexCoords): PixelCoords {
 }
 
 export function vertexCoordsToPixels(vertexCoords: VertexCoords, townRadius?: number): PixelCoords {
+  vertexCoords = hydrateVertexCoords(vertexCoords);
   const settlementRadius = townRadius ? townRadius : 10;
   const hexCoords = vertexCoords.hexCoords;
   let xCoord = hexCoords.x * HexWidth;
@@ -66,6 +71,7 @@ export function vertexCoordsToPixels(vertexCoords: VertexCoords, townRadius?: nu
 }
 
 export function edgeCoordsToPixels(edgeCoords: EdgeCoords): PixelCoords {
+  edgeCoords = hydrateEdgeCoords(edgeCoords);
   const hexCoords = edgeCoords.hexCoords;
   let xCoord = hexCoords.x * HexWidth;
 

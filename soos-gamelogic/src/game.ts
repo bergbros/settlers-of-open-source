@@ -348,6 +348,8 @@ export default class Game {
         }
         this.onHexClicked_PlaceRobber(this.robberHexes[newRobHexIndex], true);
       }
+      this.gamePhase = GamePhase.MainGameplay;
+
 
     } else {
       //let player build if desired/possible
@@ -506,15 +508,15 @@ export default class Game {
   addPremove(buildActionJSON: BuildAction) {
     const buildAction = hydrateBuildAction(buildActionJSON);
     console.log(buildAction.displayString());
-    //TODO check if the action is already present in the premoves
-    // let foundAction = false;
-    // for (let action of this.premoveActions) {
-    //   if (action.type === buildAction.type && action.location === buildAction.location) {
-    //     foundAction = true;
-    //     continue;
-    //   }
-    // }
-    if (buildAction.shouldDisqualify(this) === false) {
+    // check if the action is already present in the premoves
+    let foundAction = false;
+    for (let action of this.premoveActions) {
+      if (action.displayString() === buildAction.displayString()) {
+        foundAction = true;
+        continue;
+      }
+    }
+    if (buildAction.shouldDisqualify(this) === false && !foundAction) {
       this.premoveActions.push(buildAction);
     }
   }

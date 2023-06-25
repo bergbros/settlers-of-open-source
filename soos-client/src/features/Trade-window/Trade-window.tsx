@@ -32,6 +32,7 @@ export const TradeWindow = (props: TradeWindowProps) => {
 
   function onSubmit() {
     if (tradeResource && prizeResource) {
+      console.log("trading");
       executeTradeHandler(tradeResource, prizeResource);
     }
     onClose();

@@ -167,7 +167,7 @@ export class BuildRoadAction implements BuildAction {
   }
 
   displayString() {
-    return actionToString(this.type) + ' ' + this.location.toString();
+    return 'p' + this.playerId + '-' + actionToString(this.type) + ' ' + this.location.toString();
   }
 
   setChildPrototypes() {
@@ -212,7 +212,7 @@ export class BuildSettlementAction implements BuildAction {
   }
 
   displayString() {
-    return actionToString(this.type) + ' ' + this.location.toString();
+    return 'p' + this.playerId + '-' + actionToString(this.type) + ' ' + this.location.toString();
   }
 
   setChildPrototypes() {
@@ -254,7 +254,7 @@ export class BuildCityAction implements BuildAction {
   }
 
   displayString() {
-    return actionToString(this.type) + ' ' + this.location.toString();
+    return 'p' + this.playerId + '-' + actionToString(this.type) + ' ' + this.location.toString();
   }
 
   setChildPrototypes() {
@@ -287,7 +287,7 @@ export class BuildDevelopmentCardAction implements BuildAction {
   }
 
   displayString() {
-    return actionToString(this.type);
+    return 'p' + this.playerId + '-' + actionToString(this.type);
   }
 
   setChildPrototypes() { }

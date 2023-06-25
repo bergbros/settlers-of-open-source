@@ -47,13 +47,11 @@ export function App(props: AppProps) {
     function setPremoves(serverPremoves: BuildAction[]) {
       console.log("got premoves: ");
       console.log(serverPremoves);
-      //premoveItems = [];
+      premoves = [];
       for (const serverMove of serverPremoves) {
         premoves.push(hydrateBuildAction(serverMove));
-        //premoveItems.push(<li>{hydrateBuildAction(serverMove).displayString()}</li>);
       }
-      //console.log(premoveItems);
-      //premoveDisplay = <div> < ul > Your New Premoves:{premoveItems}</ul></div>;
+      game.forceUpdate();
     }
 
 
@@ -196,7 +194,6 @@ export function App(props: AppProps) {
 
   let premoveItems = premoves.map((action: BuildAction) => (
     <li>{action.displayString()}</li>));
-  premoveItems.push(<li>Test premove!</li>)
   let premoveDisplay = <div> <ul> Your Premoves:{premoveItems}</ul></div>;
   const theRobber = <Robber game={game}></Robber>;
   robber.push(
@@ -243,7 +240,6 @@ export function App(props: AppProps) {
             disabled={game.gamePhase !== GamePhase.MainGameplay}
           >Next Turn</button>
           <div>{premoveDisplay}</div>
-          <div>{premoveItems}</div>
         </div>
         <div className="App HeaderInfo">{players}</div>
 

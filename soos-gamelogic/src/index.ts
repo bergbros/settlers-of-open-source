@@ -30,4 +30,4 @@ export {
   GamePhase,
   RobberPhase,
   gameFromString,
-}
+};

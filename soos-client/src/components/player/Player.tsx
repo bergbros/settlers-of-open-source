@@ -1,4 +1,4 @@
-import { GamePlayer, ResourceType, resourceToString, AllResourceTypes } from 'soos-gamelogic';
+import { GamePlayer, resourceToString, AllResourceTypes } from 'soos-gamelogic';
 import './Player.scss';
 
 export type PlayerProps = {
@@ -16,10 +16,11 @@ export const Player = (props: PlayerProps) => {
   for (let i = 0; i < AllResourceTypes.length; i++) {
     const resourceType = AllResourceTypes[i];
     totalResources += player.cards[resourceType];
-    if (details)
+    if (details) {
       hand.push(resourceToString(resourceType) + ': ' + player.cards[resourceType] + '\n');
+    }
   }
-  hand.push("Total Resources: " + totalResources);
+  hand.push('Total Resources: ' + totalResources);
 
   return (
     <div className="PlayerList">
@@ -33,4 +34,4 @@ export const Player = (props: PlayerProps) => {
       </div>
     </div>
   );
-}
+};

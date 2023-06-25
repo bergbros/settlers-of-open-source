@@ -1,5 +1,4 @@
 import { AllResourceTypes, resourceToString, ResourceType } from './terrain-type.js';
-import VertexCoords from './utils/vertex-coords.js';
 
 export default class GamePlayer {
   // Cards
@@ -28,8 +27,9 @@ export default class GamePlayer {
 
   addCard(resource?: ResourceType, count?: number) {
     const cardCount = count !== undefined ? count : 1;
-    if (resource !== undefined)
+    if (resource !== undefined) {
       this.cards[resource] += cardCount;
+    }
     //console.log("added " + resource + ":" + cardCount);
   }
 
@@ -38,8 +38,12 @@ export default class GamePlayer {
 
     //does the player have the resources?
     for (let i = 0; i < action.length; i++) {
-      if (i >= this.cards.length) throw new Error("wrong number of costs for this action??");
-      if (this.cards[i] < action[i] || this.cards[i] < 0) return false;
+      if (i >= this.cards.length) {
+        throw new Error('wrong number of costs for this action??');
+      }
+      if (this.cards[i] < action[i] || this.cards[i] < 0) {
+        return false;
+      }
     }
 
     //actually spend it since we know player has it
@@ -54,8 +58,12 @@ export default class GamePlayer {
   hasResources(action: number[]): boolean {
     //does the player have the resources?
     for (let i = 0; i < action.length; i++) {
-      if (i >= this.cards.length) throw new Error("wrong number of costs for this action??");
-      if (this.cards[i] < action[i] || this.cards[i] < 0) return false;
+      if (i >= this.cards.length) {
+        throw new Error('wrong number of costs for this action??');
+      }
+      if (this.cards[i] < action[i] || this.cards[i] < 0) {
+        return false;
+      }
     }
     return true;
   }
@@ -63,22 +71,25 @@ export default class GamePlayer {
   currentResources(): ResourceType[] {
     const resList: ResourceType[] = [];
     for (const allRes of AllResourceTypes) {
-      for (let i = 0; i < this.cards[allRes]; i++)
+      for (let i = 0; i < this.cards[allRes]; i++) {
         resList.push(allRes);
+      }
     }
     return resList;
   }
 
   lose(res: ResourceType) {
-    if (this.cards[res] < 1) throw new Error("Player " + this.index + 1 + " cannot lose resource " + resourceToString(res));
+    if (this.cards[res] < 1) {
+      throw new Error('Player ' + this.index + 1 + ' cannot lose resource ' + resourceToString(res));
+    }
     this.cards[res]--;
   }
 
   toString() {
-    return ("p;" +
-      this.index + ";" +
-      this.name + ";" +
-      this.cards + ";" +
+    return ('p;' +
+      this.index + ';' +
+      this.name + ';' +
+      this.cards + ';' +
       this.victoryPoints
     );
   }

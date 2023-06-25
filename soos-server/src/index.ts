@@ -3,7 +3,7 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 
-import { Game, GamePhase, actionToString, gameFromString } from 'soos-gamelogic';
+import { Game, GamePhase, gameFromString } from 'soos-gamelogic';
 import ServerAction from './server-action.js';
 import { BuildAction } from 'soos-gamelogic/dist/src/buildOptions.js';
 
@@ -57,17 +57,18 @@ io.on('connection', socket => {
       //   }
       // }
       io.emit('updateGameState', game.toString());
-      console.log("sent updated game state");
+      console.log('sent updated game state');
     }
-  }, 10000)
+  }, 10000);
 
   socket.on('newGameState', (newGameState) => {
-    console.log(`got New Game State`);
+    console.log('got New Game State');
     game = gameFromString(newGameState);
     socket.broadcast.emit('updateGameState', newGameState);
   });
 
   socket.on('premove', (myBuildAction: BuildAction) => {
+
     console.log('got new premove:' + id + ' wants ' + myBuildAction.displayString());
     //socket.broadcast.emit('updateGameState', game.toString());
     game.addPremove(myBuildAction);
@@ -86,7 +87,7 @@ io.on('connection', socket => {
 
   socket.on('check', () => {
     console.log('check');
-  })
+  });
 
   socket.on('disconnect', () => {
     console.log(`user ${id} disconnected`);
@@ -95,7 +96,6 @@ io.on('connection', socket => {
 
   socket.emit('updateGameState', game.toString());
 });
-
 
 server.listen(port, () => {
   console.log(`Settlers of Open Source server listening on port ${port}`);

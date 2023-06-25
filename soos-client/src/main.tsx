@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import { io } from 'socket.io-client';
 
-let playerId = undefined;
+const playerId = undefined;
 
 const socket = io();
 

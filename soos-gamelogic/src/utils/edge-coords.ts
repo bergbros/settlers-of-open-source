@@ -1,13 +1,11 @@
 import HexCoords, { AllHexDirections, HexDirection, hexDirOpposite, hexDirNames } from './hex-coords.js';
 import { VertexDirection } from './vertex-coords.js';
 
-
-
 const EdgeDirectionsNeedNormalize = Object.freeze([
   HexDirection.E,
   HexDirection.SE,
   HexDirection.SW,
-])
+]);
 
 export function edgeDirName(dir: HexDirection): string {
   return hexDirNames[dir];
@@ -15,26 +13,25 @@ export function edgeDirName(dir: HexDirection): string {
 
 export function vertexToEdge(direction: VertexDirection) {
   switch (direction) {
-    case VertexDirection.N:
-      return HexDirection.NE;
+  case VertexDirection.N:
+    return HexDirection.NE;
 
-    case VertexDirection.NE:
-      return HexDirection.E;
+  case VertexDirection.NE:
+    return HexDirection.E;
 
-    case VertexDirection.SE:
-      return HexDirection.SE;
+  case VertexDirection.SE:
+    return HexDirection.SE;
 
-    case VertexDirection.S:
-      return HexDirection.SW;
+  case VertexDirection.S:
+    return HexDirection.SW;
 
-    case VertexDirection.SW:
-      return HexDirection.W;
+  case VertexDirection.SW:
+    return HexDirection.W;
 
-    case VertexDirection.NW:
-      return HexDirection.NW;
+  case VertexDirection.NW:
+    return HexDirection.NW;
   }
 }
-
 
 export default class EdgeCoords {
   hexCoords: HexCoords;
@@ -61,6 +58,5 @@ export default class EdgeCoords {
     // (3,4,dir=NW)
     return `(${this.hexCoords.x},${this.hexCoords.y},${edgeDirName(this.direction)})`;
   }
-
 
 }

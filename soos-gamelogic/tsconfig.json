@@ -19,9 +19,5 @@
   },
   "include": [
     "src"
-  ],
-  "files": [
-    // type override for jest-expect-message
-    "node_modules/jest-expect-message/types/index.d.ts"
   ]
 }

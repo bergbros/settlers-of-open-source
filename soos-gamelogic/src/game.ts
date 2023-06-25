@@ -63,7 +63,7 @@ export default class Game {
     this.claimedSettlement = false;
     this.players = [
       new GamePlayer(0, 'Player 1'),
-      new GamePlayer(1, 'Player 2')
+      new GamePlayer(1, 'Player 2'),
       // new GamePlayer(2, 'Player 3')
     ];
 
@@ -87,7 +87,7 @@ export default class Game {
   autoPickSettlements() {
     //evaluate all possible towns by production, get the top 4
     let bestTown: GameTown = this.map.towns[0];
-    console.log("picking settlements!");
+    console.log('picking settlements!');
     const playerProduction: number[][] = [];
     for (let i = 0; i < 4; i++) {
       //FIND & CLAIM THE BEST TOWN
@@ -102,23 +102,27 @@ export default class Game {
           }
         }
       }
-      if (!bestTown.coords) throw new Error("Undefined coords on best town??");
-      console.log("Claimed town: " + bestTown.coords?.toString() + " prod: " + bestTown.production);
+      if (!bestTown.coords) {
+        throw new Error('Undefined coords on best town??');
+      }
+      console.log('Claimed town: ' + bestTown.coords?.toString() + ' prod: ' + bestTown.production);
       //this.evaluateTown(bestTown, true);
       this.claimTownAt(bestTown.coords);
 
       const roads = this.map.getRoads(bestTown.coords);
       let weClaimedARoad = false;
       for (let jj = 0; jj < roads.length; jj++) {
-        console.log("road " + roads[jj]?.coords.toString() + " : " + roads[jj]?.isClaimed());
+        console.log('road ' + roads[jj]?.coords.toString() + ' : ' + roads[jj]?.isClaimed());
         if (!roads[jj]?.isClaimed()) {
           this.onEdgeClicked(getEdges(bestTown.coords)[0]);
-          console.log("claimed road: " + roads[jj]?.coords.toString());
+          console.log('claimed road: ' + roads[jj]?.coords.toString());
           weClaimedARoad = true;
           break;
         }
       }
-      if (!weClaimedARoad) throw new Error("uh... we didn't claim a road...??");
+      if (!weClaimedARoad) {
+        throw new Error('uh... we didn\'t claim a road...??');
+      }
     }
     //this.nextPlayer();
     return;
@@ -134,14 +138,18 @@ export default class Game {
       potentialNewProduction.push(currPlayer.resourceProduction[resource] + newTown.production[resource]);
       tradeBenefit.push(0);
     }
-    if (!newTown.coords) throw new Error("evaluated town has no coords??");
+    if (!newTown.coords) {
+      throw new Error('evaluated town has no coords??');
+    }
 
     let tradeScore = 0;
     for (const coords of getHexes(newTown.coords)) {
       if (this.map.getHex(coords)?.getTrade() === 1) {
         const newTR = this.getTradeRatios(coords);
         for (const resource of AllResourceTypes) {
-          if (!newTR) continue;
+          if (!newTR) {
+            continue;
+          }
           tradeBenefit[resource] = Math.max(0, currPlayer.tradeRatio[resource] - newTR[resource]) * (potentialNewProduction[resource] + .5);
         }
         //console.log("port: ");
@@ -185,16 +193,17 @@ export default class Game {
     }
   }
 
-
   displayEmptyTowns() {
-    for (const town of this.map.towns)
+    for (const town of this.map.towns) {
       town.showMe();
+    }
   }
 
   displayEmptyRoads() {
     //do we ever want to show all empty roads? not sure we need this function
-    for (const road of this.map.roads)
+    for (const road of this.map.roads) {
       road.showMe();
+    }
   }
 
   clearAllDisplaysAndForceUpdate() {
@@ -245,19 +254,21 @@ export default class Game {
   endGame(maxPoints: number) {
     const winningPlayers: GamePlayer[] = [];
     for (const plyr of this.players) {
-      if (plyr.victoryPoints === maxPoints)
+      if (plyr.victoryPoints === maxPoints) {
         winningPlayers.push(plyr);
+      }
     }
     if (winningPlayers.length === 0) {
       throw new Error(`Couldn't find winning players with ${maxPoints} points?!?`);
     }
 
-    if (winningPlayers.length === 1)
+    if (winningPlayers.length === 1) {
       this.instructionText = `Game Over! Player ${winningPlayers[0].index + 1} wins!`;
-    else {
-      let winners = "";
-      for (const plyr of winningPlayers)
-        winners = winners + ", " + plyr.index + 1;
+    } else {
+      let winners = '';
+      for (const plyr of winningPlayers) {
+        winners = winners + ', ' + plyr.index + 1;
+      }
       winners = winners.substring(2);
       this.instructionText = `Game Over! Tie between players: ${winners}!`;
     }
@@ -268,11 +279,11 @@ export default class Game {
   }
 
   // serialize() {
-  // 
+  //
   // }
   // redux
-  // 
-  // 
+  //
+  //
   // JSON.parse
   // new Game()
   // foreach (pl)
@@ -292,9 +303,9 @@ export default class Game {
     if (this.currPlayerIdx === this.players.length - 1) {
       this.currPlayerIdx = 0;
       this.turnNumber++;
-    }
-    else
+    } else {
       this.currPlayerIdx++;
+    }
 
     //roll dice
     const diceRoll = Math.floor(Math.random() * 6) + 1 + Math.floor(Math.random() * 6) + 1;
@@ -310,7 +321,7 @@ export default class Game {
       }
     }
 
-    //go to Robber gamephase!      
+    //go to Robber gamephase!
     if (diceRoll === 7) {
       this.gamePhase = GamePhase.PlaceRobber;
 
@@ -333,13 +344,12 @@ export default class Game {
       } else {
         const newRobHexIndex = Math.floor(Math.random() * this.robberHexes.length);
         if (this.robberHexes[newRobHexIndex] === undefined) {
-          throw new Error("undefined robber hex!");
+          throw new Error('undefined robber hex!');
         }
         this.onHexClicked_PlaceRobber(this.robberHexes[newRobHexIndex], true);
       }
 
-    }
-    else {
+    } else {
       //let player build if desired/possible
       this.instructionText = `Dice roll was: ${diceRoll}\n ${this.getCurrPlayer().name}'s turn!`;
     }
@@ -388,11 +398,13 @@ export default class Game {
     for (const plyr of this.players) {
       plyr.victoryPoints = 0;
       for (const twn of this.map.towns) {
-        if (twn.playerIdx === plyr.index)
+        if (twn.playerIdx === plyr.index) {
           plyr.victoryPoints += twn.townLevel;
+        }
       }
-      if (plyr.victoryPoints > maxPoints)
+      if (plyr.victoryPoints > maxPoints) {
         maxPoints = plyr.victoryPoints;
+      }
     }
     return maxPoints;
   }
@@ -400,9 +412,9 @@ export default class Game {
   executeTrade(tradeInResource: number, tradeForResource: number, playerId: number) {
     const player = this.players[playerId];
     if (player.cards[tradeInResource] >= player.tradeRatio[tradeInResource]) {
-      let cost = [0, 0, 0, 0, 0];
+      const cost = [ 0, 0, 0, 0, 0 ];
       cost[tradeInResource] = player.tradeRatio[tradeInResource];
-      console.log("executing trade:" + cost);
+      console.log('executing trade:' + cost);
       player.spend(cost);
       player.addCard(AllResourceTypes[tradeForResource]);
     }
@@ -410,45 +422,52 @@ export default class Game {
 
   executeAction(action: BuildOptions) {
     switch (action) {
-      case BuildOptions.Road:
-        this.gamePhase = GamePhase.BuildRoad;
-        this.map.resetDisplayRoads();
-        for (const road of this.map.roads) {
-          if (!road.player)
-            continue;
-          if (road.player?.index !== this.currPlayerIdx)
-            continue;
-          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
-          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex((road.coords.direction + 1) % 6)));
+    case BuildOptions.Road:
+      this.gamePhase = GamePhase.BuildRoad;
+      this.map.resetDisplayRoads();
+      for (const road of this.map.roads) {
+        if (!road.player) {
+          continue;
         }
-        break;
-      case BuildOptions.Settlement:
-        this.claimedSettlement = false;
-        this.gamePhase = GamePhase.BuildSettlement;
-        this.map.resetDisplayRoads();
-        this.map.resetDisplayTowns();
-        for (const road of this.map.roads) {
-          if (!road.player)
-            continue;
-          if (road.player?.index !== this.currPlayerIdx)
-            continue;
-          for (const town of this.map.getTowns(road))
-            town.showMe();
+        if (road.player?.index !== this.currPlayerIdx) {
+          continue;
         }
-        break;
-      case BuildOptions.City:
-        for (const town of this.map.towns) {
-          if (town.isUnclaimed())
-            continue;
-          if (town.playerIdx === this.currPlayerIdx)
-            town.highlightMe();
+        this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
+        this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex((road.coords.direction + 1) % 6)));
+      }
+      break;
+    case BuildOptions.Settlement:
+      this.claimedSettlement = false;
+      this.gamePhase = GamePhase.BuildSettlement;
+      this.map.resetDisplayRoads();
+      this.map.resetDisplayTowns();
+      for (const road of this.map.roads) {
+        if (!road.player) {
+          continue;
         }
-        this.claimedSettlement = false;
-        this.gamePhase = GamePhase.BuildCity;
-        break;
-      case BuildOptions.Development:
+        if (road.player?.index !== this.currPlayerIdx) {
+          continue;
+        }
+        for (const town of this.map.getTowns(road)) {
+          town.showMe();
+        }
+      }
+      break;
+    case BuildOptions.City:
+      for (const town of this.map.towns) {
+        if (town.isUnclaimed()) {
+          continue;
+        }
+        if (town.playerIdx === this.currPlayerIdx) {
+          town.highlightMe();
+        }
+      }
+      this.claimedSettlement = false;
+      this.gamePhase = GamePhase.BuildCity;
+      break;
+    case BuildOptions.Development:
 
-        break;
+      break;
 
     }
     this.forceUpdate();
@@ -456,7 +475,9 @@ export default class Game {
 
   onClientVertex(vertex: VertexCoords, playerID: number, premove: boolean = false): BuildAction {
     const town = this.map.townAt(vertex);
-    if (town === undefined) return new NullBuildAction();
+    if (town === undefined) {
+      return new NullBuildAction();
+    }
 
     if (this.setupPhase()) {
       if (this.claimTownAt(vertex).toString()) {
@@ -466,16 +487,16 @@ export default class Game {
       }
     } else {
       if (town.townLevel > 0 && playerID === town.playerIdx) {
-        console.log("Added premove to upgrade city");
+        console.log('Added premove to upgrade city');
         return new BuildCityAction(playerID, vertex);
       } else {
         //is there a premove to build a settlement there from this player?
         const settleMove = new BuildSettlementAction(playerID, vertex);
         if (this.premoveActions.indexOf(settleMove) > -1) {
-          console.log("Found settle move, created upgrade to city premove");
+          console.log('Found settle move, created upgrade to city premove');
           return new BuildCityAction(playerID, vertex);
         } else {
-          console.log("Created new settle move");
+          console.log('Created new settle move');
           return settleMove;
         }
       }
@@ -484,8 +505,9 @@ export default class Game {
 
   addPremove(buildAction: BuildAction) {
     console.log(buildAction.displayString());
-    if (buildAction.shouldDisqualify(this) === false)
+    if (buildAction.shouldDisqualify(this) === false) {
       this.premoveActions.push(buildAction);
+    }
   }
 
   executeTownActionJSON(json: string, playerID: number): boolean {
@@ -493,27 +515,36 @@ export default class Game {
     const town: GameTown = Object.assign(new GameTown(), JSON.parse(json));
     town.setChildPrototypes();
 
-    if (!town.coords) return false;
+    if (!town.coords) {
+      return false;
+    }
     const mapTown = this.map.townAt(town.coords);
-    if (!mapTown || !mapTown.coords) return false;
+    if (!mapTown || !mapTown.coords) {
+      return false;
+    }
     //claim a town
     if (mapTown.isUnclaimed()) {
       return this.claimTownAt(mapTown.coords); //currently handles initial settlements, later settlements, upgrades, and robber placement.
     }
     //upgrade a town
     else {
-      if (!mapTown.playerIdx || mapTown.playerIdx !== playerID) return false; //no settlement or belongs to another player
-      if (this.players[playerID].spend(AllBuildCosts[BuildOptions.City]))
+      if (!mapTown.playerIdx || mapTown.playerIdx !== playerID) {
+        return false;
+      } //no settlement or belongs to another player
+      if (this.players[playerID].spend(AllBuildCosts[BuildOptions.City])) {
         mapTown.upgradeCity();
-      else return false; // player didn't have the money
+      } else {
+        return false;
+      } // player didn't have the money
     }
 
     return true;
   }
 
   claimTownAt(vertex: VertexCoords): boolean {
-    if (this.claimedSettlement)
+    if (this.claimedSettlement) {
       return false;
+    }
     const currPlayer = this.getCurrPlayer();
     const townThere = this.map.townAt(vertex);
 
@@ -543,16 +574,18 @@ export default class Game {
         if (this.gamePhase === GamePhase.PlaceSettlement2) {
           for (const coords of getHexes(vertex)) {
             const hex = this.map.getHex(coords);
-            if (hex && hex.frequency && townThere)
+            if (hex && hex.frequency && townThere) {
               currPlayer.addCard(hex.resourceType, 1);
+            }
           }
         }
       } else {
         this.gamePhase = GamePhase.MainGameplay;
       }
     } else if (this.gamePhase === GamePhase.BuildCity && townThere?.highlighted) {
-      if (currPlayer.spend(AllBuildCosts[BuildOptions.City]))
+      if (currPlayer.spend(AllBuildCosts[BuildOptions.City])) {
         townThere.upgradeCity();
+      }
       this.gamePhase = GamePhase.MainGameplay;
       this.map.resetDisplayTowns();
       actionPerformed = true;
@@ -570,19 +603,22 @@ export default class Game {
   }
 
   onClientEdge(edge: EdgeCoords, playerID: number, premove: boolean = false): BuildAction {
-    console.log("on client edge");
+    console.log('on client edge');
     if (this.setupPhase()) {
-      console.log("set up phase");
-      if (!this.claimedSettlement)
+      console.log('set up phase');
+      if (!this.claimedSettlement) {
         return new NullBuildAction();
+      }
 
       if (this.onEdgeClicked(edge))       //setup phase build road code
+      {
         return new CompletedBuildAction();
-      else
+      } else {
         return new NullBuildAction();
+      }
 
     } else {
-      console.log("working on premove");
+      console.log('working on premove');
       if (this.gamePhase !== GamePhase.BuildRoad && !premove) {
         return new NullBuildAction();
       }
@@ -591,15 +627,19 @@ export default class Game {
   }
 
   onEdgeClicked(edge: EdgeCoords): boolean {
-    if (!this.claimedSettlement && (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2))
+    if (!this.claimedSettlement && (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2)) {
       return false;
-    if (this.gamePhase !== GamePhase.BuildRoad && this.gamePhase !== GamePhase.PlaceSettlement1 && this.gamePhase !== GamePhase.PlaceSettlement2)
+    }
+    if (this.gamePhase !== GamePhase.BuildRoad && this.gamePhase !== GamePhase.PlaceSettlement1 && this.gamePhase !== GamePhase.PlaceSettlement2) {
       return false;
+    }
 
     const currPlayer = this.getCurrPlayer();
     const roadThere = this.map.roadAt(edge);
     roadThere?.claimRoad(currPlayer);
-    if (this.gamePhase == GamePhase.BuildRoad) currPlayer.spend(AllBuildCosts[BuildOptions.Road]);
+    if (this.gamePhase == GamePhase.BuildRoad) {
+      currPlayer.spend(AllBuildCosts[BuildOptions.Road]);
+    }
     this.nextPlayer();
     this.forceUpdate();
     return true;
@@ -607,9 +647,11 @@ export default class Game {
 
   getPremoves(playerId: number) {
     const playerMoves: BuildAction[] = [];
-    for (const move of this.premoveActions)
-      if (move.playerId === playerId)
+    for (const move of this.premoveActions) {
+      if (move.playerId === playerId) {
         playerMoves.push(move);
+      }
+    }
     return playerMoves;
   }
 
@@ -621,7 +663,6 @@ export default class Game {
     }
     return false;
   }
-
 
   onHexClicked_PlaceRobber(coords: HexCoords, automate?: boolean) {
     const clickedHex = this.map.getHex(coords);
@@ -640,7 +681,9 @@ export default class Game {
         // Highlight town for player choosing who to steal from
         town.highlightMe();
 
-        if (!robbablePlayers.includes(town.playerIdx)) robbablePlayers.push(town.playerIdx);
+        if (!robbablePlayers.includes(town.playerIdx)) {
+          robbablePlayers.push(town.playerIdx);
+        }
       }
     }
 
@@ -658,7 +701,7 @@ export default class Game {
     // Check if there's more than 1 player to rob or automatically pick a player to rob
     if (robbablePlayers.length === 1 || automate) {
       // Only 1 player to rob, rob them automatically
-      const randPlayer = Math.floor(Math.random() * robbablePlayers.length)
+      const randPlayer = Math.floor(Math.random() * robbablePlayers.length);
       this.stealResourceFromPlayer(robbablePlayers[randPlayer]);
       this.clearAllDisplaysAndForceUpdate();
       return;
@@ -698,32 +741,35 @@ export default class Game {
   }
 
   getEdgeCoords(json: string) {
-    if (json[0] !== "(")
-      throw new Error("invalid EdgeCoords json!");
+    if (json[0] !== '(') {
+      throw new Error('invalid EdgeCoords json!');
+    }
     //delete the ( and )
     json = json.slice(1);
     json = json.slice(json.length);
-    const coordsSplit = json.split(",");
+    const coordsSplit = json.split(',');
     return new EdgeCoords(new HexCoords(+coordsSplit[0], +coordsSplit[1]), +coordsSplit[2]);
   }
 
   getVertexCoords(json: string) {
-    if (json[0] !== "(")
-      throw new Error("invalid HexCoords json!");
+    if (json[0] !== '(') {
+      throw new Error('invalid HexCoords json!');
+    }
     //delete the ( and )
     json = json.slice(1);
     json = json.slice(json.length);
-    const coordsSplit = json.split(",");
+    const coordsSplit = json.split(',');
     return new VertexCoords(new HexCoords(+coordsSplit[0], +coordsSplit[1]), +coordsSplit[2]);
   }
 
   getHexCoords(json: string) {
-    if (json[0] !== "(")
-      throw new Error("invalid HexCoords json!");
+    if (json[0] !== '(') {
+      throw new Error('invalid HexCoords json!');
+    }
     //delete the ( and )
     json = json.slice(1);
     json = json.slice(json.length);
-    const coordsSplit = json.split(",");
+    const coordsSplit = json.split(',');
     return new HexCoords(+coordsSplit[0], +coordsSplit[1]);
   }
 
@@ -736,7 +782,7 @@ export default class Game {
       this.players[i].setChildPrototypes();
     }
 
-    this.robberLocation = new HexCoords(this.robberLocation.x, this.robberLocation.y)
+    this.robberLocation = new HexCoords(this.robberLocation.x, this.robberLocation.y);
 
     for (let i = 0; i < this.premoveActions.length; i++) {
       if (this.premoveActions[i].type === BuildOptions.Road) {
@@ -748,12 +794,15 @@ export default class Game {
 
   }
 
-
   updatePlayerTradeRatios(townThere: GameTown | undefined) {
-    if (!townThere) return;
-    if (!townThere.coords) return;
+    if (!townThere) {
+      return;
+    }
+    if (!townThere.coords) {
+      return;
+    }
     for (const hcoords of getHexes(townThere.coords)) {
-      let newRatios = this.getTradeRatios(hcoords);
+      const newRatios = this.getTradeRatios(hcoords);
       if (newRatios) {
         this.setLowerRatio(newRatios);
       }
@@ -761,21 +810,28 @@ export default class Game {
   }
 
   updatePlayerProduction(townThere: GameTown | undefined) {
-    if (!townThere) return;
-    if (!townThere.coords) return;
+    if (!townThere) {
+      return;
+    }
+    if (!townThere.coords) {
+      return;
+    }
     for (const resource of AllResourceTypes) {
       this.players[this.currPlayerIdx].resourceProduction[resource] += townThere.production[resource];
     }
   }
 
-
   updateRobberHexes(townThere: GameTown | undefined) {
-    if (!townThere) return;
-    if (!townThere.coords) return;
+    if (!townThere) {
+      return;
+    }
+    if (!townThere.coords) {
+      return;
+    }
     for (const hcoords of getHexes(townThere.coords)) {
       const hex = this.map.getHex(hcoords);
       if (hex && this.robberHexes.indexOf(hcoords) === -1) {
-        console.log("updated robberhexes!");
+        console.log('updated robberhexes!');
         this.robberHexes.push(hcoords);
         console.log(this.robberHexes);
       }
@@ -784,31 +840,36 @@ export default class Game {
 
   setLowerRatio(ratio: number[]) {
     for (let i = 0; i < ratio.length; i++) {
-      if (this.players[this.currPlayerIdx].tradeRatio[i] > ratio[i])
+      if (this.players[this.currPlayerIdx].tradeRatio[i] > ratio[i]) {
         this.players[this.currPlayerIdx].tradeRatio[i] = ratio[i];
+      }
     }
   }
 
   getTradeRatios(coords: HexCoords) {
     const hex = this.map.getHex(coords);
-    if (!hex) return undefined;
-    if (!hex.resourceType) return undefined;
+    if (!hex) {
+      return undefined;
+    }
+    if (!hex.resourceType) {
+      return undefined;
+    }
 
     switch (hex.resourceType) {
-      case ResourceType.AnyPort:
-        return [3, 3, 3, 3, 3];
-      case ResourceType.WoodPort:
-        return [2, 4, 4, 4, 4];
-      case ResourceType.BrickPort:
-        return [4, 2, 4, 4, 4];
-      case ResourceType.SheepPort:
-        return [4, 4, 2, 4, 4];
-      case ResourceType.GrainPort:
-        return [4, 4, 4, 2, 4];
-      case ResourceType.OrePort:
-        return [4, 4, 4, 4, 2];
-      default:
-        return undefined;
+    case ResourceType.AnyPort:
+      return [ 3, 3, 3, 3, 3 ];
+    case ResourceType.WoodPort:
+      return [ 2, 4, 4, 4, 4 ];
+    case ResourceType.BrickPort:
+      return [ 4, 2, 4, 4, 4 ];
+    case ResourceType.SheepPort:
+      return [ 4, 4, 2, 4, 4 ];
+    case ResourceType.GrainPort:
+      return [ 4, 4, 4, 2, 4 ];
+    case ResourceType.OrePort:
+      return [ 4, 4, 4, 4, 2 ];
+    default:
+      return undefined;
     }
   }
   // Wood = 0,

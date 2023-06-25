@@ -12,25 +12,25 @@ export const Town = (props: TownProps) => {
   const { gameTown, onClick, premove } = props;
 
   const playerClass = gameTown.isUnclaimed() ? '' : 'p' + gameTown.playerIdx;
-  let highlighted = ''
+  let highlighted = '';
   if (gameTown.highlighted || premove) {
     highlighted = 'highlight';
   }
   let townLevel = '';
   let townRadius = 10;
   switch (gameTown.townLevel) {
-    case 1:
-      townLevel = ' settlement';
-      townRadius = 10;
-      break;
-    case 2:
-      townLevel = ' city';
-      townRadius = 12;
-      break;
-    case 3:
-      townLevel = ' suburb';
-      townRadius = 14;
-      break;
+  case 1:
+    townLevel = ' settlement';
+    townRadius = 10;
+    break;
+  case 2:
+    townLevel = ' city';
+    townRadius = 12;
+    break;
+  case 3:
+    townLevel = ' suburb';
+    townRadius = 14;
+    break;
   }
 
   const { x, y } = vertexCoordsToPixels(gameTown.coords!);
@@ -40,11 +40,11 @@ export const Town = (props: TownProps) => {
       key={`t:${gameTown.coords!.hexCoords.x},${gameTown.coords!.hexCoords.y},${gameTown.coords!.direction}`}
       style={{
         left: x + 'px',
-        top: y + 'px'
+        top: y + 'px',
       }}
       onClick={() => onClick(gameTown.coords!)}
     >
       {gameTown.highlighted && gameTown.eval}
     </div>
   );
-}
+};

@@ -24,6 +24,7 @@ export default class HexCoords {
   add(direction: HexDirection): HexCoords {
     return this.addHC(direction);
   }
+
   addHC(direction: HexDirection): HexCoords {
     const coords = hexDirToCoords(direction);
 
@@ -76,7 +77,7 @@ export const hexDirNames = {
   [HexDirection.SW]: 'SW',
   [HexDirection.W]: 'W',
   [HexDirection.NW]: 'NW',
-}
+};
 
 export function hexDirName(dir: HexDirection): string {
   return hexDirNames[dir];

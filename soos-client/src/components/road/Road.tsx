@@ -1,5 +1,5 @@
 import { GameRoad, EdgeCoords, HexDirection } from 'soos-gamelogic';
-import { edgeCoordsToPixels, vertexCoordsToPixels } from '../../utils';
+import { edgeCoordsToPixels } from '../../utils';
 import './Road.scss';
 
 export type RoadProps = {
@@ -17,23 +17,23 @@ export const Road = (props: RoadProps) => {
   }
 
   const roadCoords = gameRoad.getCoords();
-  let roadOrientation = "vertical";
+  let roadOrientation = 'vertical';
   if (roadCoords.direction === HexDirection.NW || roadCoords.direction === HexDirection.SE) {
-    roadOrientation = "neSlant"
+    roadOrientation = 'neSlant';
   } else if (roadCoords.direction === HexDirection.NE || roadCoords.direction === HexDirection.SW) {
-    roadOrientation = "nwSlant"
+    roadOrientation = 'nwSlant';
   }
 
   return (
-    <div className={'Road ' + roadOrientation + " " + playerClass}
+    <div className={'Road ' + roadOrientation + ' ' + playerClass}
       key={`r:${gameRoad.coords.hexCoords.x},${gameRoad.coords.hexCoords.y},${gameRoad.coords.direction}`}
       style={{
         left: x + 'px',
-        top: y + 'px'
+        top: y + 'px',
       }}
       onClick={() => onClick(gameRoad.getCoords())}
     >
 
     </div>
   );
-}
+};

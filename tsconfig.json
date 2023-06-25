@@ -13,7 +13,7 @@
 		"skipLibCheck": true,
 		"sourceMap": true
 	},
-	"include": ["*/src", "soos-client/src/Robber.tsx"],
+	"include": ["*/src"],
 	"exclude": [
 		"node_modules",
 		"*/node_modules"

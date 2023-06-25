@@ -4,10 +4,10 @@ export type ActionProps = {
 };
 
 export const Action = (props: ActionProps) => {
-    const { actionJSON } = props;
-    return (
-        <div className={'Action'}>
-            {actionJSON}
-        </div>
-    );
-}
+  const { actionJSON } = props;
+  return (
+    <div className={'Action'}>
+      {actionJSON}
+    </div>
+  );
+};

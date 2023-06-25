@@ -2,7 +2,7 @@
 	"editor.insertSpaces": true,
 	"typescript.tsc.autoDetect": "off",
 	"typescript.preferences.quoteStyle": "single",
-	"editor.formatOnSave": true,
+	// "editor.formatOnSave": true,
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": true
 	}

@@ -28,20 +28,22 @@ export default class GameHex {
   }
 
   getType() {
-    return "GameHex";
+    return 'GameHex';
   }
 
   toString() {
-    let returnString = "";
-    if (this.terrainType === TerrainType.Empty)
-      returnString = "e";
-    else
+    let returnString = '';
+    if (this.terrainType === TerrainType.Empty) {
+      returnString = 'e';
+    } else {
       returnString = resourceToLetter(this.resourceType);
+    }
 
-    if (this.frequency)
-      return returnString + "," + this.frequency;
-    else
-      return returnString + ",";
+    if (this.frequency) {
+      return returnString + ',' + this.frequency;
+    } else {
+      return returnString + ',';
+    }
   }
 
   getTrade() {

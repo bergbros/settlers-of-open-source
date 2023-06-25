@@ -19,18 +19,18 @@ export const Town = (props: TownProps) => {
   let townLevel = '';
   let townRadius = 10;
   switch (gameTown.townLevel) {
-  case 1:
-    townLevel = ' settlement';
-    townRadius = 10;
-    break;
-  case 2:
-    townLevel = ' city';
-    townRadius = 12;
-    break;
-  case 3:
-    townLevel = ' suburb';
-    townRadius = 14;
-    break;
+    case 1:
+      townLevel = ' settlement';
+      townRadius = 10;
+      break;
+    case 2:
+      townLevel = ' city';
+      townRadius = 12;
+      break;
+    case 3:
+      townLevel = ' suburb';
+      townRadius = 14;
+      break;
   }
 
   const { x, y } = vertexCoordsToPixels(gameTown.coords!);

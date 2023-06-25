@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { actionToString, AllBuildOptions, Game, GameHex, GamePhase, RobberPhase, gameFromString } from 'soos-gamelogic';
+import { actionToString, AllBuildActionTypes, Game, GameHex, GamePhase, RobberPhase, gameFromString } from 'soos-gamelogic';
 import { Socket } from 'socket.io-client';
 import { Hex, Town, Road, Player, Robber } from './components';
 import { TradeWindow } from './features/';
 import './App.scss';
-import { BuildAction, BuildOptions } from 'soos-gamelogic/dist/src/buildOptions';
+import { BuildAction, BuildActionType } from 'soos-gamelogic/dist/src/buildOptions';
 
 const debugAutoPickSettlements = true;
 let premoves: BuildAction[] = [];
@@ -17,12 +17,12 @@ export function App(props: AppProps) {
 
   // TODO wrap this in another component and don't display placeholder
   // game when waiting for multiplayer game to start
-  const [ game, setGame ] = useState<Game>(new Game({ debugAutoPickSettlements }));
-  const [ playerId, setPlayerId ] = useState<number | undefined>(undefined);
-  const [ isTradeWindowShowing, setIsTradeWindowShowing ] = useState<boolean>(false);
-  const [ premove, setPremove ] = useState<boolean>(false);
+  const [game, setGame] = useState<Game>(new Game({ debugAutoPickSettlements }));
+  const [playerId, setPlayerId] = useState<number | undefined>(undefined);
+  const [isTradeWindowShowing, setIsTradeWindowShowing] = useState<boolean>(false);
+  const [premove, setPremove] = useState<boolean>(false);
   // Set up force update function
-  const [ count, setCount ] = useState<number>(0);
+  const [count, setCount] = useState<number>(0);
   game.forceUpdate = () => {
     setCount(count + 1);
   };
@@ -102,9 +102,9 @@ export function App(props: AppProps) {
           }
           const actionResponse = game.onClientVertex(vertexCoords, playerId, premove);
           console.log(actionResponse);
-          if (actionResponse.type === BuildOptions.actionCompleted) {
+          if (actionResponse.type === BuildActionType.actionCompleted) {
             sendGameStateToServer();
-          } else if (actionResponse.type === BuildOptions.invalidAction) {
+          } else if (actionResponse.type === BuildActionType.invalidAction) {
             socket.emit('check');
             //no action
           } else {
@@ -133,9 +133,9 @@ export function App(props: AppProps) {
           }
           const actionResponse = game.onClientEdge(edgeCoords, playerId, premove);
           console.log(actionResponse);
-          if (actionResponse.type === BuildOptions.actionCompleted) {
+          if (actionResponse.type === BuildActionType.actionCompleted) {
             sendGameStateToServer();
-          } else if (actionResponse.type !== BuildOptions.invalidAction) {
+          } else if (actionResponse.type !== BuildActionType.invalidAction) {
             socket.emit('premove', actionResponse);
           }
         }}
@@ -152,7 +152,7 @@ export function App(props: AppProps) {
     }
   }
 
-  for (const option of AllBuildOptions) {
+  for (const option of AllBuildActionTypes) {
     actions.push(
       <button
         onClick={() => {

@@ -1,4 +1,4 @@
-import { AllBuildCosts, AllBuildOptions, BuildAction, BuildCityAction, BuildOptions, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction } from './buildOptions.js';
+import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction } from './buildOptions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
@@ -356,7 +356,7 @@ export default class Game {
     this.forceUpdate();
   }
 
-  actionViable(action: BuildOptions): boolean {
+  actionViable(action: BuildActionType): boolean {
     //negative cost indicates any one resource less than requirement is an option
     //TODO: implement ports eventually...
     let defaultReturnValue = true;
@@ -412,7 +412,7 @@ export default class Game {
   executeTrade(tradeInResource: number, tradeForResource: number, playerId: number) {
     const player = this.players[playerId];
     if (player.cards[tradeInResource] >= player.tradeRatio[tradeInResource]) {
-      const cost = [ 0, 0, 0, 0, 0 ];
+      const cost = [0, 0, 0, 0, 0];
       cost[tradeInResource] = player.tradeRatio[tradeInResource];
       console.log('executing trade:' + cost);
       player.spend(cost);
@@ -420,54 +420,54 @@ export default class Game {
     }
   }
 
-  executeAction(action: BuildOptions) {
+  executeAction(action: BuildActionType) {
     switch (action) {
-    case BuildOptions.Road:
-      this.gamePhase = GamePhase.BuildRoad;
-      this.map.resetDisplayRoads();
-      for (const road of this.map.roads) {
-        if (!road.player) {
-          continue;
+      case BuildActionType.Road:
+        this.gamePhase = GamePhase.BuildRoad;
+        this.map.resetDisplayRoads();
+        for (const road of this.map.roads) {
+          if (!road.player) {
+            continue;
+          }
+          if (road.player?.index !== this.currPlayerIdx) {
+            continue;
+          }
+          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
+          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex((road.coords.direction + 1) % 6)));
         }
-        if (road.player?.index !== this.currPlayerIdx) {
-          continue;
+        break;
+      case BuildActionType.Settlement:
+        this.claimedSettlement = false;
+        this.gamePhase = GamePhase.BuildSettlement;
+        this.map.resetDisplayRoads();
+        this.map.resetDisplayTowns();
+        for (const road of this.map.roads) {
+          if (!road.player) {
+            continue;
+          }
+          if (road.player?.index !== this.currPlayerIdx) {
+            continue;
+          }
+          for (const town of this.map.getTowns(road)) {
+            town.showMe();
+          }
         }
-        this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
-        this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex((road.coords.direction + 1) % 6)));
-      }
-      break;
-    case BuildOptions.Settlement:
-      this.claimedSettlement = false;
-      this.gamePhase = GamePhase.BuildSettlement;
-      this.map.resetDisplayRoads();
-      this.map.resetDisplayTowns();
-      for (const road of this.map.roads) {
-        if (!road.player) {
-          continue;
+        break;
+      case BuildActionType.City:
+        for (const town of this.map.towns) {
+          if (town.isUnclaimed()) {
+            continue;
+          }
+          if (town.playerIdx === this.currPlayerIdx) {
+            town.highlightMe();
+          }
         }
-        if (road.player?.index !== this.currPlayerIdx) {
-          continue;
-        }
-        for (const town of this.map.getTowns(road)) {
-          town.showMe();
-        }
-      }
-      break;
-    case BuildOptions.City:
-      for (const town of this.map.towns) {
-        if (town.isUnclaimed()) {
-          continue;
-        }
-        if (town.playerIdx === this.currPlayerIdx) {
-          town.highlightMe();
-        }
-      }
-      this.claimedSettlement = false;
-      this.gamePhase = GamePhase.BuildCity;
-      break;
-    case BuildOptions.Development:
+        this.claimedSettlement = false;
+        this.gamePhase = GamePhase.BuildCity;
+        break;
+      case BuildActionType.Development:
 
-      break;
+        break;
 
     }
     this.forceUpdate();
@@ -531,7 +531,7 @@ export default class Game {
       if (!mapTown.playerIdx || mapTown.playerIdx !== playerID) {
         return false;
       } //no settlement or belongs to another player
-      if (this.players[playerID].spend(AllBuildCosts[BuildOptions.City])) {
+      if (this.players[playerID].spend(AllBuildCosts[BuildActionType.City])) {
         mapTown.upgradeCity();
       } else {
         return false;
@@ -558,7 +558,7 @@ export default class Game {
 
       if (this.gamePhase === GamePhase.PlaceSettlement1
         || this.gamePhase === GamePhase.PlaceSettlement2
-        || currPlayer.spend(AllBuildCosts[BuildOptions.Settlement])) {
+        || currPlayer.spend(AllBuildCosts[BuildActionType.Settlement])) {
         townThere?.claimTown(currPlayer.index);
         actionPerformed = true;
         this.updatePlayerTradeRatios(townThere);
@@ -583,7 +583,7 @@ export default class Game {
         this.gamePhase = GamePhase.MainGameplay;
       }
     } else if (this.gamePhase === GamePhase.BuildCity && townThere?.highlighted) {
-      if (currPlayer.spend(AllBuildCosts[BuildOptions.City])) {
+      if (currPlayer.spend(AllBuildCosts[BuildActionType.City])) {
         townThere.upgradeCity();
       }
       this.gamePhase = GamePhase.MainGameplay;
@@ -638,7 +638,7 @@ export default class Game {
     const roadThere = this.map.roadAt(edge);
     roadThere?.claimRoad(currPlayer);
     if (this.gamePhase == GamePhase.BuildRoad) {
-      currPlayer.spend(AllBuildCosts[BuildOptions.Road]);
+      currPlayer.spend(AllBuildCosts[BuildActionType.Road]);
     }
     this.nextPlayer();
     this.forceUpdate();
@@ -785,7 +785,7 @@ export default class Game {
     this.robberLocation = new HexCoords(this.robberLocation.x, this.robberLocation.y);
 
     for (let i = 0; i < this.premoveActions.length; i++) {
-      if (this.premoveActions[i].type === BuildOptions.Road) {
+      if (this.premoveActions[i].type === BuildActionType.Road) {
         const action = this.premoveActions[i] as BuildRoadAction;
         this.premoveActions[i] = new BuildRoadAction(action.playerId, action.location);
         this.premoveActions[i].setChildPrototypes();
@@ -856,20 +856,20 @@ export default class Game {
     }
 
     switch (hex.resourceType) {
-    case ResourceType.AnyPort:
-      return [ 3, 3, 3, 3, 3 ];
-    case ResourceType.WoodPort:
-      return [ 2, 4, 4, 4, 4 ];
-    case ResourceType.BrickPort:
-      return [ 4, 2, 4, 4, 4 ];
-    case ResourceType.SheepPort:
-      return [ 4, 4, 2, 4, 4 ];
-    case ResourceType.GrainPort:
-      return [ 4, 4, 4, 2, 4 ];
-    case ResourceType.OrePort:
-      return [ 4, 4, 4, 4, 2 ];
-    default:
-      return undefined;
+      case ResourceType.AnyPort:
+        return [3, 3, 3, 3, 3];
+      case ResourceType.WoodPort:
+        return [2, 4, 4, 4, 4];
+      case ResourceType.BrickPort:
+        return [4, 2, 4, 4, 4];
+      case ResourceType.SheepPort:
+        return [4, 4, 2, 4, 4];
+      case ResourceType.GrainPort:
+        return [4, 4, 4, 2, 4];
+      case ResourceType.OrePort:
+        return [4, 4, 4, 4, 2];
+      default:
+        return undefined;
     }
   }
   // Wood = 0,

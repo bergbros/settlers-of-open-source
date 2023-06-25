@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 
 import { Game, GamePhase, gameFromString } from 'soos-gamelogic';
 import ServerAction from './server-action.js';
-import { BuildAction } from 'soos-gamelogic/dist/src/buildOptions.js';
+import { BuildAction, hydrateBuildAction } from 'soos-gamelogic/dist/src/buildOptions.js';
 
 const port = 3000;
 
@@ -43,23 +43,23 @@ io.on('connection', socket => {
   connectedPlayers[id] = socket;
   socket.emit('playerId', id);
 
-  setInterval(() => {
-    if (game.gamePhase === GamePhase.MainGameplay && id == 0) {
-      game.nextPlayer();
-      // moving this code to the GAME object
-      // for (let i = premoveActions.length - 1; i >= 0; i--) {
-      //   const premove = premoveActions[i];
-      //   if (game.executeTownActionJSON(premove.actionJSON, premove.playerID)) {
-      //     console.log('Completed action!' + premove.actionJSON);
-      //     premoveActions.splice(i);
-      //     //notify the client that executed the action that the premove is finished!
-      //     //socket.emit('executedPremove', premove.actionJSON);
-      //   }
-      // }
-      io.emit('updateGameState', game.toString());
-      console.log('sent updated game state');
-    }
-  }, 10000);
+  // setInterval(() => {
+  //   if (game.gamePhase === GamePhase.MainGameplay && id == 0) {
+  //     game.nextPlayer();
+  //     // moving this code to the GAME object
+  //     // for (let i = premoveActions.length - 1; i >= 0; i--) {
+  //     //   const premove = premoveActions[i];
+  //     //   if (game.executeTownActionJSON(premove.actionJSON, premove.playerID)) {
+  //     //     console.log('Completed action!' + premove.actionJSON);
+  //     //     premoveActions.splice(i);
+  //     //     //notify the client that executed the action that the premove is finished!
+  //     //     //socket.emit('executedPremove', premove.actionJSON);
+  //     //   }
+  //     // }
+  //     io.emit('updateGameState', game.toString());
+  //     console.log('sent updated game state');
+  //   }
+  // }, 10000);
 
   socket.on('newGameState', (newGameState) => {
     console.log('got New Game State');
@@ -67,11 +67,12 @@ io.on('connection', socket => {
     socket.broadcast.emit('updateGameState', newGameState);
   });
 
-  socket.on('premove', (myBuildAction: BuildAction) => {
+  socket.on('premove', (premove: BuildAction) => {
+    premove = hydrateBuildAction(premove);
 
-    console.log('got new premove:' + id + ' wants ' + myBuildAction.displayString());
+    console.log('got new premove:' + id + ' wants ' + premove.displayString());
     //socket.broadcast.emit('updateGameState', game.toString());
-    game.addPremove(myBuildAction);
+    game.addPremove(premove);
     socket.emit('premoves', game.getPremoves(id));
   });
 

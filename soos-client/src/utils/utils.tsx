@@ -33,27 +33,27 @@ export function vertexCoordsToPixels(vertexCoords: VertexCoords, townRadius?: nu
   let yCoord = hexCoords.y * HexHeight * .75 + leftPixelOffset;
 
   switch (vertexCoords.direction) {
-  case VertexDirection.N:
-    xCoord += HexWidth * 0.5;
-    break;
-  case VertexDirection.NE:
-    xCoord += HexWidth;
-    yCoord += HexHeight * 0.25;
-    break;
-  case VertexDirection.NW:
-    yCoord += HexHeight * 0.25;
-    break;
-  case VertexDirection.S:
-    xCoord += HexWidth * 0.5;
-    yCoord += HexHeight;
-    break;
-  case VertexDirection.SE:
-    xCoord += HexWidth;
-    yCoord += HexHeight * 0.75;
-    break;
-  case VertexDirection.SW:
-    yCoord += HexHeight * 0.75;
-    break;
+    case VertexDirection.N:
+      xCoord += HexWidth * 0.5;
+      break;
+    case VertexDirection.NE:
+      xCoord += HexWidth;
+      yCoord += HexHeight * 0.25;
+      break;
+    case VertexDirection.NW:
+      yCoord += HexHeight * 0.25;
+      break;
+    case VertexDirection.S:
+      xCoord += HexWidth * 0.5;
+      yCoord += HexHeight;
+      break;
+    case VertexDirection.SE:
+      xCoord += HexWidth;
+      yCoord += HexHeight * 0.75;
+      break;
+    case VertexDirection.SW:
+      yCoord += HexHeight * 0.75;
+      break;
   }
 
   xCoord -= settlementRadius;
@@ -78,26 +78,26 @@ export function edgeCoordsToPixels(edgeCoords: EdgeCoords): PixelCoords {
   const edgeWidth = 5;
 
   switch (edgeCoords.direction) {
-  case HexDirection.NW:
-    break;
-  case HexDirection.NE:
-    xCoord += HexWidth * 0.5;
-    break;
-  case HexDirection.E:
-    xCoord += HexWidth - edgeWidth;
-    yCoord += HexHeight * 0.25 + 15;
-    break;
-  case HexDirection.W:
-    xCoord -= edgeWidth;
-    yCoord += HexHeight * 0.25 + 15;
-    break;
-  case HexDirection.SE:
-    xCoord += HexWidth * 0.5;
-    yCoord += HexHeight * 0.75;
-    break;
-  case HexDirection.SW:
-    yCoord += HexHeight * 0.75;
-    break;
+    case HexDirection.NW:
+      break;
+    case HexDirection.NE:
+      xCoord += HexWidth * 0.5;
+      break;
+    case HexDirection.E:
+      xCoord += HexWidth - edgeWidth;
+      yCoord += HexHeight * 0.25 + 15;
+      break;
+    case HexDirection.W:
+      xCoord -= edgeWidth;
+      yCoord += HexHeight * 0.25 + 15;
+      break;
+    case HexDirection.SE:
+      xCoord += HexWidth * 0.5;
+      yCoord += HexHeight * 0.75;
+      break;
+    case HexDirection.SW:
+      yCoord += HexHeight * 0.75;
+      break;
   }
 
   return {

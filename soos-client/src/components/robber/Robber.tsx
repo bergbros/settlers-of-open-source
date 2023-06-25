@@ -4,7 +4,7 @@ import { hexCoordsToPixels, HexHeight, HexWidth } from '../../utils';
 import './Robber.scss';
 
 export type RobberProps = {
-    game: Game;
+  game: Game;
 };
 
 export const Robber = (props: RobberProps) => {

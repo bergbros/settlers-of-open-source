@@ -1,59 +1,77 @@
 import { EdgeCoords, Game, HexCoords, VertexCoords } from './index.js';
 
-export enum BuildOptions {
-    actionCompleted = -2,
-    invalidAction = -1,
-    Road = 0,
-    Settlement = 1,
-    City = 2,
-    Development = 3,
-    //Trade = 4
+export enum BuildActionType {
+  actionCompleted = -2,
+  invalidAction = -1,
+  Road = 0,
+  Settlement = 1,
+  City = 2,
+  Development = 3,
 }
 
-export const AllBuildOptions = Object.freeze([
-  BuildOptions.Road,
-  BuildOptions.Settlement,
-  BuildOptions.City,
-  BuildOptions.Development,
-  //BuildOptions.Trade
+export const AllBuildActionTypes = Object.freeze([
+  BuildActionType.Road,
+  BuildActionType.Settlement,
+  BuildActionType.City,
+  BuildActionType.Development,
 ]);
 
 export const AllBuildCosts = Object.freeze([
-  [ 1, 1, 0, 0, 0 ], //road
-  [ 1, 1, 1, 1, 0 ], //settlement
-  [ 0, 0, 0, 3, 2 ], //city
-  [ 0, 0, 1, 1, 1 ], //development
-  //[-4, -4, -4, -4, -4] //resource trading
+  [1, 1, 0, 0, 0], //road
+  [1, 1, 1, 1, 0], //settlement
+  [0, 0, 0, 3, 2], //city
+  [0, 0, 1, 1, 1], //development
 ]);
 
-export function actionToString(action: BuildOptions): string {
+export function actionToString(action: BuildActionType): string {
   switch (action) {
-  case BuildOptions.Road:
-    return 'Build Road';
-  case BuildOptions.Settlement:
-    return 'Build Settlement';
-  case BuildOptions.City:
-    return 'Build City';
-  case BuildOptions.Development:
-    return 'Buy Development Card';
-        //case BuildOptions.Trade:
-        //    return "Trade Resources";
+    case BuildActionType.Road:
+      return 'Build Road';
+    case BuildActionType.Settlement:
+      return 'Build Settlement';
+    case BuildActionType.City:
+      return 'Build City';
+    case BuildActionType.Development:
+      return 'Buy Development Card';
   }
   return 'null Action';
 }
 
 export type BuildAction = {
-    type: BuildOptions,
-    playerId: number,
-    isPossible: (gameState: Game) => boolean,
-    shouldDisqualify: (gameState: Game) => boolean,
-    execute: (gameState: Game) => void,
-    setChildPrototypes: () => void,
-    displayString: () => string,
+  type: BuildActionType,
+  playerId: number,
+  isPossible: (gameState: Game) => boolean,
+  shouldDisqualify: (gameState: Game) => boolean,
+  execute: (gameState: Game) => void,
+  setChildPrototypes: () => void,
+  displayString: () => string,
 };
 
+export function hydrateBuildAction(buildAction: BuildAction): BuildAction {
+  let action;
+  switch (buildAction.type) {
+    case BuildActionType.Road:
+      action = new BuildRoadAction(buildAction.playerId, (buildAction as BuildRoadAction).location);
+      break;
+    case BuildActionType.Settlement:
+      action = new BuildSettlementAction(buildAction.playerId, (buildAction as BuildSettlementAction).location);
+      break;
+    case BuildActionType.City:
+      action = new BuildCityAction(buildAction.playerId, (buildAction as BuildCityAction).location);
+      break;
+    case BuildActionType.Development:
+      action = new BuildDevelopmentCardAction(buildAction.playerId);
+      break;
+    default:
+      throw new Error(`Can't hydrate build action of type ${buildAction.type}`);
+  }
+
+  action.setChildPrototypes();
+  return action;
+}
+
 export class NullBuildAction implements BuildAction {
-  type = BuildOptions.invalidAction;
+  type = BuildActionType.invalidAction;
   playerId = -1;
   location = new VertexCoords(new HexCoords(-1, -1), 0);
 
@@ -79,7 +97,7 @@ export class NullBuildAction implements BuildAction {
 }
 
 export class CompletedBuildAction implements BuildAction {
-  type = BuildOptions.actionCompleted;
+  type = BuildActionType.actionCompleted;
   playerId = -1;
   location = new VertexCoords(new HexCoords(-1, -1), 0);
 
@@ -105,9 +123,10 @@ export class CompletedBuildAction implements BuildAction {
 }
 
 export class BuildRoadAction implements BuildAction {
-  type = BuildOptions.Road;
+  type = BuildActionType.Road;
   playerId: number;
   location: EdgeCoords;
+
   constructor(playerId: number, location: EdgeCoords) {
     this.playerId = playerId;
     this.location = location;
@@ -135,7 +154,7 @@ export class BuildRoadAction implements BuildAction {
     if (gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
       gameState.map.roadAt(this.location)?.claimRoad(player);
     } else {
-      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildOptions[this.type]));
+      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildActionTypes[this.type]));
     }
   }
 
@@ -149,7 +168,7 @@ export class BuildRoadAction implements BuildAction {
 }
 
 export class BuildSettlementAction implements BuildAction {
-  type = BuildOptions.Settlement;
+  type = BuildActionType.Settlement;
   playerId: number;
   location: VertexCoords;
 
@@ -180,7 +199,7 @@ export class BuildSettlementAction implements BuildAction {
     if (gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
       gameState.map.townAt(this.location)?.claimTown(this.playerId);
     } else {
-      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildOptions[this.type]));
+      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildActionTypes[this.type]));
     }
   }
 
@@ -194,7 +213,7 @@ export class BuildSettlementAction implements BuildAction {
 }
 
 export class BuildCityAction implements BuildAction {
-  type = BuildOptions.City;
+  type = BuildActionType.City;
   playerId: number;
   location: VertexCoords;
 
@@ -222,7 +241,7 @@ export class BuildCityAction implements BuildAction {
     if (gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
       gameState.map.townAt(this.location)?.upgradeCity();
     } else {
-      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildOptions[this.type]));
+      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildActionTypes[this.type]));
     }
   }
 
@@ -233,4 +252,35 @@ export class BuildCityAction implements BuildAction {
   setChildPrototypes() {
     this.location = new VertexCoords(new HexCoords(this.location.hexCoords.x, this.location.hexCoords.y), this.location.direction);
   }
+}
+
+export class BuildDevelopmentCardAction implements BuildAction {
+  type = BuildActionType.Development;
+  playerId: number;
+
+  constructor(playerId: number) {
+    this.playerId = playerId;
+  }
+
+  isPossible(gameState: Game): boolean {
+    const player = gameState.players[this.playerId];
+    if (player) {
+      return player.hasResources(AllBuildCosts[this.type]);
+    }
+    return false;
+  }
+
+  shouldDisqualify(gameState: Game): boolean {
+    return false;
+  }
+
+  execute(gameState: Game): void {
+    console.log("TODO: BuildDevelopmentCardAction.execute()");
+  }
+
+  displayString() {
+    return actionToString(this.type);
+  }
+
+  setChildPrototypes() { }
 }

@@ -1,9 +1,17 @@
 {
-	"editor.insertSpaces": true,
-	"typescript.tsc.autoDetect": "off",
-	"typescript.preferences.quoteStyle": "single",
-	// "editor.formatOnSave": true,
-	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": true
-	}
+  "editor.insertSpaces": true,
+  "typescript.tsc.autoDetect": "off",
+  "typescript.preferences.quoteStyle": "single",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "[scss]": {
+    "editor.tabSize": 4,
+  },
+  "[css]": {
+    "editor.tabSize": 4,
+  }
+  // "editor.codeActionsOnSave": {
+  // 	"source.fixAll.eslint": true
+  // }
 }

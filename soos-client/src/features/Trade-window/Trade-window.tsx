@@ -3,21 +3,21 @@ import { AllResourceTypes, resourceToString } from 'soos-gamelogic';
 import './Trade-window.scss';
 
 type TradeWindowProps = {
-    tradeRatio: number[];
-    resources: number[];
-    closeWindowHandler: () => void;
-    executeTradeHandler: (tradeIn: number, tradeFor: number) => void;
+  tradeRatio: number[];
+  resources: number[];
+  closeWindowHandler: () => void;
+  executeTradeHandler: (tradeIn: number, tradeFor: number) => void;
 };
 
 export const TradeWindow = (props: TradeWindowProps) => {
   const { tradeRatio, resources, closeWindowHandler, executeTradeHandler } =
-        props;
+    props;
 
-  const [ step, setStep ] = React.useState<'trade' | 'prize' | 'confirm'>(
+  const [step, setStep] = React.useState<'trade' | 'prize' | 'confirm'>(
     'trade',
   );
-  const [ tradeResource, setTradeResource ] = React.useState<number>();
-  const [ prizeResource, setPrizeResource ] = React.useState<number>();
+  const [tradeResource, setTradeResource] = React.useState<number>();
+  const [prizeResource, setPrizeResource] = React.useState<number>();
 
   function onCancel() {
     setStep('trade');
@@ -42,7 +42,7 @@ export const TradeWindow = (props: TradeWindowProps) => {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <span className="close" onClick={onClose}>
-                        &times;
+            &times;
           </span>
           <h2>Available Trades:</h2>
         </div>
@@ -65,9 +65,9 @@ export const TradeWindow = (props: TradeWindowProps) => {
           {step === 'prize' && (
             <>
               {tradeResource &&
-                                `Trade in ${tradeRatio[tradeResource]} ${resourceToString(
-                                  tradeResource,
-                                )}`}
+                `Trade in ${tradeRatio[tradeResource]} ${resourceToString(
+                  tradeResource,
+                )}`}
               <div className="TradeInButtons">
                 {AllResourceTypes.map((resource) => (
                   <button
@@ -85,17 +85,17 @@ export const TradeWindow = (props: TradeWindowProps) => {
           {step === 'confirm' && (
             <>
               {tradeResource &&
-                                `Trade in ${tradeRatio[tradeResource]} ${resourceToString(
-                                  tradeResource,
-                                )} for 1 ${resourceToString(
-                                  prizeResource,
-                                )} - execute trade now?`}
+                `Trade in ${tradeRatio[tradeResource]} ${resourceToString(
+                  tradeResource,
+                )} for 1 ${resourceToString(
+                  prizeResource,
+                )} - execute trade now?`}
               <div className="TradeInButtons">
                 <button className="ActionButton" onClick={onCancel}>
-                                    Cancel
+                  Cancel
                 </button>
                 <button className="ActionButton" onClick={onSubmit}>
-                                    Submit
+                  Submit
                 </button>
               </div>
             </>

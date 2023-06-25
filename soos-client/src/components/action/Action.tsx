@@ -1,6 +1,6 @@
 
 export type ActionProps = {
-    actionJSON: string;
+  actionJSON: string;
 };
 
 export const Action = (props: ActionProps) => {

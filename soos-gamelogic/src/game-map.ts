@@ -6,18 +6,18 @@ import EdgeCoords, { vertexToEdge } from './utils/edge-coords.js';
 import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
 import VertexCoords, { AllVertexDirections, edgeToVertex, getEdges, getHexes, VertexDirection, vertexDirName } from './utils/vertex-coords.js';
 
-const OriginalTiles = Object.freeze([ 'b', 'b', 'b', 'o', 'o', 'o', 'w', 'w', 'w', 'w', 'g', 'g', 'g', 'g', 's', 's', 's', 's', 'd' ]);
-const OriginalNumbers = Object.freeze([ 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12 ]); //with creative seatile maps
-const OriginalSeaTiles = Object.freeze([ 'b', 'o', 'w', 's', 'g', '/', '/', '/', '/', '/b', '/o', '/w', '/g', '/s', '/a', '/a', '/a', '/a' ]);
+const OriginalTiles = Object.freeze(['b', 'b', 'b', 'o', 'o', 'o', 'w', 'w', 'w', 'w', 'g', 'g', 'g', 'g', 's', 's', 's', 's', 'd']);
+const OriginalNumbers = Object.freeze([2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12]); //with creative seatile maps
+const OriginalSeaTiles = Object.freeze(['b', 'o', 'w', 's', 'g', '/', '/', '/', '/', '/b', '/o', '/w', '/g', '/s', '/a', '/a', '/a', '/a']);
 
 const OriginalTerrain = Object.freeze([
-  [ 'e', 'e', '~', '~', '~', '~', 'e' ],
-  [ 'e', '~', '~', '~', '~', '~', 'e' ],
-  [ 'e', '~', '~', '~', '~', '~', '~' ],
-  [ '~', '~', '~', '~', '~', '~', '~' ],
-  [ 'e', '~', '~', '~', '~', '~', '~' ],
-  [ 'e', '~', '~', '~', '~', '~', 'e' ],
-  [ 'e', 'e', '~', '~', '~', '~', 'e' ],
+  ['e', 'e', '~', '~', '~', '~', 'e'],
+  ['e', '~', '~', '~', '~', '~', 'e'],
+  ['e', '~', '~', '~', '~', '~', '~'],
+  ['~', '~', '~', '~', '~', '~', '~'],
+  ['e', '~', '~', '~', '~', '~', '~'],
+  ['e', '~', '~', '~', '~', '~', 'e'],
+  ['e', 'e', '~', '~', '~', '~', 'e'],
 ]);
 
 export default class GameMap {
@@ -27,7 +27,7 @@ export default class GameMap {
   towns: GameTown[];
   roads: GameRoad[];
   robberLocation: HexCoords;
-  
+
   constructor() {
     this.board = [];
     this.towns = [];
@@ -60,19 +60,19 @@ export default class GameMap {
         let hexFrequency: number | undefined = undefined;
         let pullTerrainTile = false;
         switch (OriginalTerrain[y][x]) {
-        case '~': //either water OR land!
-          pullTerrainTile = true;
-          break;
-        case '/':
-          hexTerrain = TerrainType.Water;
-          break;
-        case '?':
-          hexTerrain = TerrainType.Land;
-          pullTerrainTile = true;
-          break;
-        default:
-          hexTerrain = TerrainType.Empty;
-          break;
+          case '~': //either water OR land!
+            pullTerrainTile = true;
+            break;
+          case '/':
+            hexTerrain = TerrainType.Water;
+            break;
+          case '?':
+            hexTerrain = TerrainType.Land;
+            pullTerrainTile = true;
+            break;
+          default:
+            hexTerrain = TerrainType.Empty;
+            break;
         }
         if (pullTerrainTile) {
           let tileIndex = 0;
@@ -367,18 +367,18 @@ export default class GameMap {
         let hexFrequency: number | undefined = undefined;
         const pullTerrainTile = false;
 
-        const [ h, f ] = hf.split(',');
+        const [h, f] = hf.split(',');
         switch (h) {
-        case '/':
-          hexTerrain = TerrainType.Water;
-          break;
-        case '?':
-          hexTerrain = TerrainType.Land;
-          hexResource = stringToResource(h);
-          break;
-        default:
-          hexTerrain = TerrainType.Empty;
-          break;
+          case '/':
+            hexTerrain = TerrainType.Water;
+            break;
+          case '?':
+            hexTerrain = TerrainType.Land;
+            hexResource = stringToResource(h);
+            break;
+          default:
+            hexTerrain = TerrainType.Empty;
+            break;
         }
 
         if (f.length > 0) {

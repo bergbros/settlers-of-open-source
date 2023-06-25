@@ -1,7 +1,7 @@
 import Player from './game-player.js';
 import { AllResourceTypes } from './terrain-type.js';
 import HexCoords from './utils/hex-coords.js';
-import VertexCoords from './utils/vertex-coords.js';
+import VertexCoords, { hydrateVertexCoords } from './utils/vertex-coords.js';
 
 export default class GameTown {
   coords?: VertexCoords;
@@ -71,7 +71,9 @@ export default class GameTown {
   }
 
   setChildPrototypes() {
-    this.coords = new VertexCoords(new HexCoords(this.coords!.hexCoords.x, this.coords!.hexCoords.y), this.coords!.direction);
+    if (this.coords) {
+      this.coords = hydrateVertexCoords(this.coords);
+    }
   }
 
 }

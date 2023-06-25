@@ -4,7 +4,7 @@ import { Socket } from 'socket.io-client';
 import { Hex, Town, Road, Player, Robber } from './components';
 import { TradeWindow } from './features/';
 import './App.scss';
-import { BuildAction, BuildActionType } from 'soos-gamelogic/dist/src/buildOptions';
+import { BuildAction, BuildActionType } from 'soos-gamelogic/dist/src/build-actions';
 
 const debugAutoPickSettlements = true;
 let premoves: BuildAction[] = [];
@@ -29,6 +29,7 @@ export function App(props: AppProps) {
 
   useEffect(() => {
     function receivePlayerId(id: number) {
+      console.log('Got player ID:', id);
       setPlayerId(id);
     }
 
@@ -53,6 +54,7 @@ export function App(props: AppProps) {
     return () => {
       socket.off('playerId', receivePlayerId);
       socket.off('updateGameState', updateGameState);
+      socket.off('premoves', setPremoves);
     };
   }, []);
 

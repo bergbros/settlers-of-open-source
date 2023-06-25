@@ -3,7 +3,7 @@ import GameRoad from './game-road.js';
 import GameTown from './game-town.js';
 import { AllResourceTypes, isSeaType, ResourceType, stringToResource, TerrainType } from './terrain-type.js';
 import EdgeCoords, { vertexToEdge } from './utils/edge-coords.js';
-import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
+import HexCoords, { AllHexDirections, HexDirection, hydrateHexCoords } from './utils/hex-coords.js';
 import VertexCoords, { AllVertexDirections, edgeToVertex, getEdges, getHexes, VertexDirection, vertexDirName } from './utils/vertex-coords.js';
 
 const OriginalTiles = Object.freeze(['b', 'b', 'b', 'o', 'o', 'o', 'w', 'w', 'w', 'w', 'g', 'g', 'g', 'g', 's', 's', 's', 's', 'd']);
@@ -425,21 +425,14 @@ export default class GameMap {
 
     for (let y = 0; y < BoardHeight; y++) {
       for (let x = 0; x < BoardWidth; x++) {
-        //this.board[y][x].coords = Object.assign(new HexCoords(), this.board[y][x].coords),
         this.board[y][x] = new GameHex(
-          new HexCoords(this.board[y][x].coords.x, this.board[y][x].coords.y),
+          hydrateHexCoords(this.board[y][x].coords),
           this.board[y][x].terrainType,
           this.board[y][x].resourceType,
           this.board[y][x].frequency,
         );
       }
     }
-
-    // for (const boardRow of this.board) {
-    //   for (const hex of boardRow) {
-    //     Object.assign(new GameHex(), hex);
-    //   }
-    // }
 
     for (let i = 0; i < this.towns.length; i++) {
       this.towns[i] = Object.assign(new GameTown(), this.towns[i]);
@@ -450,6 +443,5 @@ export default class GameMap {
       this.roads[i] = Object.assign(new GameRoad(), this.roads[i]);
       this.roads[i].setChildPrototypes();
     }
-
   }
 }

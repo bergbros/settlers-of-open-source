@@ -3,9 +3,9 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 
-import { Game, GamePhase, gameFromString } from 'soos-gamelogic';
+import { EdgeCoords, Game, gameFromString } from 'soos-gamelogic';
 import ServerAction from './server-action.js';
-import { BuildAction, hydrateBuildAction } from 'soos-gamelogic/dist/src/buildOptions.js';
+import { BuildAction, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions.js';
 
 const port = 3000;
 
@@ -62,9 +62,25 @@ io.on('connection', socket => {
   // }, 10000);
 
   socket.on('newGameState', (newGameState) => {
+    console.log(newGameState);
     console.log('got New Game State');
     game = gameFromString(newGameState);
     socket.broadcast.emit('updateGameState', newGameState);
+  });
+
+  socket.on('build', (buildAction: BuildAction) => {
+    buildAction = hydrateBuildAction(buildAction);
+
+    // make sure people can't submit build actions for other players
+    buildAction.playerId = id;
+
+    if (!buildAction.isPossible(game)) {
+      console.log('Got invalid build action!', buildAction);
+      return;
+    }
+
+    buildAction.execute(game);
+    socket.broadcast.emit('updateGameState', game.toString());
   });
 
   socket.on('premove', (premove: BuildAction) => {
@@ -101,3 +117,7 @@ io.on('connection', socket => {
 server.listen(port, () => {
   console.log(`Settlers of Open Source server listening on port ${port}`);
 });
+function hydrateEdgeCoords(whereToBuild: EdgeCoords): EdgeCoords {
+  throw new Error('Function not implemented.');
+}
+

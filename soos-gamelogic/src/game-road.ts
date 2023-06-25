@@ -1,11 +1,15 @@
 import Player from './game-player.js';
 import { HexCoords } from './index.js';
-import EdgeCoords from './utils/edge-coords.js';
+import EdgeCoords, { hydrateEdgeCoords } from './utils/edge-coords.js';
 import { HexDirection } from './utils/hex-coords.js';
 
 export default class GameRoad {
   coords: EdgeCoords;
+
+  // TODO this needs to be playerIdx instead of player
+  // for serialization to work
   player?: Player;
+
   display: boolean;
 
   constructor(coords?: EdgeCoords) {
@@ -15,7 +19,7 @@ export default class GameRoad {
   }
 
   setChildPrototypes() {
-    this.coords = new EdgeCoords(new HexCoords(this.coords.hexCoords.x, this.coords.hexCoords.y), this.coords.direction);
+    this.coords = hydrateEdgeCoords(this.coords);
   }
 
   getType() {
@@ -54,13 +58,5 @@ export default class GameRoad {
 
   getCoords() {
     return this.coords;
-  }
-
-  toString() {
-    if (!this.player) {
-      return '';
-    } else {
-      return 'r;' + this.coords.toString() + ';' + this.player.index;
-    }
   }
 }

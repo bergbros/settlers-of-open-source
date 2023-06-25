@@ -1,10 +1,10 @@
-import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction } from './buildOptions.js';
+import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction } from './build-actions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import EdgeCoords from './utils/edge-coords.js';
-import HexCoords, { AllHexDirections, HexDirection } from './utils/hex-coords.js';
+import HexCoords, { AllHexDirections, HexDirection, hydrateHexCoords } from './utils/hex-coords.js';
 import VertexCoords, { AllVertexDirections, edgeToVertex, getEdges, getHexes, VertexDirection } from './utils/vertex-coords.js';
 
 // phases requiring input
@@ -655,6 +655,22 @@ export default class Game {
     return playerMoves;
   }
 
+  possibleRoadLocationsForPlayer(playerIdx: number): EdgeCoords[] {
+    const roadLocations: EdgeCoords[] = [];
+
+    for (const road of this.map.roads) {
+      if (road.player?.index !== playerIdx)
+        continue;
+      roadLocations.push(road.coords);
+    }
+
+    return roadLocations;
+  }
+
+  // roadLocationsStartingAtVertex(road: GameRoad): EdgeCoords[] {
+  //   const roads = this.map.getRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
+  // }
+
   onHexClicked(coords: HexCoords): boolean {
     //useful for when we place the robber!
     if (this.gamePhase === GamePhase.PlaceRobber && this.robberPhase === RobberPhase.PlaceRobber) {
@@ -740,39 +756,6 @@ export default class Game {
     return JSON.stringify(this);
   }
 
-  getEdgeCoords(json: string) {
-    if (json[0] !== '(') {
-      throw new Error('invalid EdgeCoords json!');
-    }
-    //delete the ( and )
-    json = json.slice(1);
-    json = json.slice(json.length);
-    const coordsSplit = json.split(',');
-    return new EdgeCoords(new HexCoords(+coordsSplit[0], +coordsSplit[1]), +coordsSplit[2]);
-  }
-
-  getVertexCoords(json: string) {
-    if (json[0] !== '(') {
-      throw new Error('invalid HexCoords json!');
-    }
-    //delete the ( and )
-    json = json.slice(1);
-    json = json.slice(json.length);
-    const coordsSplit = json.split(',');
-    return new VertexCoords(new HexCoords(+coordsSplit[0], +coordsSplit[1]), +coordsSplit[2]);
-  }
-
-  getHexCoords(json: string) {
-    if (json[0] !== '(') {
-      throw new Error('invalid HexCoords json!');
-    }
-    //delete the ( and )
-    json = json.slice(1);
-    json = json.slice(json.length);
-    const coordsSplit = json.split(',');
-    return new HexCoords(+coordsSplit[0], +coordsSplit[1]);
-  }
-
   setChildPrototypes() {
     this.map = Object.assign(new GameMap(), this.map);
     this.map.setChildPrototypes();
@@ -782,7 +765,7 @@ export default class Game {
       this.players[i].setChildPrototypes();
     }
 
-    this.robberLocation = new HexCoords(this.robberLocation.x, this.robberLocation.y);
+    this.robberLocation = hydrateHexCoords(this.robberLocation);
 
     for (let i = 0; i < this.premoveActions.length; i++) {
       if (this.premoveActions[i].type === BuildActionType.Road) {
@@ -791,7 +774,6 @@ export default class Game {
         this.premoveActions[i].setChildPrototypes();
       }
     }
-
   }
 
   updatePlayerTradeRatios(townThere: GameTown | undefined) {

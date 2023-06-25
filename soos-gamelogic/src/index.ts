@@ -5,7 +5,7 @@ import GameRoad from './game-road.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import HexCoords, { HexDirection } from './utils/hex-coords.js';
 import GamePlayer from './game-player.js';
-import { actionToString, AllBuildActionTypes, BuildActionType } from './buildOptions.js';
+import { actionToString, AllBuildActionTypes, BuildActionType } from './build-actions.js';
 import VertexCoords, { VertexDirection } from './utils/vertex-coords.js';
 import EdgeCoords from './utils/edge-coords.js';
 

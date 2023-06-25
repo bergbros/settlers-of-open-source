@@ -1,5 +1,5 @@
 import EdgeCoords from './edge-coords.js';
-import HexCoords, { HexDirection, hexDirToCoords } from './hex-coords.js';
+import HexCoords, { HexDirection, hexDirToCoords, hydrateHexCoords } from './hex-coords.js';
 
 export enum VertexDirection {
   // in clockwise order
@@ -106,7 +106,10 @@ export default class VertexCoords {
     // (3,4,dir=NW)
     return `(${this.hexCoords.x},${this.hexCoords.y},dir=${vertexDirName(this.direction)})`;
   }
+}
 
+export function hydrateVertexCoords(vertexCoords: VertexCoords): VertexCoords {
+  return new VertexCoords(hydrateHexCoords(vertexCoords.hexCoords), vertexCoords.direction);
 }
 
 export function edgeToVertex(direction: HexDirection): VertexDirection {

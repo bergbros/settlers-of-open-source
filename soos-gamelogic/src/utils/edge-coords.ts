@@ -1,4 +1,4 @@
-import HexCoords, { AllHexDirections, HexDirection, hexDirOpposite, hexDirNames } from './hex-coords.js';
+import HexCoords, { AllHexDirections, HexDirection, hexDirOpposite, hexDirNames, hydrateHexCoords } from './hex-coords.js';
 import { VertexDirection } from './vertex-coords.js';
 
 const EdgeDirectionsNeedNormalize = Object.freeze([
@@ -58,5 +58,8 @@ export default class EdgeCoords {
     // (3,4,dir=NW)
     return `(${this.hexCoords.x},${this.hexCoords.y},${edgeDirName(this.direction)})`;
   }
+}
 
+export function hydrateEdgeCoords(edgeCoords: EdgeCoords): EdgeCoords {
+  return new EdgeCoords(hydrateHexCoords(edgeCoords.hexCoords), edgeCoords.direction);
 }

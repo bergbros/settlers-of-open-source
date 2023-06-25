@@ -1,4 +1,6 @@
 import { EdgeCoords, Game, HexCoords, VertexCoords } from './index.js';
+import { hydrateEdgeCoords } from './utils/edge-coords.js';
+import { hydrateVertexCoords } from './utils/vertex-coords.js';
 
 export enum BuildActionType {
   actionCompleted = -2,
@@ -88,7 +90,7 @@ export class NullBuildAction implements BuildAction {
   }
 
   setChildPrototypes() {
-    this.location = new VertexCoords(new HexCoords(this.location.hexCoords.x, this.location.hexCoords.y), this.location.direction);
+    this.location = hydrateVertexCoords(this.location);
   }
 
   displayString() {
@@ -114,7 +116,7 @@ export class CompletedBuildAction implements BuildAction {
   }
 
   setChildPrototypes() {
-    this.location = new VertexCoords(new HexCoords(this.location.hexCoords.x, this.location.hexCoords.y), this.location.direction);
+    this.location = hydrateVertexCoords(this.location);
   }
 
   displayString() {
@@ -137,11 +139,17 @@ export class BuildRoadAction implements BuildAction {
       return false;
     }
 
-    // TODO check adjacent to player's roads
     const player = gameState.players[this.playerId];
     if (player) {
       return player.hasResources(AllBuildCosts[this.type]);
     }
+
+    // New location must be adjacent to an existing town or road for this player
+    let foundAdjacent = false;
+    for (const road of gameState.map.roads) {
+      // if (road.isClaimed)
+    }
+
     return false;
   }
 
@@ -163,7 +171,7 @@ export class BuildRoadAction implements BuildAction {
   }
 
   setChildPrototypes() {
-    this.location = new EdgeCoords(new HexCoords(this.location.hexCoords.x, this.location.hexCoords.y), this.location.direction);
+    this.location = hydrateEdgeCoords(this.location);
   }
 }
 
@@ -208,7 +216,7 @@ export class BuildSettlementAction implements BuildAction {
   }
 
   setChildPrototypes() {
-    this.location = new VertexCoords(new HexCoords(this.location.hexCoords.x, this.location.hexCoords.y), this.location.direction);
+    this.location = hydrateVertexCoords(this.location);
   }
 }
 
@@ -250,7 +258,7 @@ export class BuildCityAction implements BuildAction {
   }
 
   setChildPrototypes() {
-    this.location = new VertexCoords(new HexCoords(this.location.hexCoords.x, this.location.hexCoords.y), this.location.direction);
+    this.location = hydrateVertexCoords(this.location);
   }
 }
 

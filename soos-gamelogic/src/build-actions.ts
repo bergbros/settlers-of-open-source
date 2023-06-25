@@ -42,6 +42,7 @@ export function actionToString(action: BuildActionType): string {
 export type BuildAction = {
   type: BuildActionType,
   playerId: number,
+  location: any,
   isPossible: (gameState: Game) => boolean,
   shouldDisqualify: (gameState: Game) => boolean,
   execute: (gameState: Game) => void,
@@ -67,7 +68,6 @@ export function hydrateBuildAction(buildAction: BuildAction): BuildAction {
     default:
       throw new Error(`Can't hydrate build action of type ${buildAction.type}`);
   }
-
   action.setChildPrototypes();
   return action;
 }
@@ -265,7 +265,7 @@ export class BuildCityAction implements BuildAction {
 export class BuildDevelopmentCardAction implements BuildAction {
   type = BuildActionType.Development;
   playerId: number;
-
+  location = new VertexCoords(new HexCoords(-1, -1), 0);
   constructor(playerId: number) {
     this.playerId = playerId;
   }

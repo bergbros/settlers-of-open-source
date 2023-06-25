@@ -4,7 +4,8 @@ import { Socket } from 'socket.io-client';
 import { Hex, Town, Road, Player, Robber } from './components';
 import { TradeWindow } from './features/';
 import './App.scss';
-import { BuildAction, BuildActionType } from 'soos-gamelogic/dist/src/build-actions';
+import { BuildAction, BuildActionType, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
+import { hydrate } from 'react-dom';
 
 const debugAutoPickSettlements = true;
 let premoves: BuildAction[] = [];
@@ -44,8 +45,17 @@ export function App(props: AppProps) {
     }
 
     function setPremoves(serverPremoves: BuildAction[]) {
-      premoves = serverPremoves;
+      console.log("got premoves: ");
+      console.log(serverPremoves);
+      //premoveItems = [];
+      for (const serverMove of serverPremoves) {
+        premoves.push(hydrateBuildAction(serverMove));
+        //premoveItems.push(<li>{hydrateBuildAction(serverMove).displayString()}</li>);
+      }
+      //console.log(premoveItems);
+      //premoveDisplay = <div> < ul > Your New Premoves:{premoveItems}</ul></div>;
     }
+
 
     socket.on('playerId', receivePlayerId);
     socket.on('updateGameState', updateGameState);
@@ -184,9 +194,10 @@ export function App(props: AppProps) {
       {premove ? 'Done Planning' : 'Set Premoves'}
     </button >;
 
-  const premoveItems = premoves.map((action: BuildAction) => (
+  let premoveItems = premoves.map((action: BuildAction) => (
     <li>{action.displayString()}</li>));
-  const premoveDisplay = <div> < ol > Your Premoves:{premoveItems}</ol></div>;
+  premoveItems.push(<li>Test premove!</li>)
+  let premoveDisplay = <div> <ul> Your Premoves:{premoveItems}</ul></div>;
   const theRobber = <Robber game={game}></Robber>;
   robber.push(
     theRobber,
@@ -232,6 +243,7 @@ export function App(props: AppProps) {
             disabled={game.gamePhase !== GamePhase.MainGameplay}
           >Next Turn</button>
           <div>{premoveDisplay}</div>
+          <div>{premoveItems}</div>
         </div>
         <div className="App HeaderInfo">{players}</div>
 

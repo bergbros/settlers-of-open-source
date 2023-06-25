@@ -62,7 +62,7 @@ io.on('connection', socket => {
   // }, 10000);
 
   socket.on('newGameState', (newGameState) => {
-    console.log(newGameState);
+    //console.log(newGameState);
     console.log('got New Game State');
     game = gameFromString(newGameState);
     socket.broadcast.emit('updateGameState', newGameState);
@@ -86,10 +86,14 @@ io.on('connection', socket => {
   socket.on('premove', (premove: BuildAction) => {
     premove = hydrateBuildAction(premove);
 
-    console.log('got new premove:' + id + ' wants ' + premove.displayString());
+    console.log('got new premove: player ' + id + ' wants to ' + premove.displayString());
     //socket.broadcast.emit('updateGameState', game.toString());
     game.addPremove(premove);
-    socket.emit('premoves', game.getPremoves(id));
+    const gameMoves = game.getPremoves(id)
+    for (let gameMove of gameMoves) {
+      gameMove = hydrateBuildAction(gameMove);
+    }
+    socket.emit('premoves', gameMoves);
   });
 
   socket.on('logPremoves', () => {

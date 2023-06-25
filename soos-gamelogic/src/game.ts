@@ -1,4 +1,4 @@
-import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction } from './build-actions.js';
+import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction, hydrateBuildAction } from './build-actions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
@@ -503,8 +503,17 @@ export default class Game {
     }
   }
 
-  addPremove(buildAction: BuildAction) {
+  addPremove(buildActionJSON: BuildAction) {
+    const buildAction = hydrateBuildAction(buildActionJSON);
     console.log(buildAction.displayString());
+    //TODO check if the action is already present in the premoves
+    // let foundAction = false;
+    // for (let action of this.premoveActions) {
+    //   if (action.type === buildAction.type && action.location === buildAction.location) {
+    //     foundAction = true;
+    //     continue;
+    //   }
+    // }
     if (buildAction.shouldDisqualify(this) === false) {
       this.premoveActions.push(buildAction);
     }
@@ -652,6 +661,8 @@ export default class Game {
         playerMoves.push(move);
       }
     }
+    console.log("Player " + playerId + " Premoves:");
+    console.log(playerMoves);
     return playerMoves;
   }
 

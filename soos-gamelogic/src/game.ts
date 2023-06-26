@@ -509,48 +509,17 @@ export default class Game {
     const buildAction = hydrateBuildAction(buildActionJSON);
     console.log(buildAction.displayString());
     // check if the action is already present in the premoves
-    let foundAction = false;
     for (let action of this.premoveActions) {
-      if (action.displayString() === buildAction.displayString()) {
-        foundAction = true;
-        continue;
+      if (action.equals(buildAction)) {
+        return;
       }
     }
-    if (buildAction.shouldDisqualify(this) === false && !foundAction) {
+    if (buildAction.shouldDisqualify(this) === false) {
       this.premoveActions.push(buildAction);
     }
   }
 
-  executeTownActionJSON(json: string, playerID: number): boolean {
-    //todo: delete? Not currently using JSON town actions
-    const town: GameTown = Object.assign(new GameTown(), JSON.parse(json));
-    town.setChildPrototypes();
 
-    if (!town.coords) {
-      return false;
-    }
-    const mapTown = this.map.townAt(town.coords);
-    if (!mapTown || !mapTown.coords) {
-      return false;
-    }
-    //claim a town
-    if (mapTown.isUnclaimed()) {
-      return this.claimTownAt(mapTown.coords); //currently handles initial settlements, later settlements, upgrades, and robber placement.
-    }
-    //upgrade a town
-    else {
-      if (!mapTown.playerIdx || mapTown.playerIdx !== playerID) {
-        return false;
-      } //no settlement or belongs to another player
-      if (this.players[playerID].spend(AllBuildCosts[BuildActionType.City])) {
-        mapTown.upgradeCity();
-      } else {
-        return false;
-      } // player didn't have the money
-    }
-
-    return true;
-  }
 
   claimTownAt(vertex: VertexCoords): boolean {
     if (this.claimedSettlement) {

@@ -48,6 +48,7 @@ export type BuildAction = {
   execute: (gameState: Game) => void,
   setChildPrototypes: () => void,
   displayString: () => string,
+  equals: (BuildAction) => boolean,
 };
 
 export function hydrateBuildAction(buildAction: BuildAction): BuildAction {
@@ -96,6 +97,9 @@ export class NullBuildAction implements BuildAction {
   displayString() {
     return 'null action';
   }
+  equals(compareAction: BuildAction) {
+    return this.type === compareAction.type;
+  }
 }
 
 export class CompletedBuildAction implements BuildAction {
@@ -122,6 +126,11 @@ export class CompletedBuildAction implements BuildAction {
   displayString() {
     return 'completed action';
   }
+
+  equals(compareAction: BuildAction) {
+    return this.type === compareAction.type;
+  }
+
 }
 
 export class BuildRoadAction implements BuildAction {
@@ -173,6 +182,13 @@ export class BuildRoadAction implements BuildAction {
   setChildPrototypes() {
     this.location = hydrateEdgeCoords(this.location);
   }
+
+  equals(compareAction: BuildAction) {
+    if (this.type !== compareAction.type) return false;
+    compareAction = new BuildRoadAction(compareAction.playerId, compareAction.location);
+    return this.location.equals(compareAction.location);
+  }
+
 }
 
 export class BuildSettlementAction implements BuildAction {
@@ -218,6 +234,12 @@ export class BuildSettlementAction implements BuildAction {
   setChildPrototypes() {
     this.location = hydrateVertexCoords(this.location);
   }
+
+  equals(compareAction: BuildAction) {
+    if (this.type !== compareAction.type) return false;
+    compareAction = new BuildSettlementAction(compareAction.playerId, compareAction.location);
+    return this.location.equals(compareAction.location);
+  }
 }
 
 export class BuildCityAction implements BuildAction {
@@ -257,6 +279,12 @@ export class BuildCityAction implements BuildAction {
     return 'p' + this.playerId + '-' + actionToString(this.type) + ' ' + this.location.toString();
   }
 
+  equals(compareAction: BuildAction) {
+    if (this.type !== compareAction.type) return false;
+    compareAction = new BuildCityAction(compareAction.playerId, compareAction.location);
+    return this.location.equals(compareAction.location);
+  }
+
   setChildPrototypes() {
     this.location = hydrateVertexCoords(this.location);
   }
@@ -288,6 +316,10 @@ export class BuildDevelopmentCardAction implements BuildAction {
 
   displayString() {
     return 'p' + this.playerId + '-' + actionToString(this.type);
+  }
+
+  equals(compareAction: BuildAction) {
+    return this.type === compareAction.type;
   }
 
   setChildPrototypes() { }

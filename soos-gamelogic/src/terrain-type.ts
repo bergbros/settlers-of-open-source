@@ -104,7 +104,7 @@ export function resourceToSymbol(resource: ResourceType | undefined): string {
     case ResourceType.Grain:
       return '🌾';
     case ResourceType.Ore:
-      return '🪨';
+      return '⛰️';
     case ResourceType.WoodPort:
       return '🌳';
     case ResourceType.BrickPort:
@@ -114,7 +114,7 @@ export function resourceToSymbol(resource: ResourceType | undefined): string {
     case ResourceType.GrainPort:
       return '🌾';
     case ResourceType.OrePort:
-      return '🪨';
+      return '⛰️';
     case ResourceType.AnyPort:
       return '❔';
     default:

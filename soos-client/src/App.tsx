@@ -6,6 +6,7 @@ import { TradeWindow } from './features/';
 import './App.scss';
 import { BuildAction, BuildActionType, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
 import { hydrate } from 'react-dom';
+import { ResourceBar } from './components/resource-bar';
 
 const debugAutoPickSettlements = true;
 let premoves: BuildAction[] = [];
@@ -71,12 +72,6 @@ export function App(props: AppProps) {
   }
 
   const hexes = [];
-  const towns = [];
-  const roads = [];
-  const players = [];
-  const actions = [];
-  const robber = [];
-
   for (let i = 0; i < game.map.board.length; i++) {
     for (let k = 0; k < game.map.board[i].length; k++) {
       const gameHex: GameHex = game.map.board[i][k];
@@ -95,6 +90,7 @@ export function App(props: AppProps) {
     }
   }
 
+  const towns = [];
   for (const town of game.map.towns) {
     const townCoords = town.coords!;
 
@@ -126,6 +122,7 @@ export function App(props: AppProps) {
     );
   }
 
+  const roads = [];
   for (const road of game.map.roads) {
     const roadCoords = road.coords;
 
@@ -154,10 +151,7 @@ export function App(props: AppProps) {
     );
   }
 
-  for (const player of game.players) {
-    players.push(<Player player={player} details={player.index === playerId}></Player>);
-  }
-
+  const actions = [];
   for (const option of AllBuildActionTypes) {
     actions.push(
       <button
@@ -191,10 +185,7 @@ export function App(props: AppProps) {
   let premoveItems = premoves.map((action: BuildAction) => (
     <li>{action.displayString()}</li>));
   let premoveDisplay = <div> <ul> Your Premoves:{premoveItems}</ul></div>;
-  const theRobber = <Robber game={game}></Robber>;
-  robber.push(
-    theRobber,
-  );
+  const robber = <Robber game={game}></Robber>;
 
   const dialogBoxes = [];
   if (isTradeWindowShowing && playerId !== undefined) {
@@ -212,6 +203,23 @@ export function App(props: AppProps) {
   if (playerId !== undefined) {
     playerName = game.players[playerId].name;
   }
+
+  const playerList = (
+    <div className="PlayerList">
+      {
+        game.players.map((player, index) =>
+          <Player
+            playerIndex={index}
+            playerName={player.name}
+            isMe={player.index === playerId}
+            totalResources={player.cards.reduce((prev, curr) => prev + curr)}
+            victoryPoints={0}
+          ></Player>
+        )
+      }
+    </div>
+  );
+
   return (
     <div className="App">
       <div>You are player: {playerName}</div>
@@ -219,11 +227,11 @@ export function App(props: AppProps) {
       <div className={'p' + game.currPlayerIdx}>{game.instructionText}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div className="App HeaderInfo">
+        <div className="HeaderInfo">
           {actions}
         </div>
         <div>
-          <div className="App HeaderInfo">
+          <div className="HeaderInfo">
             {tradeButton}
             {premoveButton}
           </div>
@@ -235,21 +243,29 @@ export function App(props: AppProps) {
             className="NextTurnButton"
             disabled={game.gamePhase !== GamePhase.MainGameplay}
           >Next Turn</button>
-          <div>{premoveDisplay}</div>
         </div>
-        <div className="App HeaderInfo">{players}</div>
-
       </div>
       <div className="Board">
         {hexes}
         {towns}
         {roads}
         {robber}
+
+        {playerList}
+        {
+          playerId !== undefined ?
+            <ResourceBar resources={game.players[playerId].cards}></ResourceBar> :
+            null
+        }
       </div>
+      <div>{premoveDisplay}</div>
       <div>{dialogBoxes}</div>
-      {game.gamePhase !== GamePhase.MainGameplay && <div><button onClick={() => {
-        game.autoPickSettlements(); game.forceUpdate();
-      }}>{'Pick My Settlements!'}</button></div>}
+      {game.gamePhase !== GamePhase.MainGameplay &&
+        <div>
+          <button onClick={() => {
+            game.autoPickSettlements(); game.forceUpdate();
+          }}>{'Pick My Settlements!'}</button>
+        </div>}
     </div >
   );
 }

@@ -1,6 +1,5 @@
-import { HexCoords, ResourceType, TerrainType, GameHex } from 'soos-gamelogic';
+import { HexCoords, ResourceType, TerrainType, GameHex, isSeaType, resourceToLand, resourceToSymbol } from 'soos-gamelogic';
 import { hexCoordsToPixels } from '../../utils';
-import { isSeaType, resourceToLand, resourceToSymbol } from 'soos-gamelogic/src/terrain-type';
 import './Hex.scss';
 
 // Debug thing to show the HexCoords of every hex on the board.

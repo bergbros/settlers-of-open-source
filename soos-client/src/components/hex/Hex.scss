@@ -1,12 +1,5 @@
 @import '../../scss/variables.scss';
-
-@mixin dark-text-color {
-    color: rgb(77, 77, 77);
-}
-
-@mixin light-text-color {
-    color: rgb(215, 215, 215);
-}
+@import '../../scss/resources.scss';
 
 .Hex {
     position: absolute;
@@ -52,17 +45,13 @@
     margin-top: 35px;
     line-height: $tileNumberSize; // center text vertically
     font-size: 16px;
-
+    z-index: 3;
     border: 1px solid lightgray; //darkgray;
 
-    // &.sheep {
-    //     border-color: rgb(193, 230, 193);
-    // }
-
-    // &.none,
-    // &.grain {
-    //     border-color: lightgray;
-    // }
+    &.brick {
+        // this somehow gets overridden otherwise ...
+        @include light-text-color;
+    }
 }
 
 .dots {
@@ -74,48 +63,4 @@
     // margin-top: -5px;
 
     overflow-x: visible;
-}
-
-.none {
-    background-color: rgb(196, 196, 196);
-}
-
-.water {
-    background-color: lightskyblue;
-    z-index: 3;
-}
-
-.wood {
-    @include light-text-color;
-    background-color: rgb(32, 91, 32);
-    z-index: 3;
-}
-
-.sheep {
-    @include dark-text-color;
-    background-color: rgb(110, 207, 110);
-    z-index: 3;
-}
-
-.brick {
-    @include light-text-color;
-    background-color: rgb(142, 73, 63) !important;
-    z-index: 3;
-}
-
-.ore {
-    @include light-text-color;
-    background-color: rgb(111, 111, 111);
-    z-index: 3;
-}
-
-.grain {
-    @include dark-text-color;
-    background-color: rgb(224, 203, 45);
-    z-index: 3;
-}
-
-.desert {
-    background-color: rgb(243, 213, 152);
-    z-index: 3;
 }

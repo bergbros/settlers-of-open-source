@@ -1,0 +1,44 @@
+@mixin dark-text-color {
+    color: rgb(77, 77, 77);
+}
+
+@mixin light-text-color {
+    color: rgb(215, 215, 215);
+}
+
+.none {
+    background-color: rgb(196, 196, 196);
+}
+
+.water {
+    background-color: lightskyblue;
+}
+
+.wood {
+    @include light-text-color;
+    background-color: rgb(32, 91, 32);
+}
+
+.sheep {
+    @include dark-text-color;
+    background-color: rgb(110, 207, 110);
+}
+
+.brick {
+    @include light-text-color;
+    background-color: rgb(142, 73, 63) !important;
+}
+
+.ore {
+    @include light-text-color;
+    background-color: rgb(111, 111, 111);
+}
+
+.grain {
+    @include dark-text-color;
+    background-color: rgb(224, 203, 45);
+}
+
+.desert {
+    background-color: rgb(243, 213, 152);
+}

@@ -1,20 +1,13 @@
 @import '../../scss/variables.scss';
 
 .Player {
-    position: relative;
-    width: 40%;
-    top: 0px;
-    left: 0px;
-    background-color: solid rgba(255, 255, 255, 0.466);
-    white-space: pre-wrap;
-    display: inline-block;
     padding: 10px;
-    padding-left: 20px;
+    margin-bottom: 10px;
 }
 
 .PlayerList {
-    margin: 8px;
-    display: inline;
+    margin: 10px;
+    width: fit-content;
 }
 
 .p0 {

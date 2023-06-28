@@ -1,6 +1,11 @@
 .RobberImage {
     position: absolute;
+    top: 0px;
+    left: 0px;
     height: 44px;
     width: 26px;
     z-index: 20;
+
+    // animate position
+    transition: transform 0.2s ease-out;
 }

@@ -10,16 +10,15 @@ export type RobberProps = {
 export const Robber = (props: RobberProps) => {
   const { game } = props;
   let { x, y } = hexCoordsToPixels(game.robberLocation);
-  x += HexWidth * 0.6;
-  y += HexHeight * 0.2;
+  x += HexWidth * 0.7;
+  y += HexHeight * 0.3;
   return (
     <img
       className="RobberImage"
       src={RobberImg}
       onClick={() => console.log('robber is at ' + game.robberLocation)}
       style={{
-        left: x + 'px',
-        top: y + 'px',
+        transform: `translate(${x}px,${y}px)`
       }}
     ></img>
   );

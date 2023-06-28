@@ -48,7 +48,9 @@
     z-index: 3;
     border: 1px solid lightgray; //darkgray;
 
-    &.brick {
+    &.brick,
+    &.wood,
+    &.ore {
         // this somehow gets overridden otherwise ...
         @include light-text-color;
     }

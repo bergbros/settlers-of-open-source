@@ -46,12 +46,6 @@ body {
     width: 45%
 }
 
-.ActionButton {
-    float: left;
-    width: 47%;
-    margin: 5px;
-}
-
 .Board {
     display: flex;
     flex-direction: row;
@@ -59,7 +53,7 @@ body {
     top: 0px;
     left: 10px;
     height: 820px;
-    width: 900px;
+    width: 980px;
     background-color: lightblue;
 }
 
@@ -71,4 +65,33 @@ body {
     height: 100%;
     padding: 20px;
     background: lightgreen;
+}
+
+.BuildActions {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background-color: bisque;
+    padding: 10px;
+    margin: 10px;
+
+    .BuildActionsLabel {
+        width: fit-content;
+        margin: 0px auto 5px auto;
+    }
+
+    .BuildActionButtons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+
+        .ActionButton {
+            margin: 5px;
+            padding: 3px;
+
+            .label {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+        }
+    }
 }

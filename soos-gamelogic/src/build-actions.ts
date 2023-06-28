@@ -1,4 +1,4 @@
-import { EdgeCoords, Game, HexCoords, VertexCoords } from './index.js';
+import { EdgeCoords, Game, HexCoords, VertexCoords, resourceToSymbol } from './index.js';
 import { hydrateEdgeCoords } from './utils/edge-coords.js';
 import { hydrateVertexCoords } from './utils/vertex-coords.js';
 
@@ -28,15 +28,27 @@ export const AllBuildCosts = Object.freeze([
 export function actionToString(action: BuildActionType): string {
   switch (action) {
     case BuildActionType.Road:
-      return 'Build Road';
+      return 'Road';
     case BuildActionType.Settlement:
-      return 'Build Settlement';
+      return 'Settlement';
     case BuildActionType.City:
-      return 'Build City';
+      return 'City';
     case BuildActionType.Development:
-      return 'Buy Development Card';
+      return 'Development Card';
   }
   return 'null Action';
+}
+
+export function actionCostString(action: BuildActionType): string {
+  const cost = AllBuildCosts[action]!;
+
+  return cost.map((num, index) => {
+    if (num === 0) {
+      return null;
+    }
+
+    return `${resourceToSymbol(index)}${num}`;
+  }).filter(a => !!a).join(' ');
 }
 
 export type BuildAction = {

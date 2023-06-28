@@ -4,7 +4,7 @@ import { Socket } from 'socket.io-client';
 import { Hex, Town, Road, Player, Robber } from './components';
 import { TradeWindow } from './features/';
 import './App.scss';
-import { BuildAction, BuildActionType, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
+import { BuildAction, BuildActionType, actionCostString, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
 import { hydrate } from 'react-dom';
 import { ResourceBar } from './components/resource-bar';
 
@@ -151,20 +151,6 @@ export function App(props: AppProps) {
     );
   }
 
-  const actions = [];
-  for (const option of AllBuildActionTypes) {
-    actions.push(
-      <button
-        onClick={() => {
-          game.executeAction(option);
-          sendGameStateToServer();
-        }}
-        className="ActionButton"
-        disabled={!game.actionViable(option)}>
-        {actionToString(option)}
-      </button>);
-  }
-
   const tradeButton =
     <button
       onClick={() => {
@@ -227,9 +213,6 @@ export function App(props: AppProps) {
       <div className={'p' + game.currPlayerIdx}>{game.instructionText}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div className="HeaderInfo">
-          {actions}
-        </div>
         <div>
           <div className="HeaderInfo">
             {tradeButton}
@@ -245,18 +228,42 @@ export function App(props: AppProps) {
           >Next Turn</button>
         </div>
       </div>
+
       <div className="Board">
         {hexes}
         {towns}
         {roads}
         {robber}
 
+        {/* List of players' resource count & victory points */}
         {playerList}
+
         {
           playerId !== undefined ?
             <ResourceBar resources={game.players[playerId].cards}></ResourceBar> :
             null
         }
+
+        {/* Build & other actions */}
+        <div className='BuildActions'>
+          <div className='BuildActionsLabel'>Build</div>
+          <div className='BuildActionButtons'>
+            {
+              AllBuildActionTypes.filter(ba => ba !== BuildActionType.actionCompleted && ba !== BuildActionType.invalidAction).map(buildActionType =>
+                <button
+                  onClick={() => {
+                    game.executeAction(buildActionType);
+                    sendGameStateToServer();
+                  }}
+                  className="ActionButton"
+                  disabled={!game.actionViable(buildActionType)}>
+                  <div className='label'>{actionToString(buildActionType)}</div>
+                  <div className='cost'>{actionCostString(buildActionType)}</div>
+                </button>
+              )
+            }
+          </div>
+        </div>
       </div>
       <div>{premoveDisplay}</div>
       <div>{dialogBoxes}</div>

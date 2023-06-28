@@ -1,5 +1,13 @@
 @import '../../scss/variables.scss';
 
+@mixin dark-text-color {
+    color: rgb(77, 77, 77);
+}
+
+@mixin light-text-color {
+    color: rgb(215, 215, 215);
+}
+
 .Hex {
     position: absolute;
     width: 100px;
@@ -17,39 +25,59 @@
 
 .port,
 .tileNumber {
-    color: black;
     text-align: center;
     margin: auto;
-    margin-top: 40px;
 
     width: $tileNumberSize;
     height: $tileNumberSize;
     line-height: $tileNumberSize*.8; // center text vertically
 
-    font-size: 22px;
     z-index: 5;
 
     border-radius: calc($tileNumberSize/2);
 }
 
-.port {
-    line-height: $tileNumberSize; // center text vertically
-    border: 3px solid black;
+.tileNumber {
+    width: $tileNumberSize * 1.5;
+    margin-top: 30px;
     font-size: 16px;
+
+    &.twoLines {
+        margin-top: 24px;
+    }
+}
+
+.port {
+    @include dark-text-color;
+    margin-top: 35px;
+    line-height: $tileNumberSize; // center text vertically
+    font-size: 16px;
+
+    border: 1px solid lightgray; //darkgray;
+
+    // &.sheep {
+    //     border-color: rgb(193, 230, 193);
+    // }
+
+    // &.none,
+    // &.grain {
+    //     border-color: lightgray;
+    // }
 }
 
 .dots {
-    color: black;
-    font-size: 6px;
+    @include dark-text-color;
+    font-size: 14px;
     text-align: center;
     margin: auto;
     line-height: 10px;
-    margin-top: - 10px;
+    // margin-top: -5px;
+
+    overflow-x: visible;
 }
 
-
 .none {
-    background-color: bisque;
+    background-color: rgb(196, 196, 196);
 }
 
 .water {
@@ -58,31 +86,32 @@
 }
 
 .wood {
-    background-color: rgb(0, 90, 0);
+    @include light-text-color;
+    background-color: rgb(32, 91, 32);
     z-index: 3;
-    color: white;
 }
 
 .sheep {
-    background-color: rgb(97, 222, 97);
+    @include dark-text-color;
+    background-color: rgb(110, 207, 110);
     z-index: 3;
 }
 
 .brick {
-    //background-color: rgb(146, 26, 8);
-    background-color: rgb(146, 26, 8) !important;
+    @include light-text-color;
+    background-color: rgb(142, 73, 63) !important;
     z-index: 3;
-    color: white;
 }
 
 .ore {
-    background-color: rgb(75, 75, 75);
+    @include light-text-color;
+    background-color: rgb(111, 111, 111);
     z-index: 3;
-    color: white;
 }
 
 .grain {
-    background-color: rgb(237, 213, 30);
+    @include dark-text-color;
+    background-color: rgb(224, 203, 45);
     z-index: 3;
 }
 

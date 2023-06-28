@@ -1,75 +1,74 @@
 @import './scss/variables.scss';
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .App {
-  position: relative;
-  background-color: beige;
-  left: 0px;
-  width: 100%;
-  border: 3px solid black;
-  white-space: pre-wrap;
-  padding: 10px;
-
-  &.HeaderInfo {
     position: relative;
+    background-color: beige;
     left: 0px;
-    border: 2px solid gray;
-    white-space: pre-wrap;
-    width: 50%;
-    float: left;
-  }
-
-
-  &.TradeForSelector {
-    width: 50%;
-    left: 50%;
-  }
-
-  &.TradeButtons {
-    display: inline;
-    padding: 15px;
     width: 100%;
-  }
+    border: 3px solid black;
+    white-space: pre-wrap;
+    padding: 10px;
+
+    &.HeaderInfo {
+        position: relative;
+        left: 0px;
+        border: 2px solid gray;
+        white-space: pre-wrap;
+        width: 50%;
+        float: left;
+    }
+
+
+    &.TradeForSelector {
+        width: 50%;
+        left: 50%;
+    }
+
+    &.TradeButtons {
+        display: inline;
+        padding: 15px;
+        width: 100%;
+    }
 }
 
-
-
 .NextTurnButton {
-  float: right;
-  width: 45%
+    float: right;
+    width: 45%
 }
 
 .ActionButton {
-  float: left;
-  width: 47%;
-  margin: 5px;
+    float: left;
+    width: 47%;
+    margin: 5px;
 }
 
 .Board {
-  display: flex;
-  flex-direction: row;
-  position: relative;
-  top: 0px;
-  left: 10px;
-  height: 780px;
-  width: 900px;
-  background-color: lightblue;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    top: 0px;
+    left: 10px;
+    height: 780px;
+    width: 900px;
+    background-color: lightblue;
 }
 
 .GameInfo {
-  position: fixed;
-  top: 0px;
-  left: 0;
-  width: 225px;
-  height: 100%;
-  padding: 20px;
-  background: lightgreen;
+    position: fixed;
+    top: 0px;
+    left: 0;
+    width: 225px;
+    height: 100%;
+    padding: 20px;
+    background: lightgreen;
 }

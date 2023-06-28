@@ -16,7 +16,7 @@ export const Robber = (props: RobberProps) => {
     <img
       className="RobberImage"
       src={RobberImg}
-      onClick={() => console.log('robber is at ' + game.robberLocation)}
+      onClick={() => console.log('robber is at', game.robberLocation)}
       style={{
         transform: `translate(${x}px,${y}px)`
       }}

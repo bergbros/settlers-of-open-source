@@ -4,7 +4,7 @@ import { isSeaType, resourceToLand, resourceToSymbol } from 'soos-gamelogic/src/
 import './Hex.scss';
 
 // Debug thing to show the HexCoords of every hex on the board.
-const showAllCoords = true;
+const showAllCoords = false;
 
 function getTerrainClass(terrainType: TerrainType, resourceType?: ResourceType): string {
   let terrainClass = '';
@@ -55,12 +55,23 @@ function centerIcon(gameHex: GameHex, highlightedHex: string) {
   let myDiv: null | JSX.Element = <div></div>;
 
   if (gameHex.frequency) {
-    const dots = <div className='dots'>{resourceToSymbol(gameHex.resourceType).repeat(gameHex.production)}</div>;
-    myDiv = <div className={'tileNumber none' + highlightedHex} >{gameHex.frequency}{dots}</div>;
-  } else if (gameHex.terrainType && gameHex.terrainType === TerrainType.Water && gameHex.resourceType && gameHex.resourceType !== ResourceType.WaterNone) {
+    let numLinesClass = '';
+
+    let dotsText = resourceToSymbol(gameHex.resourceType);
+    if (gameHex.production > 3) {
+      numLinesClass = ' twoLines'; //gameHex.production === 5 ? ' threeLines' : ' twoLines';
+      const half = Math.ceil(gameHex.production / 2);
+      const otherHalf = gameHex.production - half;
+      dotsText = dotsText.repeat(half) + '\n' + dotsText.repeat(otherHalf);
+    } else {
+      dotsText = dotsText.repeat(gameHex.production);
+    }
+    const dots = <div className='dots'>{dotsText}</div>;
+    myDiv = <div className={'tileNumber' + highlightedHex + numLinesClass} >{gameHex.frequency}{dots}</div>;
+  } else if (gameHex.terrainType === TerrainType.Water && gameHex.resourceType && gameHex.resourceType !== ResourceType.WaterNone) {
     myDiv = <div className={'port ' + resourceToLand(gameHex.resourceType)}>{resourceToSymbol(gameHex.resourceType) + getTradeRatio(gameHex.resourceType)}</div>;
-  } else {
-    myDiv = null;
+  } else if (gameHex.terrainType === TerrainType.Land) {
+    myDiv = <div className={'tileNumber' + highlightedHex} >🏜️</div>;
   }
   return myDiv;
 }
@@ -75,7 +86,7 @@ export const Hex = (props: HexProps) => {
   const highlightedHex = placeRobber && gameHex.resourceType !== undefined && gameHex.resourceType !== ResourceType.None ? ' highlight' : '';
   const tileNumber = centerIcon(gameHex, highlightedHex);
 
-  const coordsLabel = showAllCoords ? (<div className='tileCoords'>{gameHex.coords.x},{gameHex.coords.y}</div>) : null;
+  const coordsLabel = showAllCoords && gameHex.terrainType !== TerrainType.Empty ? (<div className='tileCoords'>{gameHex.coords.x},{gameHex.coords.y}</div>) : null;
 
   return (
     <div

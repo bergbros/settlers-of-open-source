@@ -8,7 +8,6 @@ export type PlayerProps = {
 
 export const Player = (props: PlayerProps) => {
   const { player, details } = props;
-  //const { x, y } = vertexCoordsToPixels(gameTown.coords);
 
   const playerClass = 'p' + player.index;
   const hand: string[] = [];

@@ -19,16 +19,6 @@ body {
     white-space: pre-wrap;
     padding: 10px;
 
-    .HeaderInfo {
-        position: relative;
-        left: 0px;
-        border: 2px solid gray;
-        white-space: pre-wrap;
-        width: 50%;
-        float: left;
-    }
-
-
     &.TradeForSelector {
         width: 50%;
         left: 50%;
@@ -42,8 +32,16 @@ body {
 }
 
 .NextTurnButton {
-    float: right;
-    width: 45%
+    width: 140px;
+    height: 60px;
+    font-weight: bold;
+    font-size: larger;
+
+    // bottom center
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .Board {
@@ -52,8 +50,8 @@ body {
     position: relative;
     top: 0px;
     left: 10px;
-    height: 820px;
-    width: 980px;
+    height: 880px;
+    width: 1000px;
     background-color: lightblue;
 }
 
@@ -83,15 +81,26 @@ body {
     .BuildActionButtons {
         display: grid;
         grid-template-columns: 1fr 1fr;
+    }
+}
 
-        .ActionButton {
-            margin: 5px;
-            padding: 3px;
+.ActionButton {
+    margin: 5px;
+    padding: 3px;
 
-            .label {
-                font-weight: bold;
-                margin-bottom: 5px;
-            }
-        }
+    .label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    &.chunky-btn {
+        width: 120px;
+        height: 40px;
+
+        // centered
+        display: block;
+        margin: 0px auto;
+
+        margin-top: 5px;
     }
 }

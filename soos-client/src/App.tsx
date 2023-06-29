@@ -151,23 +151,6 @@ export function App(props: AppProps) {
     );
   }
 
-  const tradeButton =
-    <button
-      onClick={() => {
-        setIsTradeWindowShowing(true);
-      }}
-      className="ActionButton">
-      {'Trade Resources'}
-    </button>;
-  const premoveButton =
-    <button
-      className="ActionButton"
-      onClick={() => {
-        setPremove(!premove);
-      }}>
-      {premove ? 'Done Planning' : 'Set Premoves'}
-    </button >;
-
   let premoveItems = premoves.map((action: BuildAction) => (
     <li>{action.displayString()}</li>));
   let premoveDisplay = <div> <ul> Your Premoves:{premoveItems}</ul></div>;
@@ -212,22 +195,6 @@ export function App(props: AppProps) {
       <div>Round #0{game.turnNumber}</div>
       <div className={'p' + game.currPlayerIdx}>{game.instructionText}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div>
-          <div className="HeaderInfo">
-            {tradeButton}
-            {premoveButton}
-          </div>
-          <button
-            onClick={() => {
-              game.nextPlayer();
-              sendGameStateToServer();
-            }}
-            className="NextTurnButton"
-            disabled={game.gamePhase !== GamePhase.MainGameplay}
-          >Next Turn</button>
-        </div>
-      </div>
 
       <div className="Board">
         {hexes}
@@ -240,7 +207,10 @@ export function App(props: AppProps) {
 
         {
           playerId !== undefined ?
-            <ResourceBar resources={game.players[playerId].cards}></ResourceBar> :
+            <ResourceBar
+              resources={game.players[playerId].cards}
+              onTradeButtonClicked={() => setIsTradeWindowShowing(true)}
+            ></ResourceBar> :
             null
         }
 
@@ -263,7 +233,27 @@ export function App(props: AppProps) {
               )
             }
           </div>
+
+          {/* premove button */}
+          <button
+            className="ActionButton chunky-btn"
+            onClick={() => setPremove(!premove)}
+          >
+            {premove ? 'Done Planning' : 'Set Premoves'}
+          </button >
+
         </div>
+
+        <button
+          onClick={() => {
+            game.nextPlayer();
+            sendGameStateToServer();
+          }}
+          className="NextTurnButton"
+          disabled={game.gamePhase !== GamePhase.MainGameplay}
+        >
+          Next Turn
+        </button>
       </div>
       <div>{premoveDisplay}</div>
       <div>{dialogBoxes}</div>

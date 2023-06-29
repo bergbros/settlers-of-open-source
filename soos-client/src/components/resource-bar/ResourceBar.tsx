@@ -3,11 +3,13 @@ import './ResourceBar.scss';
 
 export type ResourceBarProps = {
   resources: number[];
+  onTradeButtonClicked: () => void;
 }
 
 export const ResourceBar = (props: ResourceBarProps) => {
   return <div className='resourceBarContainer'>
     <div className='resourceBarLabel'>My Resources</div>
+
     <div className='resourceBar'>
       {
         props.resources.map((resourceCount, index) =>
@@ -16,6 +18,12 @@ export const ResourceBar = (props: ResourceBarProps) => {
           </div>
         )
       }
+    </div>
+
+    <div className='resourceBarLabel'>
+      <button className="ActionButton chunky-btn" onClick={props.onTradeButtonClicked}>
+        Trade Resources
+      </button>
     </div>
   </div>
 }

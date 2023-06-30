@@ -5,7 +5,7 @@ import { hydrateVertexCoords } from 'soos-gamelogic/dist/src/utils/vertex-coords
 
 export const HexWidth = 100, HexHeight = 120;
 export const BoardWidth = 7, BoardHeight = 7;
-const leftPixelOffset = 55;
+const leftPixelOffset = -BoardWidth / 2 * HexWidth - 55;
 export type PixelCoords = {
   x: number,
   y: number

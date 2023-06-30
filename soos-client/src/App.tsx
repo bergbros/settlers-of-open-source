@@ -190,79 +190,83 @@ export function App(props: AppProps) {
   );
 
   return (
-    <div className="App">
-      <div>You are player: {playerName}</div>
-      <div>Round #0{game.turnNumber}</div>
-      <div className={'p' + game.currPlayerIdx}>{game.instructionText}
-      </div>
+    // <div className="App">
+    //   <div>You are player: {playerName}</div>
+    //   <div>Round #0{game.turnNumber}</div>
+    //   <div className={'p' + game.currPlayerIdx}>{game.instructionText}
+    //   </div>
 
-      <div className="Board">
+    <div className="Board">
+      <div className='Board__body'>
         {hexes}
         {towns}
         {roads}
         {robber}
+      </div>
 
-        {/* List of players' resource count & victory points */}
-        {playerList}
 
-        {
-          playerId !== undefined ?
-            <ResourceBar
-              resources={game.players[playerId].cards}
-              onTradeButtonClicked={() => setIsTradeWindowShowing(true)}
-            ></ResourceBar> :
-            null
-        }
+      {/* List of players' resource count & victory points */}
+      {playerList}
 
-        {/* Build & other actions */}
-        <div className='BuildActions'>
-          <div className='BuildActionsLabel'>Build</div>
-          <div className='BuildActionButtons'>
-            {
-              AllBuildActionTypes.filter(ba => ba !== BuildActionType.actionCompleted && ba !== BuildActionType.invalidAction).map(buildActionType =>
-                <button
-                  onClick={() => {
-                    game.executeAction(buildActionType);
-                    sendGameStateToServer();
-                  }}
-                  className="ActionButton"
-                  disabled={!game.actionViable(buildActionType)}>
-                  <div className='label'>{actionToString(buildActionType)}</div>
-                  <div className='cost'>{actionCostString(buildActionType)}</div>
-                </button>
-              )
-            }
-          </div>
+      {
+        playerId !== undefined ?
+          <ResourceBar
+            resources={game.players[playerId].cards}
+            onTradeButtonClicked={() => setIsTradeWindowShowing(true)}
+          ></ResourceBar> :
+          null
+      }
 
-          {/* premove button */}
-          <button
-            className="ActionButton chunky-btn"
-            onClick={() => setPremove(!premove)}
-          >
-            {premove ? 'Done Planning' : 'Set Premoves'}
-          </button >
-
+      {/* Build & other actions */}
+      <div className='BuildActions'>
+        <div className='BuildActionsLabel'>Build</div>
+        <div className='BuildActionButtons'>
+          {
+            AllBuildActionTypes.filter(ba => ba !== BuildActionType.actionCompleted && ba !== BuildActionType.invalidAction).map(buildActionType =>
+              <button
+                onClick={() => {
+                  game.executeAction(buildActionType);
+                  sendGameStateToServer();
+                }}
+                className="ActionButton"
+                disabled={!game.actionViable(buildActionType)}>
+                <div className='label'>{actionToString(buildActionType)}</div>
+                <div className='cost'>{actionCostString(buildActionType)}</div>
+              </button>
+            )
+          }
         </div>
 
+        {/* premove button */}
         <button
-          onClick={() => {
-            game.nextPlayer();
-            sendGameStateToServer();
-          }}
-          className="NextTurnButton"
-          disabled={game.gamePhase !== GamePhase.MainGameplay}
+          className="ActionButton chunky-btn"
+          onClick={() => setPremove(!premove)}
         >
-          Next Turn
-        </button>
+          {premove ? 'Done Planning' : 'Set Premoves'}
+        </button >
+
       </div>
-      <div>{premoveDisplay}</div>
+
+      <button
+        onClick={() => {
+          game.nextPlayer();
+          sendGameStateToServer();
+        }}
+        className="NextTurnButton"
+        disabled={game.gamePhase !== GamePhase.MainGameplay}
+      >
+        Next Turn
+      </button>
+
       <div>{dialogBoxes}</div>
-      {game.gamePhase !== GamePhase.MainGameplay &&
-        <div>
-          <button onClick={() => {
-            game.autoPickSettlements(); game.forceUpdate();
-          }}>{'Pick My Settlements!'}</button>
-        </div>}
-    </div >
+    </div>
+    //   <div>{premoveDisplay}</div>
+    //   {game.gamePhase !== GamePhase.MainGameplay &&
+    //     <div>
+    //       <button onClick={() => {
+    //         game.autoPickSettlements(); game.forceUpdate();
+    //       }}>{'Pick My Settlements!'}</button>
+    //     </div>}
+    // </div >
   );
 }

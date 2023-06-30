@@ -7,23 +7,27 @@ export type ResourceBarProps = {
 }
 
 export const ResourceBar = (props: ResourceBarProps) => {
-  return <div className='resourceBarContainer'>
-    <div className='resourceBarLabel'>My Resources</div>
-
-    <div className='resourceBar'>
-      {
-        props.resources.map((resourceCount, index) =>
-          <div key={index} className={'resource ' + resourceToLand(index as ResourceType)}>
-            {resourceToSymbol(index as ResourceType)} {resourceCount}
-          </div>
-        )
-      }
-    </div>
-
-    <div className='resourceBarLabel'>
-      <button className="ActionButton chunky-btn" onClick={props.onTradeButtonClicked}>
-        Trade Resources
-      </button>
-    </div>
+  return <div className='resourceBar'>
+    {
+      props.resources.map((resourceCount, index) =>
+        <div key={index} className={'resource ' + resourceToLand(index as ResourceType)}>
+          {resourceToSymbol(index as ResourceType)} {resourceCount}
+        </div>
+      )
+    }
+    <button onClick={props.onTradeButtonClicked}>
+      Trade Resources
+    </button>
   </div>
+
+
+  // <div className='resourceBarContainer'>
+  //   {/* <div className='resourceBarLabel'>My Resources</div> */}
+
+
+  //   {/* 
+  //   <div className='resourceBarLabel'>
+
+  //   </div> */}
+  // </div>
 }

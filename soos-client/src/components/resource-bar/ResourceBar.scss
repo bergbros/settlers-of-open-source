@@ -1,27 +1,16 @@
-.resourceBarContainer {
+.resourceBar {
+    display: flex;
     position: absolute;
     left: 0px;
     bottom: 0px;
-    z-index: 3;
-    width: fit-content;
     margin: 10px;
-    background-color: bisque;
-}
-
-.resourceBarLabel {
-    padding: 8px;
-    width: fit-content;
-    margin: 0px auto;
-}
-
-.resourceBar {
     font-size: 20px;
     color: rgb(77, 77, 77);
     width: fit-content;
 
     .resource {
         display: inline-block;
-        padding: 5px 10px;
+        padding: 10px 20px;
     }
 
     @import '../../scss/resources.scss';

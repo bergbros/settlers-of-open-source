@@ -64,7 +64,13 @@ io.on('connection', socket => {
   socket.on('newGameState', (newGameState) => {
     //console.log(newGameState);
     console.log('got New Game State');
+    let premoves: BuildAction[] = [];
+    if (game !== undefined)
+      premoves = game.premoveActions;
     game = gameFromString(newGameState);
+    for (const moves of premoves) {
+      game.addPremove(moves);
+    }
     socket.broadcast.emit('updateGameState', newGameState);
   });
 

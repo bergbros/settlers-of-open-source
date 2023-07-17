@@ -38,11 +38,12 @@ export default class GameTown {
     this.townLevel = 1;
   }
 
-  upgradeCity() {
+  upgradeCity(): boolean {
     if (this.playerIdx === undefined) {
-      throw Error;
+      return false;
     }
     this.townLevel++;
+    return true;
   }
 
   isUnclaimed(): boolean {

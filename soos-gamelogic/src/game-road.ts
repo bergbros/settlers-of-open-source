@@ -26,14 +26,12 @@ export default class GameRoad {
     return 'GameRoad';
   }
 
-  claimRoad(player: Player) {
-    if (!player) {
-      throw new Error('Can\'t claim road without player');
-    }
-    if (this.player) {
-      throw new Error('Road already claimed' + this.coords.toString());
+  claimRoad(player: Player): boolean {
+    if (player === undefined || this.isClaimed()) {
+      return false;
     }
     this.player = player;
+    return true;
   }
 
   isClaimed(): boolean {

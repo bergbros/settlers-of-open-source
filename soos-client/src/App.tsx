@@ -22,7 +22,7 @@ export function App(props: AppProps) {
   const [game, setGame] = useState<Game>(new Game({ debugAutoPickSettlements }));
   const [playerId, setPlayerId] = useState<number | undefined>(undefined);
   const [isTradeWindowShowing, setIsTradeWindowShowing] = useState<boolean>(false);
-  const [premove, setPremove] = useState<boolean>(false);
+  const [makingPremoves, setMakingPremoves] = useState<boolean>(false);
   // Set up force update function
   const [count, setCount] = useState<number>(0);
   game.forceUpdate = () => {
@@ -94,19 +94,19 @@ export function App(props: AppProps) {
   for (const town of game.map.towns) {
     const townCoords = town.coords!;
 
-    if (!town.display && !premove) {
+    if (!town.display && !makingPremoves) {
       continue;
     }
 
     towns.push(
       <Town
         gameTown={town}
-        premove={premove && town.playerIdx === playerId}
+        premove={makingPremoves && town.playerIdx === playerId}
         onClick={(vertexCoords) => {
           if (playerId === undefined) {
             return;
           }
-          const actionResponse = game.onClientVertex(vertexCoords, playerId, premove);
+          const actionResponse = game.onClientVertex(vertexCoords, playerId, makingPremoves);
           console.log(actionResponse);
           if (actionResponse.type === BuildActionType.actionCompleted) {
             sendGameStateToServer();
@@ -126,7 +126,7 @@ export function App(props: AppProps) {
   for (const road of game.map.roads) {
     const roadCoords = road.coords;
 
-    if (!road.showMe() && !premove) {
+    if (!road.showMe() && !makingPremoves) {
       continue;
     }
 
@@ -134,11 +134,10 @@ export function App(props: AppProps) {
       <Road
         gameRoad={road}
         onClick={(edgeCoords) => {
-          socket.emit('check');
           if (playerId === undefined) {
             return;
           }
-          const actionResponse = game.onClientEdge(edgeCoords, playerId, premove);
+          const actionResponse = game.onClientEdge(edgeCoords, playerId, makingPremoves);
           console.log(actionResponse);
           if (actionResponse.type === BuildActionType.actionCompleted) {
             sendGameStateToServer();
@@ -182,7 +181,7 @@ export function App(props: AppProps) {
             playerName={player.name}
             isMe={player.index === playerId}
             totalResources={player.cards.reduce((prev, curr) => prev + curr)}
-            victoryPoints={0}
+            victoryPoints={player.victoryPoints}
           ></Player>
         )
       }
@@ -225,7 +224,7 @@ export function App(props: AppProps) {
             AllBuildActionTypes.filter(ba => ba !== BuildActionType.actionCompleted && ba !== BuildActionType.invalidAction).map(buildActionType =>
               <button
                 onClick={() => {
-                  game.executeAction(buildActionType);
+                  game.displayActionOptions(buildActionType);
                   sendGameStateToServer();
                 }}
                 className="ActionButton"
@@ -240,9 +239,14 @@ export function App(props: AppProps) {
         {/* premove button */}
         <button
           className="ActionButton chunky-btn"
-          onClick={() => setPremove(!premove)}
+          onClick={() => {
+            if (makingPremoves)
+              game.gamePhase = GamePhase.MainGameplay;
+            setMakingPremoves(!makingPremoves);
+          }}
+          disabled={game.setupPhase()}
         >
-          {premove ? 'Done Planning' : 'Set Premoves'}
+          {makingPremoves ? 'Done Planning' : 'Set Premoves'}
         </button >
 
       </div>

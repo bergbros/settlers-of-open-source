@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { actionToString, AllBuildActionTypes, Game, GameHex, GamePhase, RobberPhase, gameFromString } from 'soos-gamelogic';
 import { Socket } from 'socket.io-client';
-import { Hex, Town, Road, Player, Robber } from './components';
-import { TradeWindow } from './features/';
-import './App.scss';
+import { Hex, Town, Road, Player, Robber } from '../components';
+import { TradeWindow } from '../features';
+import '../scss/App.scss';
 import { BuildAction, BuildActionType, actionCostString, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
 import { hydrate } from 'react-dom';
-import { ResourceBar } from './components/resource-bar';
+import { ResourceBar } from '../components/resource-bar';
 
 const debugAutoPickSettlements = true;
 let premoves: BuildAction[] = [];

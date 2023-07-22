@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export function Entry() {
   const [formData, setFormData] = useState({ username: '', gamecode: '' });
@@ -9,13 +10,18 @@ export function Entry() {
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
   }
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = async (event: any) => {
     // Send info to the server
     // Get info about game state (lobby/play)
     //      -- implement this last
     // Navigate to appropriate page
+    event.preventDefault();
+    console.log(formData);
 
-
+    await axios.post('/api/user/create', formData)
+      .then((response) => {
+        console.log(response.data)
+      })
   }
 
   return (

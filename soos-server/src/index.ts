@@ -24,9 +24,16 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.path} - ${res.statusCode} in ${duration} ms`);
 });
 
+app.use(express.json());
+
 app.get('/api/result', (req: Request, res: Response) => {
   const game = new Game({});
   res.send('Hello World!');
+});
+
+app.post('/api/user/create', (req: Request, res: Response) => {
+  console.log(req.body);
+  res.send('received');
 });
 
 const connectedPlayers: (Socket | null)[] = [];

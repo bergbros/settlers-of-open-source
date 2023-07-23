@@ -2,6 +2,8 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
+import cookieSession from 'cookie-session';
+import { randomBytes } from 'crypto';
 
 import { EdgeCoords, Game, gameFromString } from 'soos-gamelogic';
 import ServerAction from './server-action.js';
@@ -24,16 +26,29 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.path} - ${res.statusCode} in ${duration} ms`);
 });
 
+// Middleware to get JSON request bodies
 app.use(express.json());
+
+// Session mgmt
+app.use(cookieSession({
+  name: 'SoOS-session',
+  secret: 'very secure debug secret',
+}));
 
 app.get('/api/result', (req: Request, res: Response) => {
   const game = new Game({});
   res.send('Hello World!');
 });
 
-app.post('/api/user/create', (req: Request, res: Response) => {
-  console.log(req.body);
-  res.send('received');
+app.get('/api/user/create', (req: Request, res: Response) => {
+  var userID = randomBytes(16).toString('hex');
+
+  if (req.session != undefined) {
+    req.session.userID = userID;
+    console.log('Session ID set');
+  }
+
+  res.send(userID);
 });
 
 const connectedPlayers: (Socket | null)[] = [];

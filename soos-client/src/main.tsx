@@ -20,18 +20,16 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    children: [
-      {
-        path: "/lobby",
-        element: <Lobby socket={socket} />
-      },
-      {
-        path: "/game",
-        element: <GameComponent socket={socket} />,
-        errorElement: <div>It broken</div>
-      },
-    ]
-  }
+  },
+  {
+    path: "lobby",
+    element: <Lobby socket={socket} />
+  },
+  {
+    path: "game",
+    element: <GameComponent socket={socket} />,
+    errorElement: <div>It broken</div>
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

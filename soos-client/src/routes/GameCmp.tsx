@@ -3,18 +3,18 @@ import { actionToString, AllBuildActionTypes, Game, GameHex, GamePhase, RobberPh
 import { Socket } from 'socket.io-client';
 import { Hex, Town, Road, Player, Robber } from '../components';
 import { TradeWindow } from '../features';
-import '../scss/App.scss';
+import '../scss/GameCmp.scss';
 import { BuildAction, BuildActionType, actionCostString, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
 import { hydrate } from 'react-dom';
 import { ResourceBar } from '../components/resource-bar';
 
 const debugAutoPickSettlements = true;
 let premoves: BuildAction[] = [];
-export type AppProps = {
+export type GameProps = {
   socket: Socket
 };
 
-export function App(props: AppProps) {
+export function GameCmp(props: GameProps) {
   const { socket } = props;
 
   // TODO wrap this in another component and don't display placeholder
@@ -190,7 +190,7 @@ export function App(props: AppProps) {
   );
 
   return (
-    // <div className="App">
+    // <div className="GameCmp">
     //   <div>You are player: {playerName}</div>
     //   <div>Round #0{game.turnNumber}</div>
     //   <div className={'p' + game.currPlayerIdx}>{game.instructionText}

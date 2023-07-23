@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { GameCmp } from './routes/GameCmp';
-import { Entry } from './routes/Entry';
+import { GameComponent } from './routes/GameCmp';
+import { App } from './routes/App';
 import { Lobby } from './routes/Lobby'
 
 import { io } from 'socket.io-client';
@@ -18,17 +18,19 @@ const socket = io();
 
 const router = createBrowserRouter([
   {
-    path: "/game",
-    element: <GameCmp socket={socket} />,
-    errorElement: <div>It broken</div>
-  },
-  {
     path: "/",
-    element: <Entry />
-  },
-  {
-    path: "/lobby",
-    element: <Lobby />
+    element: <App />,
+    children: [
+      {
+        path: "/lobby",
+        element: <Lobby socket={socket} />
+      },
+      {
+        path: "/game",
+        element: <GameComponent socket={socket} />,
+        errorElement: <div>It broken</div>
+      },
+    ]
   }
 ]);
 

@@ -14,7 +14,7 @@ export type GameProps = {
   socket: Socket
 };
 
-export function GameCmp(props: GameProps) {
+export function GameComponent(props: GameProps) {
   const { socket } = props;
 
   // TODO wrap this in another component and don't display placeholder
@@ -190,7 +190,7 @@ export function GameCmp(props: GameProps) {
   );
 
   return (
-    // <div className="GameCmp">
+    // <div className="GameComponent">
     //   <div>You are player: {playerName}</div>
     //   <div>Round #0{game.turnNumber}</div>
     //   <div className={'p' + game.currPlayerIdx}>{game.instructionText}

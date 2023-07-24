@@ -30,20 +30,6 @@ body,
     }
 }
 
-.NextTurnButton {
-    width: 140px;
-    height: 60px;
-    font-weight: bold;
-    font-size: larger;
-
-    // bottom center
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 11;
-}
-
 .Board {
     // position: relative;
     // top: 0px;
@@ -80,14 +66,49 @@ body,
     z-index: 10;
 }
 
-.BuildActions {
+.BottomRightActions {
     position: absolute;
     bottom: 0px;
     right: 0px;
-    background-color: bisque;
     padding: 10px;
     margin: 10px;
     z-index: 10;
+    width: 150px;
+    overflow: visible;
+}
+
+.NextTurnButtonContainer {
+    // // Have the button go on the right side
+    // display: flex;
+    // flex-direction: row-reverse;
+
+    position: absolute;
+    bottom: 220px;
+
+    .NextTurnButton {
+        width: 140px;
+        height: 60px;
+        font-weight: bold;
+        font-size: larger;
+        margin-bottom: 10px;
+
+        // // bottom center
+        // position: absolute;
+        // bottom: 10px;
+        // left: 50%;
+        // transform: translateX(-50%);
+        // z-index: 11;
+    }
+}
+
+.BuildActions {
+    background-color: bisque;
+    padding: 10px;
+    width: 300px;
+
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
 
     .BuildActionsLabel {
         width: fit-content;

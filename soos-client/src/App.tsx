@@ -217,50 +217,57 @@ export function App(props: AppProps) {
       }
 
       {/* Build & other actions */}
-      <div className='BuildActions'>
-        <div className='BuildActionsLabel'>Build</div>
-        <div className='BuildActionButtons'>
-          {
-            AllBuildActionTypes.filter(ba => ba !== BuildActionType.actionCompleted && ba !== BuildActionType.invalidAction).map(buildActionType =>
-              <button
-                onClick={() => {
-                  game.displayActionOptions(buildActionType);
-                  sendGameStateToServer();
-                }}
-                className="ActionButton"
-                disabled={!game.actionViable(buildActionType)}>
-                <div className='label'>{actionToString(buildActionType)}</div>
-                <div className='cost'>{actionCostString(buildActionType)}</div>
-              </button>
-            )
-          }
+
+      <div className='BottomRightActions'>
+
+        <div className='NextTurnButtonContainer'>
+          <button
+            onClick={() => {
+              game.nextPlayer();
+              sendGameStateToServer();
+            }}
+            className="NextTurnButton"
+            disabled={game.gamePhase !== GamePhase.MainGameplay}
+          >
+            Next Turn
+          </button>
         </div>
 
-        {/* premove button */}
-        <button
-          className="ActionButton chunky-btn"
-          onClick={() => {
-            if (makingPremoves)
-              game.gamePhase = GamePhase.MainGameplay;
-            setMakingPremoves(!makingPremoves);
-          }}
-          disabled={game.setupPhase()}
-        >
-          {makingPremoves ? 'Done Planning' : 'Set Premoves'}
-        </button >
+        <div className='BuildActions'>
+          <div className='BuildActionsLabel'>Build</div>
+          <div className='BuildActionButtons'>
+            {
+              AllBuildActionTypes.filter(ba => ba !== BuildActionType.actionCompleted && ba !== BuildActionType.invalidAction).map(buildActionType =>
+                <button
+                  onClick={() => {
+                    game.displayActionOptions(buildActionType);
+                    sendGameStateToServer();
+                  }}
+                  className="ActionButton"
+                  disabled={!game.actionViable(buildActionType)}>
+                  <div className='label'>{actionToString(buildActionType)}</div>
+                  <div className='cost'>{actionCostString(buildActionType)}</div>
+                </button>
+              )
+            }
+          </div>
+
+          {/* premove button */}
+          <button
+            className="ActionButton chunky-btn"
+            onClick={() => {
+              if (makingPremoves)
+                game.gamePhase = GamePhase.MainGameplay;
+              setMakingPremoves(!makingPremoves);
+            }}
+            disabled={game.setupPhase()}
+          >
+            {makingPremoves ? 'Done Planning' : 'Set Premoves'}
+          </button >
+
+        </div>
 
       </div>
-
-      <button
-        onClick={() => {
-          game.nextPlayer();
-          sendGameStateToServer();
-        }}
-        className="NextTurnButton"
-        disabled={game.gamePhase !== GamePhase.MainGameplay}
-      >
-        Next Turn
-      </button>
 
       <div>{dialogBoxes}</div>
     </div>

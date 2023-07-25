@@ -5,7 +5,7 @@
     height: 50px;
     position: absolute;
     display: inline-block;
-    background-color: gray;
+    // background-color: gray;
     z-index: 10;
 
     &.vertical {
@@ -17,9 +17,11 @@
     }
 
     &.neSlant {
-        height: 30px;
-        width: 50px;
-        clip-path: polygon(25% 55%, 35% 85%, 78% 40%, 68% 15%);
+        background-color: rgba(0, 0, 0, 0);
+        // display: none;
+        // height: 30px;
+        // width: 50px;
+        // clip-path: polygon(25% 55%, 35% 85%, 78% 40%, 68% 15%);
     }
 
     &.nwSlant {

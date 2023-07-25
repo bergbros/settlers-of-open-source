@@ -133,6 +133,7 @@ export function App(props: AppProps) {
     roads.push(
       <Road
         gameRoad={road}
+        premove={makingPremoves && road.player?.index === playerId}
         onClick={(edgeCoords) => {
           if (playerId === undefined) {
             return;
@@ -220,18 +221,16 @@ export function App(props: AppProps) {
 
       <div className='BottomRightActions'>
 
-        <div className='NextTurnButtonContainer'>
-          <button
-            onClick={() => {
-              game.nextPlayer();
-              sendGameStateToServer();
-            }}
-            className="NextTurnButton"
-            disabled={game.gamePhase !== GamePhase.MainGameplay}
-          >
-            Next Turn
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            game.nextPlayer();
+            sendGameStateToServer();
+          }}
+          className="NextTurnButton"
+          disabled={game.gamePhase !== GamePhase.MainGameplay}
+        >
+          Next Turn
+        </button>
 
         <div className='BuildActions'>
           <div className='BuildActionsLabel'>Build</div>

@@ -1,4 +1,4 @@
-import { ResourceType, resourceToLand, resourceToSymbol } from 'soos-gamelogic';
+import { AllResourceTypes, ResourceType, resourceToLand, resourceToSymbol } from 'soos-gamelogic';
 import './ResourceBar.scss';
 
 export type ResourceBarProps = {
@@ -9,9 +9,9 @@ export type ResourceBarProps = {
 export const ResourceBar = (props: ResourceBarProps) => {
   return <div className='resourceBar'>
     {
-      props.resources.map((resourceCount, index) =>
+      AllResourceTypes.map(index =>
         <div key={index} className={'resource ' + resourceToLand(index as ResourceType)}>
-          {resourceToSymbol(index as ResourceType)} {resourceCount}
+          {resourceToSymbol(index as ResourceType)} {props.resources[index]}
         </div>
       )
     }

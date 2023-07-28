@@ -108,9 +108,9 @@ export function App(props: AppProps) {
           }
           const actionResponse = game.onClientVertex(vertexCoords, playerId, makingPremoves);
           console.log(actionResponse);
-          if (actionResponse.type === BuildActionType.actionCompleted) {
+          if (actionResponse.type === 'complete') {
             sendGameStateToServer();
-          } else if (actionResponse.type === BuildActionType.invalidAction) {
+          } else if (actionResponse.type === 'invalid') {
             socket.emit('check');
             //no action
           } else {
@@ -140,9 +140,9 @@ export function App(props: AppProps) {
           }
           const actionResponse = game.onClientEdge(edgeCoords, playerId, makingPremoves);
           console.log(actionResponse);
-          if (actionResponse.type === BuildActionType.actionCompleted) {
+          if (actionResponse.type === 'complete') {
             sendGameStateToServer();
-          } else if (actionResponse.type !== BuildActionType.invalidAction) {
+          } else if (actionResponse.type !== 'invalid') {
             socket.emit('premove', actionResponse);
           }
         }}
@@ -236,7 +236,7 @@ export function App(props: AppProps) {
           <div className='BuildActionsLabel'>Build</div>
           <div className='BuildActionButtons'>
             {
-              AllBuildActionTypes.filter(ba => ba !== BuildActionType.actionCompleted && ba !== BuildActionType.invalidAction).map(buildActionType =>
+              AllBuildActionTypes.map(buildActionType =>
                 <button
                   onClick={() => {
                     game.displayActionOptions(buildActionType);

@@ -1,4 +1,4 @@
-import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction, hydrateBuildAction } from './build-actions.js';
+import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, hydrateBuildAction, BuildActionResponse } from './build-actions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
@@ -480,10 +480,10 @@ export default class Game {
     this.forceUpdate();
   }
 
-  onClientVertex(vertex: VertexCoords, playerID: number, premove: boolean = false): BuildAction {
+  onClientVertex(vertex: VertexCoords, playerID: number, premove: boolean = false): BuildActionResponse {
     const town = this.map.townAt(vertex);
     if (town === undefined) {
-      return new NullBuildAction();
+      return { type: 'invalid' };
     }
 
     let buildAction = this.getBuildActionTown(town, playerID);
@@ -493,7 +493,12 @@ export default class Game {
     }
 
     // Specifics for game setup phase!
-    if (this.currPlayerIdx !== playerID || this.claimedSettlement) return new NullBuildAction();
+    if (this.currPlayerIdx !== playerID || this.claimedSettlement)
+      return { type: 'invalid' };
+
+    if (buildAction.type === 'invalid' || buildAction.type === 'complete')
+      return buildAction;
+
     console.log("Executing action:");
     console.log(buildAction);
     const success = buildAction.execute(this);
@@ -508,17 +513,16 @@ export default class Game {
         }
       }
       this.map.updateDisplayRoads(vertex);
-      return new CompletedBuildAction();
+      return { type: 'complete' };
     } else {
       console.log("it failed");
-      return new NullBuildAction();
+      return { type: 'invalid' };
     }
-
   }
 
-  getBuildActionTown(town: GameTown, playerID: number, premove: boolean = false) {
-    if (town.playerIdx !== undefined && town.playerIdx !== playerID) return new NullBuildAction();
-    if (town.coords === undefined) return new NullBuildAction();
+  getBuildActionTown(town: GameTown, playerID: number, premove: boolean = false): BuildActionResponse {
+    if (town.playerIdx !== undefined && town.playerIdx !== playerID) return { type: 'invalid' };
+    if (town.coords === undefined) return { type: 'invalid' };
 
     let returnAction: BuildAction;
     console.log("making BuildTownAction:");
@@ -530,7 +534,7 @@ export default class Game {
     //only return valid actions!
     if (returnAction.shouldDisqualify(this)) {//Why is this true during setup?
       console.log("Action Disqualified");
-      return new NullBuildAction();
+      return { type: 'invalid' };
     }
     else
       return returnAction;
@@ -583,25 +587,25 @@ export default class Game {
   }
 
 
-  onClientEdge(edge: EdgeCoords, playerID: number, premove: boolean = false): BuildAction {
+  onClientEdge(edge: EdgeCoords, playerID: number, premove: boolean = false): BuildActionResponse {
     console.log('on client edge');
     if (this.setupPhase()) {
       console.log('set up phase');
       if (!this.claimedSettlement) {
-        return new NullBuildAction();
+        return { type: 'invalid' };
       }
 
       if (this.onEdgeClicked(edge)) {      //setup phase build road code
-        return new CompletedBuildAction();
+        return { type: 'complete' };
       } else {
-        return new NullBuildAction();
+        return { type: 'invalid' };
       }
 
     } else {
       if (this.gamePhase !== GamePhase.BuildRoad && !premove) {
-        return new NullBuildAction();
+        return { type: 'invalid' };
       } else if (this.gamePhase === GamePhase.BuildRoad && this.onEdgeClicked(edge)) {
-        return new CompletedBuildAction();
+        return { type: 'complete' };
       } else {
         this.gamePhase = GamePhase.MainGameplay;
         return new BuildRoadAction(playerID, edge);

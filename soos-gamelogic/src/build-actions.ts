@@ -3,8 +3,6 @@ import { hydrateEdgeCoords } from './utils/edge-coords.js';
 import { hydrateVertexCoords } from './utils/vertex-coords.js';
 
 export enum BuildActionType {
-  actionCompleted = -2,
-  invalidAction = -1,
   Road = 0,
   Settlement = 1,
   City = 2,
@@ -51,6 +49,8 @@ export function actionCostString(action: BuildActionType): string {
   }).filter(a => !!a).join(' ');
 }
 
+export type BuildActionResponse = { type: 'invalid' } | { type: 'complete' } | BuildAction;
+
 export type BuildAction = {
   type: BuildActionType,
   playerId: number,
@@ -83,66 +83,6 @@ export function hydrateBuildAction(buildAction: BuildAction): BuildAction {
   }
   action.setChildPrototypes();
   return action;
-}
-
-export class NullBuildAction implements BuildAction {
-  type = BuildActionType.invalidAction;
-  playerId = -1;
-  location = new VertexCoords(new HexCoords(-1, -1), 0);
-
-  isPossible(_gameState: Game): boolean {
-    return false;
-  }
-
-  shouldDisqualify(_gameState: Game): boolean {
-    return true;
-  }
-
-  execute(_gameState: Game): boolean {
-    return false;
-  }
-
-  setChildPrototypes() {
-    this.location = hydrateVertexCoords(this.location);
-  }
-
-  displayString() {
-    return 'null action';
-  }
-  equals(compareAction: BuildAction) {
-    return this.type === compareAction.type;
-  }
-}
-
-export class CompletedBuildAction implements BuildAction {
-  type = BuildActionType.actionCompleted;
-  playerId = -1;
-  location = new VertexCoords(new HexCoords(-1, -1), 0);
-
-  isPossible(_gameState: Game): boolean {
-    return false;
-  }
-
-  shouldDisqualify(_gameState: Game): boolean {
-    return true;
-  }
-
-  execute(_gameState: Game): false {
-    return false;
-  }
-
-  setChildPrototypes() {
-    this.location = hydrateVertexCoords(this.location);
-  }
-
-  displayString() {
-    return 'completed action';
-  }
-
-  equals(compareAction: BuildAction) {
-    return this.type === compareAction.type;
-  }
-
 }
 
 export class BuildRoadAction implements BuildAction {

@@ -3,7 +3,9 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import cookieSession from 'cookie-session';
-import { randomBytes } from 'crypto';
+
+import { userManager } from './user-manager.js'
+import { gameManager } from './game-manager.js';
 
 import { EdgeCoords, Game, gameFromString } from 'soos-gamelogic';
 import ServerAction from './server-action.js';
@@ -41,14 +43,41 @@ app.get('/api/result', (req: Request, res: Response) => {
 });
 
 app.get('/api/user/create', (req: Request, res: Response) => {
-  var userID = randomBytes(16).toString('hex');
+  var username = req.query.username;
+  var userID = userManager.addUser(username as string);
 
-  if (req.session != undefined) {
-    req.session.userID = userID;
-    console.log('Session ID set');
+  // TS gets mad about session maybe being null :(
+  req.session?.userID &&
+    (req.session.userID = userID) &&
+    (req.session.username = req.query.username);
+
+  // TODO send a "socket secret" also that can be used to associate a socket with a user HTTP session instead of just a userID. 
+  res.send(userID);
+});
+
+app.get('/api/game/new', (req: Request, res: Response) => {
+  // create game
+  let gamecode = gameManager.createGame();
+  let ownerID = req.session ? req.session.userID : null;
+  if (ownerID === null) {
+    res.sendStatus(400); //Shouldn't get here
+    return;
   }
 
-  res.send(userID);
+  userManager.makeUserOwnerOfGameCode(ownerID, gamecode);
+  // return game code
+  res.send(gamecode);
+});
+
+app.get('/api/game/check', (req: Request, res: Response) => {
+  var gamecode = req.query.gamecode;
+
+  if (gameManager.gameExists(gamecode as string)) {
+    // joinability - check room length and return 204 if not joinable
+    return res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 const connectedPlayers: (Socket | null)[] = [];
@@ -64,6 +93,25 @@ io.on('connection', socket => {
   console.log('user connected! giving id: ' + id);
   connectedPlayers[id] = socket;
   socket.emit('playerId', id);
+
+  socket.on('associateWithHTTP', (userID: string) => {
+    if (!userManager.assocSocketWithUser(userID, socket.id)) {
+      console.log(`User ${userID} not found`);
+      socket.emit('socketAssocError', `user ${userID} not found`);
+    }
+  });
+
+  socket.on('joinGame', (gamecode: string) => {
+    if (gameManager.gameExists(gamecode)) {
+      socket.join(gamecode);
+      console.log(`Socket ${socket.id} has joined room ${gamecode}`);
+
+      let username = userManager.getUserforSocket(socket.id).name;
+      io.to(gamecode).emit('userJoined', username);
+    } else {
+      socket.emit('joinGameError', 'Invalid game code');
+    }
+  });
 
   // setInterval(() => {
   //   if (game.gamePhase === GamePhase.MainGameplay && id == 0) {

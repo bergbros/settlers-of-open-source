@@ -22,7 +22,7 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
-    path: "lobby",
+    path: "/lobby",
     element: <Lobby socket={socket} />
   },
   {

@@ -23,7 +23,7 @@ export function App(props: AppProps) {
   const [game, setGame] = useState<Game>(new Game({ debugAutoPickSettlements }));
   const [playerId, setPlayerId] = useState<number | undefined>(undefined);
   const [isTradeWindowShowing, setIsTradeWindowShowing] = useState<boolean>(false);
-  const [premove, setPremove] = useState<boolean>(false);
+  const [makingPremoves, setMakingPremoves] = useState<boolean>(false);
   // Set up force update function
   const [count, setCount] = useState<number>(0);
   game.forceUpdate = () => {
@@ -95,23 +95,23 @@ export function App(props: AppProps) {
   for (const town of game.map.towns) {
     const townCoords = town.coords!;
 
-    if (!town.display && !premove) {
+    if (!town.display && !makingPremoves) {
       continue;
     }
 
     towns.push(
       <Town
         gameTown={town}
-        premove={premove && town.playerIdx === playerId}
+        premove={makingPremoves && town.playerIdx === playerId}
         onClick={(vertexCoords) => {
           if (playerId === undefined) {
             return;
           }
-          const actionResponse = game.onClientVertex(vertexCoords, playerId, premove);
+          const actionResponse = game.onClientVertex(vertexCoords, playerId, makingPremoves);
           console.log(actionResponse);
-          if (actionResponse.type === BuildActionType.actionCompleted) {
+          if (actionResponse.type === 'complete') {
             sendGameStateToServer();
-          } else if (actionResponse.type === BuildActionType.invalidAction) {
+          } else if (actionResponse.type === 'invalid') {
             socket.emit('check');
             //no action
           } else {
@@ -127,23 +127,23 @@ export function App(props: AppProps) {
   for (const road of game.map.roads) {
     const roadCoords = road.coords;
 
-    if (!road.showMe() && !premove) {
+    if (!road.showMe() && !makingPremoves) {
       continue;
     }
 
     roads.push(
       <Road
         gameRoad={road}
+        premove={makingPremoves && road.player?.index === playerId}
         onClick={(edgeCoords) => {
-          socket.emit('check');
           if (playerId === undefined) {
             return;
           }
-          const actionResponse = game.onClientEdge(edgeCoords, playerId, premove);
+          const actionResponse = game.onClientEdge(edgeCoords, playerId, makingPremoves);
           console.log(actionResponse);
-          if (actionResponse.type === BuildActionType.actionCompleted) {
+          if (actionResponse.type === 'complete') {
             sendGameStateToServer();
-          } else if (actionResponse.type !== BuildActionType.invalidAction) {
+          } else if (actionResponse.type !== 'invalid') {
             socket.emit('premove', actionResponse);
           }
         }}
@@ -183,7 +183,7 @@ export function App(props: AppProps) {
             playerName={player.name}
             isMe={player.index === playerId}
             totalResources={player.cards.reduce((prev, curr) => prev + curr)}
-            victoryPoints={0}
+            victoryPoints={player.victoryPoints}
           ></Player>
         )
       }
@@ -219,45 +219,55 @@ export function App(props: AppProps) {
       }
 
       {/* Build & other actions */}
-      <div className='BuildActions'>
-        <div className='BuildActionsLabel'>Build</div>
-        <div className='BuildActionButtons'>
-          {
-            AllBuildActionTypes.filter(ba => ba !== BuildActionType.actionCompleted && ba !== BuildActionType.invalidAction).map(buildActionType =>
-              <button
-                onClick={() => {
-                  game.executeAction(buildActionType);
-                  sendGameStateToServer();
-                }}
-                className="ActionButton"
-                disabled={!game.actionViable(buildActionType)}>
-                <div className='label'>{actionToString(buildActionType)}</div>
-                <div className='cost'>{actionCostString(buildActionType)}</div>
-              </button>
-            )
-          }
+
+      <div className='BottomRightActions'>
+
+        <button
+          onClick={() => {
+            game.nextPlayer();
+            sendGameStateToServer();
+          }}
+          className="NextTurnButton"
+          disabled={game.gamePhase !== GamePhase.MainGameplay}
+        >
+          Next Turn
+        </button>
+
+        <div className='BuildActions'>
+          <div className='BuildActionsLabel'>Build</div>
+          <div className='BuildActionButtons'>
+            {
+              AllBuildActionTypes.map(buildActionType =>
+                <button
+                  onClick={() => {
+                    game.displayActionOptions(buildActionType);
+                    sendGameStateToServer();
+                  }}
+                  className="ActionButton"
+                  disabled={!game.actionViable(buildActionType)}>
+                  <div className='label'>{actionToString(buildActionType)}</div>
+                  <div className='cost'>{actionCostString(buildActionType)}</div>
+                </button>
+              )
+            }
+          </div>
+
+          {/* premove button */}
+          <button
+            className="ActionButton chunky-btn"
+            onClick={() => {
+              if (makingPremoves)
+                game.gamePhase = GamePhase.MainGameplay;
+              setMakingPremoves(!makingPremoves);
+            }}
+            disabled={game.setupPhase()}
+          >
+            {makingPremoves ? 'Done Planning' : 'Set Premoves'}
+          </button >
+
         </div>
 
-        {/* premove button */}
-        <button
-          className="ActionButton chunky-btn"
-          onClick={() => setPremove(!premove)}
-        >
-          {premove ? 'Done Planning' : 'Set Premoves'}
-        </button >
-
       </div>
-
-      <button
-        onClick={() => {
-          game.nextPlayer();
-          sendGameStateToServer();
-        }}
-        className="NextTurnButton"
-        disabled={game.gamePhase !== GamePhase.MainGameplay}
-      >
-        Next Turn
-      </button>
 
       <div>{dialogBoxes}</div>
     </div>

@@ -1,42 +1,13 @@
 .Town {
-    width: 16px;
-    height: 16px;
-    border: 2px solid gray;
-    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+
     position: absolute;
     z-index: 10;
     font-size: 15px;
     text-align: center;
-
-    stroke: solid gray;
-    stroke-dasharray: 8, 8.5;
-    stroke-width: 3;
-
-    &.settlement {
-        width: 18px;
-        height: 18px;
-        border: 0;
-        border-radius: 0;
-        clip-path: polygon(0% 50%, 0% 100%, 100% 100%, 100% 50%, 50% 0%);
-    }
-
-    &.city {
-        width: 22px;
-        height: 22px;
-        border: 0;
-        border-radius: 0;
-        clip-path: polygon(0% 25%, 0% 100%, 100% 100%, 100% 50%, 50% 50%, 50% 25%, 25% 0%);
-    }
-
-    &.suburb {
-        width: 26px;
-        height: 26px;
-        border: 0;
-        border-radius: 0;
-        clip-path: polygon(0% 25%, 0% 100%, 100% 100%, 100% 50%, 75% 25%, 50% 50%, 50% 25%, 25% 0%);
-    }
 }
 
-.highlight {
-    border: 3px solid yellow !important;
-}
+// .highlight {
+//     border: 3px solid yellow !important;
+// }

@@ -3,8 +3,6 @@ import { hydrateEdgeCoords } from './utils/edge-coords.js';
 import { hydrateVertexCoords } from './utils/vertex-coords.js';
 
 export enum BuildActionType {
-  actionCompleted = -2,
-  invalidAction = -1,
   Road = 0,
   Settlement = 1,
   City = 2,
@@ -51,13 +49,15 @@ export function actionCostString(action: BuildActionType): string {
   }).filter(a => !!a).join(' ');
 }
 
+export type BuildActionResponse = { type: 'invalid' } | { type: 'complete' } | BuildAction;
+
 export type BuildAction = {
   type: BuildActionType,
   playerId: number,
   location: any,
   isPossible: (gameState: Game) => boolean,
   shouldDisqualify: (gameState: Game) => boolean,
-  execute: (gameState: Game) => void,
+  execute: (gameState: Game) => boolean,
   setChildPrototypes: () => void,
   displayString: () => string,
   equals: (BuildAction) => boolean,
@@ -83,66 +83,6 @@ export function hydrateBuildAction(buildAction: BuildAction): BuildAction {
   }
   action.setChildPrototypes();
   return action;
-}
-
-export class NullBuildAction implements BuildAction {
-  type = BuildActionType.invalidAction;
-  playerId = -1;
-  location = new VertexCoords(new HexCoords(-1, -1), 0);
-
-  isPossible(_gameState: Game): boolean {
-    return false;
-  }
-
-  shouldDisqualify(_gameState: Game): boolean {
-    return true;
-  }
-
-  execute(_gameState: Game): void {
-    throw new Error('Tried to execute a null build action!');
-  }
-
-  setChildPrototypes() {
-    this.location = hydrateVertexCoords(this.location);
-  }
-
-  displayString() {
-    return 'null action';
-  }
-  equals(compareAction: BuildAction) {
-    return this.type === compareAction.type;
-  }
-}
-
-export class CompletedBuildAction implements BuildAction {
-  type = BuildActionType.actionCompleted;
-  playerId = -1;
-  location = new VertexCoords(new HexCoords(-1, -1), 0);
-
-  isPossible(_gameState: Game): boolean {
-    return false;
-  }
-
-  shouldDisqualify(_gameState: Game): boolean {
-    return true;
-  }
-
-  execute(_gameState: Game): void {
-    throw new Error('Tried to execute a completed build action!');
-  }
-
-  setChildPrototypes() {
-    this.location = hydrateVertexCoords(this.location);
-  }
-
-  displayString() {
-    return 'completed action';
-  }
-
-  equals(compareAction: BuildAction) {
-    return this.type === compareAction.type;
-  }
-
 }
 
 export class BuildRoadAction implements BuildAction {
@@ -178,12 +118,17 @@ export class BuildRoadAction implements BuildAction {
     return !!gameState.map.roadAt(this.location)?.isClaimed();
   }
 
-  execute(gameState: Game): void {
+  execute(gameState: Game): boolean {
+    console.log("executing build road");
     const player = gameState.players[this.playerId];
-    if (gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
-      gameState.map.roadAt(this.location)?.claimRoad(player);
+    if (gameState.setupPhase() || gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
+      let road = gameState.map.roadAt(this.location)
+      if (road === undefined) return false
+      road.claimRoad(player);
+      gameState.forceUpdate();
+      return true;
     } else {
-      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildActionTypes[this.type]));
+      return false;
     }
   }
 
@@ -228,15 +173,33 @@ export class BuildSettlementAction implements BuildAction {
   }
 
   shouldDisqualify(gameState: Game): boolean {
-    return !gameState.map.townAt(this.location)?.isUnclaimed();
+    //console.log("Checking valid action");
+    const town = gameState.map.townAt(this.location);
+    //console.log("got town")
+    if (town === undefined) {
+      console.log("town undefined")
+      return true;
+    }
+    //console.log("returning: " + !town.isUnclaimed())
+    return !town.isUnclaimed();
   }
 
-  execute(gameState: Game): void {
-    if (gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
-      gameState.map.townAt(this.location)?.claimTown(this.playerId);
-    } else {
-      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildActionTypes[this.type]));
+  execute(gameState: Game): boolean {
+    console.log("checking setup status: " + gameState.setupPhase());
+    if (!gameState.setupPhase() && !gameState.players[this.playerId].spend(AllBuildCosts[this.type]))
+      return false;
+    let town = gameState.map.townAt(this.location)
+    if (town === undefined) {
+      console.log("undefined town");
+      return false;
     }
+    console.log(" built settlement!");
+    town.claimTown(this.playerId);
+    gameState.updatePlayerTradeRatios(town);
+    gameState.updatePlayerProduction(town);
+    gameState.updateRobberHexes(town);
+    gameState.forceUpdate();
+    return true;
   }
 
   displayString() {
@@ -276,15 +239,19 @@ export class BuildCityAction implements BuildAction {
   }
 
   shouldDisqualify(gameState: Game): boolean {
-    return !!gameState.map.townAt(this.location)?.isUnclaimed() || gameState.map.townAt(this.location)?.playerIdx !== this.playerId;
+    console.log("checking valid city move")
+    const validSettlePlan = gameState.settlePremovePresent(this.location, this.playerId);
+    return !validSettlePlan || gameState.map.townAt(this.location)?.playerIdx !== this.playerId;
   }
 
-  execute(gameState: Game): void {
-    if (gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
-      gameState.map.townAt(this.location)?.upgradeCity();
-    } else {
-      throw new Error('Tried to execute action without sufficient resources! ' + actionToString(AllBuildActionTypes[this.type]));
-    }
+  execute(gameState: Game): boolean {
+    console.log("executing build city");
+    if (!gameState.players[this.playerId].spend(AllBuildCosts[this.type]))
+      return false;
+
+    gameState.map.townAt(this.location)?.upgradeCity();
+    gameState.forceUpdate();
+    return true;
   }
 
   displayString() {
@@ -322,8 +289,11 @@ export class BuildDevelopmentCardAction implements BuildAction {
     return false;
   }
 
-  execute(gameState: Game): void {
+  execute(gameState: Game): boolean {
+    //todo: implement development cards!
     console.log("TODO: BuildDevelopmentCardAction.execute()");
+    gameState.forceUpdate();
+    return false;
   }
 
   displayString() {

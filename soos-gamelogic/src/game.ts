@@ -1,4 +1,4 @@
-import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, CompletedBuildAction, NullBuildAction, hydrateBuildAction } from './build-actions.js';
+import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, hydrateBuildAction, BuildActionResponse } from './build-actions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
@@ -107,7 +107,7 @@ export default class Game {
       }
       console.log('Claimed town: ' + bestTown.coords?.toString() + ' prod: ' + bestTown.production);
       //this.evaluateTown(bestTown, true);
-      this.claimTownAt(bestTown.coords);
+      this.onClientVertex(bestTown.coords, this.currPlayerIdx);
 
       const roads = this.map.getRoads(bestTown.coords);
       let weClaimedARoad = false;
@@ -246,8 +246,8 @@ export default class Game {
     } else if (this.gamePhase === GamePhase.BuildRoad) {
       this.gamePhase = GamePhase.MainGameplay;
     }
-    //Check if any premoves can be executed
-
+    //TODO: Check if any premoves can be executed
+    this.executePremoves();
     this.forceUpdate();
   }
 
@@ -365,11 +365,14 @@ export default class Game {
     for (const resource of AllResourceTypes) {
 
       if (AllBuildCosts[action][resource] < 0) {
+        //negative cost: any single resource is enough to make the action viable (e.g. trade)
         defaultReturnValue = false;
         if (this.players[this.currPlayerIdx].cards[resource] >= -1 * AllBuildCosts[action][resource]) {
           return true;
         }
       } else {
+        // positive cost, all resources must be present
+        //if any one resource is not present, action is not viable
         if (this.players[this.currPlayerIdx].cards[resource] < AllBuildCosts[action][resource]) {
           return false;
         }
@@ -404,6 +407,7 @@ export default class Game {
           plyr.victoryPoints += twn.townLevel;
         }
       }
+      //console.log("player " + plyr.index + " has " + plyr.victoryPoints + " victory points")
       if (plyr.victoryPoints > maxPoints) {
         maxPoints = plyr.victoryPoints;
       }
@@ -420,9 +424,10 @@ export default class Game {
       player.spend(cost);
       player.addCard(AllResourceTypes[tradeForResource]);
     }
+    this.forceUpdate();
   }
 
-  executeAction(action: BuildActionType) {
+  displayActionOptions(action: BuildActionType) {
     switch (action) {
       case BuildActionType.Road:
         this.gamePhase = GamePhase.BuildRoad;
@@ -475,34 +480,74 @@ export default class Game {
     this.forceUpdate();
   }
 
-  onClientVertex(vertex: VertexCoords, playerID: number, premove: boolean = false): BuildAction {
+  onClientVertex(vertex: VertexCoords, playerID: number, premove: boolean = false): BuildActionResponse {
     const town = this.map.townAt(vertex);
     if (town === undefined) {
-      return new NullBuildAction();
+      return { type: 'invalid' };
     }
 
-    if (this.setupPhase()) {
-      if (this.claimTownAt(vertex).toString()) {
-        return new CompletedBuildAction(); //action was successful
-      } else {
-        return new NullBuildAction(); //no action taken!
-      }
-    } else {
-      if (town.townLevel > 0 && playerID === town.playerIdx) {
-        console.log('Added premove to upgrade city');
-        return new BuildCityAction(playerID, vertex);
-      } else {
-        //is there a premove to build a settlement there from this player?
-        const settleMove = new BuildSettlementAction(playerID, vertex);
-        if (this.premoveActions.indexOf(settleMove) > -1) {
-          console.log('Found settle move, created upgrade to city premove');
-          return new BuildCityAction(playerID, vertex);
-        } else {
-          console.log('Created new settle move');
-          return settleMove;
+    let buildAction = this.getBuildActionTown(town, playerID);
+    if (!this.setupPhase()) {
+      console.log("main game: returning BuildAction");
+      return buildAction;
+    }
+
+    // Specifics for game setup phase!
+    if (this.currPlayerIdx !== playerID || this.claimedSettlement)
+      return { type: 'invalid' };
+
+    if (buildAction.type === 'invalid' || buildAction.type === 'complete')
+      return buildAction;
+
+    console.log("Executing action:");
+    console.log(buildAction);
+    const success = buildAction.execute(this);
+    if (success) {
+      console.log("it worked");
+      //next player
+      this.claimedSettlement = true;
+      if (this.gamePhase === GamePhase.PlaceSettlement2) {
+        const currPlayer = this.players[this.currPlayerIdx];
+        for (const coords of getHexes(vertex)) {
+          currPlayer.addCard(this.map.getHex(coords)?.resourceType, 1);
         }
       }
+      this.map.updateDisplayRoads(vertex);
+      return { type: 'complete' };
+    } else {
+      console.log("it failed");
+      return { type: 'invalid' };
     }
+  }
+
+  getBuildActionTown(town: GameTown, playerID: number, premove: boolean = false): BuildActionResponse {
+    if (town.playerIdx !== undefined && town.playerIdx !== playerID) return { type: 'invalid' };
+    if (town.coords === undefined) return { type: 'invalid' };
+
+    let returnAction: BuildAction;
+    console.log("making BuildTownAction:");
+    if (!town.isUnclaimed() || this.settlePremovePresent(town.coords, playerID))
+      returnAction = new BuildCityAction(playerID, town.coords);
+    else
+      returnAction = new BuildSettlementAction(playerID, town.coords);
+    console.log(returnAction);
+    //only return valid actions!
+    if (returnAction.shouldDisqualify(this)) {//Why is this true during setup?
+      console.log("Action Disqualified");
+      return { type: 'invalid' };
+    }
+    else
+      return returnAction;
+  }
+
+  settlePremovePresent(location: VertexCoords, playerId: number): boolean {
+    if (!this.map.townAt(location)?.isUnclaimed()) return false;
+    for (const playerPremove of this.getPremoves(playerId)) {
+      if (playerPremove.type !== BuildActionType.Settlement) continue;
+      if (playerPremove.location !== location) continue;
+      return true;
+    }
+    return false;
   }
 
   addPremove(buildActionJSON: BuildAction) {
@@ -520,89 +565,51 @@ export default class Game {
   }
 
 
-
-  claimTownAt(vertex: VertexCoords): boolean {
-    if (this.claimedSettlement) {
-      return false;
-    }
-    const currPlayer = this.getCurrPlayer();
-    const townThere = this.map.townAt(vertex);
-
-    let actionPerformed = false;
-    if (this.gamePhase === GamePhase.PlaceSettlement1
-      || this.gamePhase === GamePhase.PlaceSettlement2
-      || this.gamePhase === GamePhase.BuildSettlement
-      || this.gamePhase === GamePhase.MainGameplay) {
-
-      // claim the town
-
-      if (this.gamePhase === GamePhase.PlaceSettlement1
-        || this.gamePhase === GamePhase.PlaceSettlement2
-        || currPlayer.spend(AllBuildCosts[BuildActionType.Settlement])) {
-        townThere?.claimTown(currPlayer.index);
-        actionPerformed = true;
-        this.updatePlayerTradeRatios(townThere);
-        this.updatePlayerProduction(townThere);
-        this.updateRobberHexes(townThere);
+  executePremoves() {
+    let playerIndex = this.currPlayerIdx;
+    let loopBreaker = 0;
+    do {
+      const currentPremoves = this.getPremoves(playerIndex);
+      for (const action of currentPremoves) {
+        if (action.isPossible(this)) action.execute(this);
       }
-      this.map.resetDisplayRoads();
-      this.map.resetDisplayTowns();
-
-      if (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2) {
-        this.claimedSettlement = true;
-        this.map.updateDisplayRoads(vertex);
-        if (this.gamePhase === GamePhase.PlaceSettlement2) {
-          for (const coords of getHexes(vertex)) {
-            const hex = this.map.getHex(coords);
-            if (hex && hex.frequency && townThere) {
-              currPlayer.addCard(hex.resourceType, 1);
-            }
-          }
-        }
-      } else {
-        this.gamePhase = GamePhase.MainGameplay;
+      playerIndex++;
+      if (playerIndex >= this.players.length)
+        playerIndex = 0;
+      loopBreaker++;
+      if (loopBreaker > this.players.length + 1) {
+        console.log("Infinite loop detected! Emergency measures deployed!");
+        return;
       }
-    } else if (this.gamePhase === GamePhase.BuildCity && townThere?.highlighted) {
-      if (currPlayer.spend(AllBuildCosts[BuildActionType.City])) {
-        townThere.upgradeCity();
-      }
-      this.gamePhase = GamePhase.MainGameplay;
-      this.map.resetDisplayTowns();
-      actionPerformed = true;
-    } else if (this.gamePhase === GamePhase.PlaceRobber
-      && this.robberPhase === RobberPhase.ChooseWhoToRob
-      && townThere?.playerIdx !== undefined
-      && townThere?.playerIdx !== this.currPlayerIdx) {
+    } while (playerIndex !== this.currPlayerIdx)
 
-      this.stealResourceFromPlayer(townThere.playerIdx);
-      actionPerformed = true;
-    }
-
-    this.forceUpdate();
-    return actionPerformed;
+    return;
   }
 
-  onClientEdge(edge: EdgeCoords, playerID: number, premove: boolean = false): BuildAction {
+
+  onClientEdge(edge: EdgeCoords, playerID: number, premove: boolean = false): BuildActionResponse {
     console.log('on client edge');
     if (this.setupPhase()) {
       console.log('set up phase');
       if (!this.claimedSettlement) {
-        return new NullBuildAction();
+        return { type: 'invalid' };
       }
 
-      if (this.onEdgeClicked(edge))       //setup phase build road code
-      {
-        return new CompletedBuildAction();
+      if (this.onEdgeClicked(edge)) {      //setup phase build road code
+        return { type: 'complete' };
       } else {
-        return new NullBuildAction();
+        return { type: 'invalid' };
       }
 
     } else {
-      console.log('working on premove');
       if (this.gamePhase !== GamePhase.BuildRoad && !premove) {
-        return new NullBuildAction();
+        return { type: 'invalid' };
+      } else if (this.gamePhase === GamePhase.BuildRoad && this.onEdgeClicked(edge)) {
+        return { type: 'complete' };
+      } else {
+        this.gamePhase = GamePhase.MainGameplay;
+        return new BuildRoadAction(playerID, edge);
       }
-      return new BuildRoadAction(playerID, edge);
     }
   }
 
@@ -617,7 +624,7 @@ export default class Game {
     const currPlayer = this.getCurrPlayer();
     const roadThere = this.map.roadAt(edge);
     roadThere?.claimRoad(currPlayer);
-    if (this.gamePhase == GamePhase.BuildRoad) {
+    if (this.gamePhase === GamePhase.BuildRoad) {
       currPlayer.spend(AllBuildCosts[BuildActionType.Road]);
     }
     this.nextPlayer();
@@ -632,8 +639,8 @@ export default class Game {
         playerMoves.push(move);
       }
     }
-    console.log("Player " + playerId + " Premoves:");
-    console.log(playerMoves);
+    //console.log("Player " + playerId + " Premoves:");
+    //console.log(playerMoves);
     return playerMoves;
   }
 
@@ -836,14 +843,10 @@ export default class Game {
         return undefined;
     }
   }
-  // Wood = 0,
-  // Brick = 1,
-  // Sheep = 2,
-  // Grain = 3,
-  // Ore = 4,
 }
 
 export function gameFromString(json: string): Game {
+
   const game: Game = Object.assign(new Game({}), JSON.parse(json));
   game.setChildPrototypes();
 

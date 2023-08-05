@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { actionToString, AllBuildActionTypes, Game, GameHex, GamePhase, RobberPhase, gameFromString } from 'soos-gamelogic';
 import { Socket } from 'socket.io-client';
-import { Hex, Town, Road, Player, Robber } from '../components';
-import { TradeWindow } from '../features';
-import '../scss/GameCmp.scss';
+import { Hex, Town, Road, Player, Robber } from './components';
+import { TradeWindow } from './features';
+import './App.scss';
 import { BuildAction, BuildActionType, actionCostString, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
 import { hydrate } from 'react-dom';
-import { ResourceBar } from '../components/resource-bar';
+import { ResourceBar } from './components/resource-bar';
 
 const debugAutoPickSettlements = true;
 let premoves: BuildAction[] = [];
-export type GameProps = {
+export type AppProps = {
   socket: Socket
 };
 
-export function GameComponent(props: GameProps) {
+
+export function App(props: AppProps) {
   const { socket } = props;
 
   // TODO wrap this in another component and don't display placeholder
@@ -190,7 +191,7 @@ export function GameComponent(props: GameProps) {
   );
 
   return (
-    // <div className="GameComponent">
+    // <div className="App">
     //   <div>You are player: {playerName}</div>
     //   <div>Round #0{game.turnNumber}</div>
     //   <div className={'p' + game.currPlayerIdx}>{game.instructionText}

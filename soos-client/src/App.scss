@@ -1,4 +1,4 @@
-@import './variables.scss';
+@import './scss/variables.scss';
 
 * {
     box-sizing: border-box;
@@ -11,7 +11,7 @@ body,
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.GameComponent {
+.App {
     position: relative;
     background-color: beige;
     left: 0px;

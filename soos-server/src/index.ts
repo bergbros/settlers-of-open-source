@@ -47,8 +47,7 @@ app.get('/api/user/create', (req: Request, res: Response) => {
   var userID = userManager.addUser(username as string);
   if (userID == null) {
     // username is already taken
-    res.sendStatus(409);
-    res.send('Username already in use.');
+    res.status(409).send('Username already in use.');
   } else {
     // TS gets mad about session maybe being null :(
     req.session?.userID &&

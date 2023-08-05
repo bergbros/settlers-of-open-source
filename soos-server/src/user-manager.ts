@@ -23,7 +23,7 @@ let generateUserID = () => {
 export var userManager = {
   userTable: userTable,
   addUser: (name: string) => {
-    if (userTable.findIndex(genUserLookupFn('name', name)) === -1) {
+    if (userTable.findIndex(genUserLookupFn('name', name)) != -1) {
       return null;
     }
 

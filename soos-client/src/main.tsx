@@ -26,7 +26,7 @@ const router = createBrowserRouter([
     element: <Lobby socket={socket} />
   },
   {
-    path: "game",
+    path: "/game",
     element: <GameComponent socket={socket} />,
     errorElement: <div>It broken</div>
   },

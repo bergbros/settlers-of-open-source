@@ -13,7 +13,12 @@ export function Entry() {
 
   const createUserThenAction = async (username: string, callback: CallableFunction) => {
     axios.get('/api/user/create', { params: { username: username } })
-      .then((response) => { callback(response) });
+      .then((response) => { callback(response) })
+      .catch((error) => {
+        if (error.response.status == 409) {
+          console.log(error.response.data)
+        }
+      });
   }
 
   const onJoinGame: SubmitHandler<IFormInput> = (formData) => {

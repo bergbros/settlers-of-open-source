@@ -45,14 +45,19 @@ app.get('/api/result', (req: Request, res: Response) => {
 app.get('/api/user/create', (req: Request, res: Response) => {
   var username = req.query.username;
   var userID = userManager.addUser(username as string);
+  if (userID == null) {
+    // username is already taken
+    res.sendStatus(409);
+    res.send('Username already in use.');
+  } else {
+    // TS gets mad about session maybe being null :(
+    req.session?.userID &&
+      (req.session.userID = userID) &&
+      (req.session.username = req.query.username);
 
-  // TS gets mad about session maybe being null :(
-  req.session?.userID &&
-    (req.session.userID = userID) &&
-    (req.session.username = req.query.username);
-
-  // TODO send a "socket secret" also that can be used to associate a socket with a user HTTP session instead of just a userID. 
-  res.send(userID);
+    // TODO send a "socket secret" also that can be used to associate a socket with a user HTTP session instead of just a userID. 
+    res.send(userID);
+  }
 });
 
 app.get('/api/game/new', (req: Request, res: Response) => {
@@ -101,13 +106,18 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on('joinGame', (gamecode: string) => {
+  socket.on('joinGame', async (gamecode: string) => {
     if (gameManager.gameExists(gamecode)) {
       socket.join(gamecode);
       console.log(`Socket ${socket.id} has joined room ${gamecode}`);
 
-      let username = userManager.getUserforSocket(socket.id).name;
-      io.to(gamecode).emit('userJoined', username);
+      var sockets_in_room = await io.in(gamecode).fetchSockets();
+      var users_in_room: string[] = [];
+      sockets_in_room.forEach(element => {
+        users_in_room.push(userManager.getUserforSocket(element.id).name);
+      });
+
+      io.to(gamecode).emit('gameUserList', users_in_room);
     } else {
       socket.emit('joinGameError', 'Invalid game code');
     }

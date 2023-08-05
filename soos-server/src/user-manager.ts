@@ -23,6 +23,10 @@ let generateUserID = () => {
 export var userManager = {
   userTable: userTable,
   addUser: (name: string) => {
+    if (userTable.findIndex(genUserLookupFn('name', name)) === -1) {
+      return null;
+    }
+
     var userID = generateUserID();
     userTable.push({ userID: userID, socketID: '', name: name, ownerOfGameCode: '' });
     console.log("Added user", userID, userTable);

@@ -1,8 +1,14 @@
 let gameSet: Set<string> = new Set<string>();
 
+const DEBUG = true;
 let generateGameCode = () => {
-  // TODO: implement this
-  return 'testgamecode';
+  if (DEBUG)
+    return 'testgamecode';
+
+  // TODO implement this to get gamecodes like 
+  // hidden-tiger-crouching-dragon
+
+  return '';
 }
 
 export var gameManager = {

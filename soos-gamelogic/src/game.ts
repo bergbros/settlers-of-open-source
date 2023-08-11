@@ -433,10 +433,7 @@ export default class Game {
         this.gamePhase = GamePhase.BuildRoad;
         this.map.resetDisplayRoads();
         for (const road of this.map.roads) {
-          if (!road.player) {
-            continue;
-          }
-          if (road.player?.index !== this.currPlayerIdx) {
+          if (road.playerIdx !== this.currPlayerIdx) {
             continue;
           }
           this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
@@ -449,10 +446,7 @@ export default class Game {
         this.map.resetDisplayRoads();
         this.map.resetDisplayTowns();
         for (const road of this.map.roads) {
-          if (!road.player) {
-            continue;
-          }
-          if (road.player?.index !== this.currPlayerIdx) {
+          if (road.playerIdx !== this.currPlayerIdx) {
             continue;
           }
           for (const town of this.map.getTowns(road)) {
@@ -479,6 +473,19 @@ export default class Game {
     }
     this.forceUpdate();
   }
+
+  // - get valid town vertices
+  // - buildTownSetup
+  // - buildTown - buildActions
+  // - preBuildTown
+  // - upgradeTownToCity
+
+  // getValidBuildActions
+  // submitSetupBuildAction - only roads/towns
+  // submitBuildAction - immediate - new game state or invalid
+  // submitPremoveBuildAction - new game state or invalid
+
+
 
   onClientVertex(vertex: VertexCoords, playerID: number, premove: boolean = false): BuildActionResponse {
     const town = this.map.townAt(vertex);
@@ -642,18 +649,6 @@ export default class Game {
     //console.log("Player " + playerId + " Premoves:");
     //console.log(playerMoves);
     return playerMoves;
-  }
-
-  possibleRoadLocationsForPlayer(playerIdx: number): EdgeCoords[] {
-    const roadLocations: EdgeCoords[] = [];
-
-    for (const road of this.map.roads) {
-      if (road.player?.index !== playerIdx)
-        continue;
-      roadLocations.push(road.coords);
-    }
-
-    return roadLocations;
   }
 
   // roadLocationsStartingAtVertex(road: GameRoad): EdgeCoords[] {

@@ -133,8 +133,22 @@ export function App(props: AppProps) {
     roads.push(
       <Road
         gameRoad={road}
-        premove={makingPremoves && road.player?.index === playerId}
+        // isHighlighted={possibleBuildActions.any(pba => pba.edgecoords.equals(road.coords))}
+        premove={makingPremoves && road.playerIdx === playerId}
         onClick={(edgeCoords) => {
+
+          // (build road btn)
+          // const [possibleBuildActions, setPossibleBuildActions] = useState<BuildAction[]>();
+          // const buildActions = game.validBuildActions(player, 'road')
+          // possibleBuildActions state
+
+          // game.roads.highlighted? -> possibleBuildActions
+          // use possibleBuildActions to highlight possible edges where you can build a road
+
+          // when the player chooses one of those,
+          // send buildACtion to server
+          // server sends back new game state
+
           if (playerId === undefined) {
             return;
           }

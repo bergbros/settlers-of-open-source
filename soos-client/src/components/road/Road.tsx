@@ -14,10 +14,10 @@ export const Road = (props: RoadProps) => {
   const gameRoadCoords = gameRoad.coords;
   const { x, y } = edgeCoordsToPixels(gameRoadCoords);
 
-  const playerIdx = gameRoad.player?.index ?? -1;
+  const playerIdx = gameRoad.playerIdx ?? -1;
 
   let playerClass = '';
-  if (gameRoad.showMe() && gameRoad.player) {
+  if (gameRoad.showMe() && gameRoad.playerIdx !== undefined) {
     playerClass = 'p' + playerIdx;
   }
 

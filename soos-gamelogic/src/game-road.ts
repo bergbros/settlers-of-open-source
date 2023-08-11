@@ -5,16 +5,12 @@ import { HexDirection } from './utils/hex-coords.js';
 
 export default class GameRoad {
   coords: EdgeCoords;
-
-  // TODO this needs to be playerIdx instead of player
-  // for serialization to work
-  player?: Player;
-
+  playerIdx?: number;
   display: boolean;
 
   constructor(coords?: EdgeCoords) {
     this.coords = coords || new EdgeCoords(new HexCoords(0, 0), HexDirection.E);
-    this.player = undefined;
+    this.playerIdx = undefined;
     this.display = false;
   }
 
@@ -30,12 +26,12 @@ export default class GameRoad {
     if (player === undefined || this.isClaimed()) {
       return false;
     }
-    this.player = player;
+    this.playerIdx = player.index;
     return true;
   }
 
   isClaimed(): boolean {
-    return (this.player !== undefined);
+    return (this.playerIdx !== undefined);
   }
 
   setDisplay(display: boolean) {
@@ -43,7 +39,7 @@ export default class GameRoad {
   }
 
   resetDisplay() {
-    if (this.player) {
+    if (this.playerIdx) {
       this.display = true;
     } else {
       this.display = false;
@@ -59,10 +55,10 @@ export default class GameRoad {
   }
 
   toString() {
-    if (!this.player) {
+    if (this.playerIdx !== undefined) {
       return '';
     } else {
-      return 'r;' + this.coords.toString() + ';' + this.player.index;
+      return 'r;' + this.coords.toString() + ';' + this.playerIdx;
     }
   }
 }

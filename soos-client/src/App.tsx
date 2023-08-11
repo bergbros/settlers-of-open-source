@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { actionToString, AllBuildActionTypes, Game, GameHex, GamePhase, RobberPhase, gameFromString } from 'soos-gamelogic';
 import { Socket } from 'socket.io-client';
 import { Hex, Town, Road, Player, Robber } from './components';
-import { TradeWindow } from './features/';
+import { TradeWindow } from './features';
 import './App.scss';
 import { BuildAction, BuildActionType, actionCostString, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
 import { hydrate } from 'react-dom';
@@ -13,6 +13,7 @@ let premoves: BuildAction[] = [];
 export type AppProps = {
   socket: Socket
 };
+
 
 export function App(props: AppProps) {
   const { socket } = props;

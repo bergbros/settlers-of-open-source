@@ -111,3 +111,17 @@ export function edgeCoordsToPixels(edgeCoords: EdgeCoords): PixelCoords {
     y: yCoord,
   };
 }
+
+export function setsAreEqual(setA: Set<string>, setB: Set<string>) {
+  if (setA.size != setB.size)
+    return false;
+
+  if (!([...setA].every((element) => setB.has(element))))
+    return false;
+
+  return true;
+}
+
+export function printSocketMsg(msg: string) {
+  console.log(msg);
+}

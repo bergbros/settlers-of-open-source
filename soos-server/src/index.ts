@@ -2,6 +2,10 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
+import cookieSession from 'cookie-session';
+
+import { userManager } from './user-manager.js'
+import { gameManager } from './game-manager.js';
 
 import { EdgeCoords, Game, gameFromString } from 'soos-gamelogic';
 import ServerAction from './server-action.js';
@@ -24,9 +28,60 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.path} - ${res.statusCode} in ${duration} ms`);
 });
 
+// Middleware to get JSON request bodies
+app.use(express.json());
+
+// Session mgmt
+app.use(cookieSession({
+  name: 'SoOS-session',
+  secret: 'very secure debug secret',
+}));
+
 app.get('/api/result', (req: Request, res: Response) => {
   const game = new Game({});
   res.send('Hello World!');
+});
+
+app.get('/api/user/create', (req: Request, res: Response) => {
+  var username = req.query.username;
+  var userID = userManager.addUser(username as string);
+  if (userID == null) {
+    // username is already taken
+    res.status(409).send('Username already in use.');
+  } else {
+    // TS gets mad about session maybe being null :(
+    req.session?.userID &&
+      (req.session.userID = userID) &&
+      (req.session.username = req.query.username);
+
+    // TODO send a "socket secret" also that can be used to associate a socket with a user HTTP session instead of just a userID. 
+    res.send(userID);
+  }
+});
+
+app.get('/api/game/new', (req: Request, res: Response) => {
+  // create game
+  let gamecode = gameManager.createGame();
+  let ownerID = req.session ? req.session.userID : null;
+  if (ownerID === null) {
+    res.sendStatus(400); //Shouldn't get here
+    return;
+  }
+
+  userManager.makeUserOwnerOfGameCode(ownerID, gamecode);
+  // return game code
+  res.send(gamecode);
+});
+
+app.get('/api/game/check', (req: Request, res: Response) => {
+  var gamecode = req.query.gamecode;
+
+  if (gameManager.gameExists(gamecode as string)) {
+    // joinability - check room length and return 204 if not joinable
+    return res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 const connectedPlayers: (Socket | null)[] = [];
@@ -42,6 +97,30 @@ io.on('connection', socket => {
   console.log('user connected! giving id: ' + id);
   connectedPlayers[id] = socket;
   socket.emit('playerId', id);
+
+  socket.on('associateWithHTTP', (userID: string) => {
+    if (!userManager.assocSocketWithUser(userID, socket.id)) {
+      console.log(`User ${userID} not found`);
+      socket.emit('socketAssocError', `user ${userID} not found`);
+    }
+  });
+
+  socket.on('joinGame', async (gamecode: string) => {
+    if (gameManager.gameExists(gamecode)) {
+      socket.join(gamecode);
+      console.log(`Socket ${socket.id} has joined room ${gamecode}`);
+
+      var sockets_in_room = await io.in(gamecode).fetchSockets();
+      var users_in_room: string[] = [];
+      sockets_in_room.forEach(element => {
+        users_in_room.push(userManager.getUserforSocket(element.id).name);
+      });
+
+      io.to(gamecode).emit('gameUserList', users_in_room);
+    } else {
+      socket.emit('joinGameError', 'Invalid game code');
+    }
+  });
 
   // setInterval(() => {
   //   if (game.gamePhase === GamePhase.MainGameplay && id == 0) {

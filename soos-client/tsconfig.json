@@ -21,13 +21,13 @@
     "jsx": "react-jsx",
     "composite": true,
     "outDir": "built",
-    // "baseUrl": ".",
-    // "rootDir": "src",
-    // "paths": {
-    //   "~*": [
-    //     "./*"
-    //   ],
-    // },
+    "baseUrl": ".",
+    "rootDir": "src",
+    "paths": {
+      "~*": [
+        "./*"
+      ],
+    },
   },
   "include": [
     "src"

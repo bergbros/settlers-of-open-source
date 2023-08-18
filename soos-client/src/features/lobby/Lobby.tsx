@@ -1,10 +1,15 @@
-import { GameProps } from './GameCmp';
-import { setsAreEqual, printSocketMsg } from '../utils';
+// import { GameProps } from './GameCmp';
+import { setsAreEqual, printSocketMsg } from '~/src/utils';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Socket } from 'socket.io-client';
 
-export function Lobby(props: GameProps) {
+type LobbyProps = {
+  socket: Socket
+}
+
+export const Lobby = (props: LobbyProps) => {
   const { socket } = props;
   const initialUserSet: Set<string> = new Set<string>();
   const [userSet, setUserSet] = useState(initialUserSet);

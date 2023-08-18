@@ -7,7 +7,7 @@ interface IFormInput {
   gamecode: string,
 }
 
-export function Entry() {
+export const Entry = () => {
   const { register, handleSubmit } = useForm<IFormInput>();
   const navigate = useNavigate();
 

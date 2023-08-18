@@ -1,10 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
+import { fileURLToPath } from 'node:url';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   clearScreen: false,
   plugins: [react()],
+  resolve: {
+    alias: {
+      '~': fileURLToPath(new URL('.', import.meta.url))
+    }
+  },
   server: {
     proxy: {
       // Requests to the Vite devserver under the /api path to the SOOS server on port 3000
@@ -31,5 +37,5 @@ export default defineConfig({
       }
     },
     open: '/'
-  }
+  },
 })

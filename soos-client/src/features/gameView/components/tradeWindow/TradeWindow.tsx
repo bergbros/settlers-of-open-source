@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { AllResourceTypes, resourceToString } from 'soos-gamelogic';
-import './Trade-window.scss';
+import './TradeWindow.scss';
 
 type TradeWindowProps = {
   tradeRatio: number[];

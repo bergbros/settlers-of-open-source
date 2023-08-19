@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { RouteObject, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 type AppProviderProps = {
-  children: React.ReactNode
+  routes: RouteObject[]
 }
 
 export const AppProvider = (props: AppProviderProps) => {
-  return <BrowserRouter>{props.children}</BrowserRouter>
+  let router = createBrowserRouter(props.routes);
+
+  return <RouterProvider router={router} />
 }

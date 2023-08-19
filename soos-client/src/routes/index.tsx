@@ -1,8 +1,11 @@
 import * as React from 'react';
-import { Entry, Lobby, GameView } from '../features';
+import {
+  Entry,
+  Lobby,
+  GameView
+} from '../features';
 
 import { io } from 'socket.io-client';
-import { useRoutes } from 'react-router-dom';
 
 export const AppRoutes = () => {
   const socket = io();
@@ -22,7 +25,5 @@ export const AppRoutes = () => {
     },
   ]
 
-  const element = useRoutes(routes);
-
-  return <>{element}</>
+  return routes;
 }

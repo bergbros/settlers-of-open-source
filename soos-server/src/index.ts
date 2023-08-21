@@ -50,7 +50,7 @@ app.get('/api/user/create', (req: Request, res: Response) => {
     res.status(409).send('Username already in use.');
   } else {
     // TS gets mad about session maybe being null :(
-    req.session?.userID &&
+    req.session &&
       (req.session.userID = userID) &&
       (req.session.username = req.query.username);
 

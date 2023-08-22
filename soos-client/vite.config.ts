@@ -15,7 +15,7 @@ export default defineConfig({
     proxy: {
       // Requests to the Vite devserver under the /api path to the SOOS server on port 3000
       '/api': {
-        target: 'http://localhost:3000/',
+        target: 'http://localhost:3000',
         secure: false,
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
@@ -28,6 +28,7 @@ export default defineConfig({
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
           });
         },
+        changeOrigin: true
       },
 
       // Proxy websocket requests too

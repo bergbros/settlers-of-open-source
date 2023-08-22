@@ -1,4 +1,4 @@
-import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, hydrateBuildAction, BuildActionResponse } from './build-actions.js';
+import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, hydrateBuildAction, BuildActionResponse, actionToString } from './build-actions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
@@ -199,15 +199,7 @@ export default class Game {
     }
   }
 
-  displayEmptyRoads() {
-    //do we ever want to show all empty roads? not sure we need this function
-    for (const road of this.map.roads) {
-      road.showMe();
-    }
-  }
-
   clearAllDisplaysAndForceUpdate() {
-    this.map.resetDisplayRoads();
     this.map.resetDisplayTowns();
     this.forceUpdate();
   }
@@ -218,14 +210,12 @@ export default class Game {
 
   nextPlayer() {
     this.claimedSettlement = false;
-    this.map.resetDisplayRoads();
 
     if (this.gamePhase === GamePhase.PlaceSettlement1) {
       if (this.currPlayerIdx === this.players.length - 1) {
         this.nextPhaseTurn();
       } else {
         this.currPlayerIdx++;
-        this.map.resetDisplayRoads();
         this.displayEmptyTowns();
         this.instructionText = `${this.getCurrPlayer().name} place first settlement & road`;
       }
@@ -234,7 +224,6 @@ export default class Game {
         this.nextPhaseTurn();
       } else {
         this.currPlayerIdx--;
-        this.map.resetDisplayRoads();
         this.displayEmptyTowns();
         this.instructionText = `${this.getCurrPlayer().name} place second settlement & road`;
       }
@@ -385,7 +374,6 @@ export default class Game {
     if (this.gamePhase === GamePhase.PlaceSettlement1) {
       this.gamePhase = GamePhase.PlaceSettlement2;
       this.currPlayerIdx = this.players.length - 1;
-      this.map.resetDisplayRoads();
       this.displayEmptyTowns();
       this.instructionText = `${this.getCurrPlayer().name} place second settlement & road`;
       return;
@@ -429,21 +417,9 @@ export default class Game {
 
   displayActionOptions(action: BuildActionType) {
     switch (action) {
-      case BuildActionType.Road:
-        this.gamePhase = GamePhase.BuildRoad;
-        this.map.resetDisplayRoads();
-        for (const road of this.map.roads) {
-          if (road.playerIdx !== this.currPlayerIdx) {
-            continue;
-          }
-          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex(road.coords.direction)));
-          this.map.updateDisplayRoads(new VertexCoords(road.coords.hexCoords, edgeToVertex((road.coords.direction + 1) % 6)));
-        }
-        break;
       case BuildActionType.Settlement:
         this.claimedSettlement = false;
         this.gamePhase = GamePhase.BuildSettlement;
-        this.map.resetDisplayRoads();
         this.map.resetDisplayTowns();
         for (const road of this.map.roads) {
           if (road.playerIdx !== this.currPlayerIdx) {
@@ -466,10 +442,9 @@ export default class Game {
         this.claimedSettlement = false;
         this.gamePhase = GamePhase.BuildCity;
         break;
-      case BuildActionType.Development:
-
+      default:
+        console.error(`displayActionOptions unexpected action type: ${actionToString(action)}`)
         break;
-
     }
     this.forceUpdate();
   }
@@ -519,7 +494,7 @@ export default class Game {
           currPlayer.addCard(this.map.getHex(coords)?.resourceType, 1);
         }
       }
-      this.map.updateDisplayRoads(vertex);
+      // this.map.updateDisplayRoads(vertex);
       return { type: 'complete' };
     } else {
       console.log("it failed");
@@ -571,7 +546,6 @@ export default class Game {
     }
   }
 
-
   executePremoves() {
     let playerIndex = this.currPlayerIdx;
     let loopBreaker = 0;
@@ -592,7 +566,6 @@ export default class Game {
 
     return;
   }
-
 
   onClientEdge(edge: EdgeCoords, playerID: number, premove: boolean = false): BuildActionResponse {
     console.log('on client edge');
@@ -837,6 +810,25 @@ export default class Game {
       default:
         return undefined;
     }
+  }
+
+  getValidBuildActions(playerIdx: number, type: BuildActionType): BuildAction[] {
+    switch (type) {
+      case BuildActionType.Road:
+        return this.map.buildableRoadLocations(playerIdx)
+          .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
+
+      default:
+        throw new Error(`getValidBuildActions unsupported BuildActionType: ${actionToString(type)}`);
+    }
+  }
+
+  submitBuildAction(buildAction: BuildAction): boolean {
+    if (!buildAction.isPossible(this)) {
+      return false;
+    }
+
+    return buildAction.execute(this);
   }
 }
 

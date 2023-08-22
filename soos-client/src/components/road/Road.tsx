@@ -5,31 +5,47 @@ import './Road.scss';
 
 export type RoadProps = {
   gameRoad: GameRoad;
-  onClick: (edgeCoords: EdgeCoords) => void;
+  highlighted: boolean;
   premove: boolean;
+  onClick: () => void;
 };
 
 export const Road = (props: RoadProps) => {
-  const { gameRoad, onClick } = props;
-  const gameRoadCoords = gameRoad.coords;
-  const { x, y } = edgeCoordsToPixels(gameRoadCoords);
-
+  const { gameRoad, onClick, premove, highlighted } = props;
+  const coords = gameRoad.coords;
+  const { x, y } = edgeCoordsToPixels(coords);
   const playerIdx = gameRoad.playerIdx ?? -1;
+  const shouldDisplay = premove || highlighted || playerIdx !== -1;
 
-  let playerClass = '';
-  if (gameRoad.showMe() && gameRoad.playerIdx !== undefined) {
-    playerClass = 'p' + playerIdx;
-  }
+  // don't display anything at all
+  if (!shouldDisplay) return null;
 
-  const playerColor = Variables.PlayerColors[playerIdx];
+  return (
+    <div
+      className='Road'
+      key={`r:${coords.hexCoords.x},${coords.hexCoords.y},${coords.direction}`}
+      style={{
+        left: x + 'px',
+        top: y + 'px',
+      }}
+      onClick={() => onClick()}
+    >
+      {makeSVG(
+        coords.direction,
+        Variables.PlayerColors[playerIdx],
+        props.premove || (playerIdx === -1 && props.highlighted)
+      )}
+    </div>
+  );
+};
 
-  const roadCoords = gameRoad.getCoords();
+function makeSVG(direction: HexDirection, color: string, dotted: boolean) {
   let rotation = 0, translateX = 0, translateY = 0;
-  if (roadCoords.direction === HexDirection.NW || roadCoords.direction === HexDirection.SE) {
+  if (direction === HexDirection.NW || direction === HexDirection.SE) {
     rotation = -33;
     translateX = 2;
     translateY = 10;
-  } else if (roadCoords.direction === HexDirection.NE || roadCoords.direction === HexDirection.SW) {
+  } else if (direction === HexDirection.NE || direction === HexDirection.SW) {
     rotation = 33;
     translateX = 12;
     translateY = 0;
@@ -40,14 +56,14 @@ export const Road = (props: RoadProps) => {
   }
 
   let fillOpacity, strokeDasharray, strokeWidth = 0;
-  if (playerIdx === -1 || props.premove) {
+  if (dotted) {
     // dotted line
     fillOpacity = '0';
     strokeDasharray = '3 2';
     strokeWidth = 3;
   }
 
-  const svg = (
+  return (
     <svg
       width={40}
       height={20}
@@ -62,26 +78,12 @@ export const Road = (props: RoadProps) => {
         y={4}
         width={26}
         height={10}
-        stroke={playerColor}
+        stroke={color}
         strokeWidth={strokeWidth}
-        fill={playerColor}
+        fill={color}
         fillOpacity={fillOpacity}
         strokeDasharray={strokeDasharray}
       />
     </svg>
   );
-
-  return (
-    <div
-      className='Road'
-      key={`r:${gameRoad.coords.hexCoords.x},${gameRoad.coords.hexCoords.y},${gameRoad.coords.direction}`}
-      style={{
-        left: x + 'px',
-        top: y + 'px',
-      }}
-      onClick={() => onClick(gameRoadCoords)}
-    >
-      {svg}
-    </div>
-  );
-};
+}

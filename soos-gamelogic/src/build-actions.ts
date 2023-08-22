@@ -100,18 +100,18 @@ export class BuildRoadAction implements BuildAction {
       return false;
     }
 
-    const player = gameState.players[this.playerId];
-    if (player) {
-      return player.hasResources(AllBuildCosts[this.type]);
+    if (gameState.setupPhase()) {
+      return gameState.currPlayerIdx === this.playerId && gameState.claimedSettlement;
+    } else {
+      const player = gameState.players[this.playerId];
+      if (!player || !player.hasResources(AllBuildCosts[this.type])) {
+        return false;
+      }
     }
 
     // New location must be adjacent to an existing town or road for this player
-    let foundAdjacent = false;
-    for (const road of gameState.map.roads) {
-      // if (road.isClaimed)
-    }
-
-    return false;
+    const validLocations = gameState.map.buildableRoadLocations(this.playerId);
+    return validLocations.some(loc => this.location.equals(loc));
   }
 
   shouldDisqualify(gameState: Game): boolean {
@@ -125,6 +125,11 @@ export class BuildRoadAction implements BuildAction {
       let road = gameState.map.roadAt(this.location)
       if (road === undefined) return false
       road.claimRoad(player);
+
+      if (gameState.setupPhase()) {
+        gameState.nextPlayer();
+      }
+
       gameState.forceUpdate();
       return true;
     } else {

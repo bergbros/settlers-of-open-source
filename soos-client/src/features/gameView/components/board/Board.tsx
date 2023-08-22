@@ -11,7 +11,9 @@ import {
   GamePhase,
   RobberPhase,
   Game,
+  BuildActionType,
 } from "soos-gamelogic";
+import { BuildRoadAction } from 'soos-gamelogic/dist/src/build-actions';
 import { Hex, Town, Road, Robber, Player } from "~/src/components";
 
 type BoardProps = {
@@ -19,12 +21,13 @@ type BoardProps = {
   socket: Socket;
   makingPremoves: boolean;
   playerId?: number;
+  possibleBuildActions: BuildAction[];
 };
 
 let premoves: BuildAction[] = [];
 
 export const Board = (props: BoardProps) => {
-  const { game, socket, makingPremoves, playerId } = props;
+  const { game, socket, makingPremoves, playerId, possibleBuildActions } = props;
 
   function sendGameStateToServer() {
     socket.emit("newGameState", game.toString());
@@ -67,6 +70,7 @@ export const Board = (props: BoardProps) => {
         premove={makingPremoves && town.playerIdx === playerId}
         onClick={(vertexCoords) => {
           if (playerId === undefined) {
+            console.log('town onclick, playerid undef')
             return;
           }
           const actionResponse = game.onClientVertex(
@@ -89,45 +93,29 @@ export const Board = (props: BoardProps) => {
     );
   }
 
+  let roadBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Road);
+
+  if ((game.gamePhase === GamePhase.PlaceSettlement1 || game.gamePhase === GamePhase.PlaceSettlement2)
+    && game.currPlayerIdx === playerId
+    && game.claimedSettlement) {
+    // custom roadBuildActions for setup phase
+    roadBuildActions = game.getValidBuildActions(playerId, BuildActionType.Road);
+  }
+
   const roads = [];
   for (const road of game.map.roads) {
     const roadCoords = road.coords;
 
-    if (!road.showMe() && !makingPremoves) {
-      continue;
-    }
+    const buildAction = roadBuildActions.find(pba => pba.type === BuildActionType.Road && road.coords.equals(pba.location));
 
     roads.push(
       <Road
         gameRoad={road}
-        // isHighlighted={possibleBuildActions.any(pba => pba.edgecoords.equals(road.coords))}
+        highlighted={!!buildAction}
         premove={makingPremoves && road.playerIdx === playerId}
-        onClick={(edgeCoords) => {
-          // (build road btn)
-          // const [possibleBuildActions, setPossibleBuildActions] = useState<BuildAction[]>();
-          // const buildActions = game.validBuildActions(player, 'road')
-          // possibleBuildActions state
-
-          // game.roads.highlighted? -> possibleBuildActions
-          // use possibleBuildActions to highlight possible edges where you can build a road
-
-          // when the player chooses one of those,
-          // send buildACtion to server
-          // server sends back new game state
-
-          if (playerId === undefined) {
-            return;
-          }
-          const actionResponse = game.onClientEdge(
-            edgeCoords,
-            playerId,
-            makingPremoves
-          );
-          console.log(actionResponse);
-          if (actionResponse.type === "complete") {
-            sendGameStateToServer();
-          } else if (actionResponse.type !== "invalid") {
-            socket.emit("premove", actionResponse);
+        onClick={() => {
+          if (buildAction) {
+            socket.emit("build", buildAction);
           }
         }}
         key={`r:${roadCoords.hexCoords.x},${roadCoords.hexCoords.y},${roadCoords.direction}`}

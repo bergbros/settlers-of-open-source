@@ -248,12 +248,6 @@ export default class GameMap {
     }
   }
 
-  resetDisplayRoads() {
-    for (const road of this.roads) {
-      road.resetDisplay();
-    }
-  }
-
   updateDisplayTowns(vertex?: VertexCoords) {
     if (!vertex) {
       return;
@@ -261,18 +255,6 @@ export default class GameMap {
     const town = this.townAt(vertex);
     if (town) {
       town.display = true;
-    }
-  }
-
-  updateDisplayRoads(vertex?: VertexCoords) {
-    if (!vertex) {
-      return;
-    }
-    const roadArray = this.getRoads(vertex);
-    for (const theRoad of roadArray) {
-      if (theRoad) {
-        theRoad.setDisplay(true);
-      }
     }
   }
 

@@ -61,11 +61,21 @@ app.get('/api/user/create', (req: Request, res: Response) => {
 
 app.get('/api/user/check', (req: Request, res: Response) => {
   if (!req.session?.userID) {
+    // For completeness, should probably also check username (TODO?)
     res.sendStatus(404);
   } else {
     res.sendStatus(200);
   }
 });
+
+app.get('/api/socket/check', (req: Request, res: Response) => {
+  var socketID = userManager.getSocketForUser(req.session?.userID);
+  if (socketID) {
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
+  }
+})
 
 app.get('/api/game/new', (req: Request, res: Response) => {
   // create game

@@ -3,7 +3,8 @@ import {
   Entry,
   Lobby,
   LobbyLoader,
-  GameView
+  GameView,
+  GameViewLoader
 } from '../features';
 
 import { io } from 'socket.io-client';
@@ -23,7 +24,8 @@ export const AppRoutes = () => {
     },
     {
       path: "/game/:gamecode",
-      element: <GameView socket={socket} />
+      element: <GameView socket={socket} />,
+      loader: GameViewLoader
     },
   ]
 

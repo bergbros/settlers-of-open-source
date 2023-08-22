@@ -59,12 +59,20 @@ app.get('/api/user/create', (req: Request, res: Response) => {
   }
 });
 
+app.get('/api/user/check', (req: Request, res: Response) => {
+  if (!req.session?.userID) {
+    res.sendStatus(404);
+  } else {
+    res.sendStatus(200);
+  }
+});
+
 app.get('/api/game/new', (req: Request, res: Response) => {
   // create game
   let gamecode = gameManager.createGame();
   let ownerID = req.session ? req.session.userID : null;
   if (ownerID === null) {
-    res.sendStatus(400); //Shouldn't get here
+    res.sendStatus(400); // Shouldn't get here
     return;
   }
 
@@ -113,7 +121,7 @@ io.on('connection', socket => {
       var sockets_in_room = await io.in(gamecode).fetchSockets();
       var users_in_room: string[] = [];
       sockets_in_room.forEach(element => {
-        users_in_room.push(userManager.getUserforSocket(element.id).name);
+        users_in_room.push(userManager.getUserForSocket(element.id).name);
       });
 
       io.to(gamecode).emit('gameUserList', users_in_room);

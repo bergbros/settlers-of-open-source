@@ -1,7 +1,6 @@
 // import { GameProps } from './GameCmp';
 import { setsAreEqual, printSocketMsg } from '~/src/utils';
-import { useLocation } from 'react-router-dom';
-import axios from 'axios';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 
@@ -14,7 +13,7 @@ export const Lobby = (props: LobbyProps) => {
   const initialUserSet: Set<string> = new Set<string>();
   const [userSet, setUserSet] = useState(initialUserSet);
   const { state } = useLocation();
-  console.log(state);
+  const { gamecode } = useParams();
 
 
   useEffect(() => {
@@ -35,12 +34,12 @@ export const Lobby = (props: LobbyProps) => {
     // TODO I hate this listener name, redo it
     socket.on('gameUserList', updateUserList);
 
-    if (!state.gamecode) {
+    if (!gamecode) {
       console.log('No game code found');
     } else {
       // TODO axios.get(/api/socket/socketSecret) instead of just userID
       socket.emit('associateWithHTTP', state.userID);
-      socket.emit('joinGame', state.gamecode);
+      socket.emit('joinGame', gamecode);
     }
 
     return () => {

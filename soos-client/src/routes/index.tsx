@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   Entry,
   Lobby,
+  LobbyLoader,
   GameView
 } from '../features';
 
@@ -16,11 +17,12 @@ export const AppRoutes = () => {
       element: <Entry />,
     },
     {
-      path: "/lobby",
-      element: <Lobby socket={socket} />
+      path: "/lobby/:gamecode",
+      element: <Lobby socket={socket} />,
+      loader: LobbyLoader
     },
     {
-      path: "/game",
+      path: "/game/:gamecode",
       element: <GameView socket={socket} />
     },
   ]

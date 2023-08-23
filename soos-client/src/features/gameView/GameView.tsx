@@ -11,6 +11,7 @@ import {
   GamePhase,
   RobberPhase,
   Game,
+  BuildActionType,
 } from "soos-gamelogic";
 import { Hex, Town, Road, Robber, Player } from "~/src/components";
 import { Board, ResourceBar, TradeWindow } from "./components";
@@ -30,9 +31,11 @@ export const GameView = (props: GameViewProps) => {
     new Game({ debugAutoPickSettlements: import.meta.env.VITE_GAME_DEBUG })
   );
   const [playerId, setPlayerId] = React.useState<number | undefined>(undefined);
-  const [isTradeWindowShowing, setIsTradeWindowShowing] =
-    React.useState<boolean>(false);
+  const [isTradeWindowShowing, setIsTradeWindowShowing] = React.useState<boolean>(false);
   const [makingPremoves, setMakingPremoves] = React.useState<boolean>(false);
+
+  const [possibleBuildActions, setPossibleBuildActions] = React.useState<BuildAction[]>([]);
+
   // Set up force update function
   const [count, setCount] = React.useState<number>(0);
   game.forceUpdate = () => {
@@ -52,6 +55,7 @@ export const GameView = (props: GameViewProps) => {
         setCount(count + 1);
       };
       setGame(updatedGame);
+      setPossibleBuildActions([]);
       console.log("got new game state");
     }
 
@@ -122,12 +126,14 @@ export const GameView = (props: GameViewProps) => {
         game={game}
         makingPremoves={makingPremoves}
         playerId={playerId}
+        possibleBuildActions={possibleBuildActions}
       />
 
       {/* List of players' resource count & victory points */}
       <div className="PlayerList">
         {game.players.map((player, index) => (
           <Player
+            key={index}
             playerIndex={index}
             playerName={player.name}
             isMe={player.index === playerId}
@@ -161,11 +167,21 @@ export const GameView = (props: GameViewProps) => {
         <div className="BuildActions">
           <div className="BuildActionsLabel">Build</div>
           <div className="BuildActionButtons">
-            {AllBuildActionTypes.map((buildActionType) => (
+            {AllBuildActionTypes.map((buildActionType, index) => (
               <button
+                key={index}
                 onClick={() => {
-                  game.displayActionOptions(buildActionType);
-                  sendGameStateToServer();
+                  if (possibleBuildActions.length > 0) {
+                    // they clicked again, clear it
+                    setPossibleBuildActions([]);
+                  }
+
+                  if (buildActionType === BuildActionType.Road) {
+                    setPossibleBuildActions(game.getValidBuildActions(playerId!, buildActionType));
+                  } else {
+                    game.displayActionOptions(buildActionType);
+                    sendGameStateToServer();
+                  }
                 }}
                 className="ActionButton"
                 disabled={!game.actionViable(buildActionType)}

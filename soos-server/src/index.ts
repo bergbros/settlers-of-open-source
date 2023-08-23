@@ -98,7 +98,7 @@ io.on('connection', socket => {
     for (const moves of premoves) {
       game.addPremove(moves);
     }
-    socket.broadcast.emit('updateGameState', newGameState);
+    io.emit('updateGameState', newGameState);
   });
 
   socket.on('build', (buildAction: BuildAction) => {
@@ -113,14 +113,14 @@ io.on('connection', socket => {
     }
 
     buildAction.execute(game);
-    socket.broadcast.emit('updateGameState', game.toString());
+    io.emit('updateGameState', game.toString());
   });
 
   socket.on('premove', (premove: BuildAction) => {
     premove = hydrateBuildAction(premove);
 
     console.log('got new premove: player ' + id + ' wants to ' + premove.displayString());
-    //socket.broadcast.emit('updateGameState', game.toString());
+    //io.emit('updateGameState', game.toString());
     game.addPremove(premove);
     const gameMoves = game.getPremoves(id)
     for (let gameMove of gameMoves) {

@@ -20,12 +20,12 @@ export const AppRoutes = () => {
     {
       path: "/lobby/:gamecode",
       element: <Lobby socket={socket} />,
-      loader: LobbyLoader
+      //loader: LobbyLoader
     },
     {
       path: "/game/:gamecode",
       element: <GameView socket={socket} />,
-      loader: GameViewLoader
+      //loader: GameViewLoader
     },
   ]
 

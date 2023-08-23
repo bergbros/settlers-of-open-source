@@ -153,6 +153,16 @@ io.on('connection', socket => {
     io.emit('updateGameState', newGameState);
   });
 
+  socket.on('autoPickSettlements', () => {
+    if (!game.setupPhase()) {
+      console.error('got autoPickSettlements command but game is not in setup phase');
+      return;
+    }
+
+    game.autoPickSettlements();
+    io.emit('updateGameState', game.toString());
+  });
+
   socket.on('build', (buildAction: BuildAction) => {
     buildAction = hydrateBuildAction(buildAction);
 

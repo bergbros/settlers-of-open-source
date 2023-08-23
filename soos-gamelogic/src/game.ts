@@ -1,3 +1,4 @@
+import { findBestSettlementSpots } from './ai.js';
 import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, hydrateBuildAction, BuildActionResponse, actionToString } from './build-actions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
@@ -85,94 +86,33 @@ export default class Game {
   }
 
   autoPickSettlements() {
-    //evaluate all possible towns by production, get the top 4
-    let bestTown: GameTown = this.map.towns[0];
-    console.log('picking settlements!');
-    const playerProduction: number[][] = [];
-    for (let i = 0; i < 4; i++) {
-      //FIND & CLAIM THE BEST TOWN
-      bestTown = this.map.towns[0];
-      let bestProd = 0;
-      for (const town of this.map.towns) {
-        if (town.isUnclaimed()) {
-          const newProd = this.evaluateTown(town);
-          if (newProd > bestProd) {
-            bestTown = town;
-            bestProd = newProd;
-          }
-        }
-      }
-      if (!bestTown.coords) {
-        throw new Error('Undefined coords on best town??');
-      }
-      console.log('Claimed town: ' + bestTown.coords?.toString() + ' prod: ' + bestTown.production);
-      //this.evaluateTown(bestTown, true);
-      this.onClientVertex(bestTown.coords, this.currPlayerIdx);
+    const pickedSpots = findBestSettlementSpots(this, this.players.length * 2);
+    let nextSpotIdx = 0;
 
-      const roads = this.map.getRoads(bestTown.coords);
-      let weClaimedARoad = false;
-      for (let jj = 0; jj < roads.length; jj++) {
-        console.log('road ' + roads[jj]?.coords.toString() + ' : ' + roads[jj]?.isClaimed());
-        if (!roads[jj]?.isClaimed()) {
-          this.onEdgeClicked(getEdges(bestTown.coords)[0]);
-          console.log('claimed road: ' + roads[jj]?.coords.toString());
-          weClaimedARoad = true;
-          break;
-        }
-      }
-      if (!weClaimedARoad) {
-        throw new Error('uh... we didn\'t claim a road...??');
-      }
+    // pick settlement for all players
+    for (let i = 0; i < this.players.length; i++) {
+      const pickedSpot = pickedSpots[nextSpotIdx++];
+      const buildAction = new BuildSettlementAction(i, pickedSpot);
+      console.log(`picking settlement for player ${i} at ${pickedSpot.toString()}`)
+      console.log(this.submitBuildAction(buildAction));
+      this.buildRandomRoadForSettlement(i, pickedSpot);
     }
-    //this.nextPlayer();
-    return;
+
+    // now pick again, going in reverse direction this time
+    for (let i = this.players.length - 1; i >= 0; i--) {
+      const pickedSpot = pickedSpots[nextSpotIdx++];
+      const buildAction = new BuildSettlementAction(i, pickedSpot);
+      this.submitBuildAction(buildAction);
+      this.buildRandomRoadForSettlement(i, pickedSpot);
+    }
   }
 
-  evaluateTown(newTown: GameTown, log = false): number {
-    let prodScore = 0;
-    const tradeBenefit: number[] = [];
-    const potentialNewProduction: number[] = [];
-    const currPlayer = this.players[this.currPlayerIdx];
-    for (const resource of AllResourceTypes) {
-      prodScore += newTown.production[resource] * ((currPlayer.tradeRatio[resource] - 4) / 3 + 1);
-      potentialNewProduction.push(currPlayer.resourceProduction[resource] + newTown.production[resource]);
-      tradeBenefit.push(0);
-    }
-    if (!newTown.coords) {
-      throw new Error('evaluated town has no coords??');
-    }
-
-    let tradeScore = 0;
-    for (const coords of getHexes(newTown.coords)) {
-      if (this.map.getHex(coords)?.getTrade() === 1) {
-        const newTR = this.getTradeRatios(coords);
-        for (const resource of AllResourceTypes) {
-          if (!newTR) {
-            continue;
-          }
-          tradeBenefit[resource] = Math.max(0, currPlayer.tradeRatio[resource] - newTR[resource]) * (potentialNewProduction[resource] + .5);
-        }
-        //console.log("port: ");
-        //console.log(tradeBenefit);
-      }
-    }
-    for (const resource of AllResourceTypes) {
-      tradeScore += tradeBenefit[resource];
-    }
-    if (log) {
-      console.log(potentialNewProduction);
-      console.log(tradeBenefit);
-    }
-    newTown.eval = prodScore + tradeScore / 8;
-    return newTown.eval;
-  }
-
-  //this never gets called at the moment
-  initializeBoard() {
-    this.map.initializeBoard();
-    this.claimedSettlement = false;
-    this.gamePhase = GamePhase.PlaceSettlement1;
-    this.displayEmptyTowns();
+  buildRandomRoadForSettlement(playerIdx: number, settlementSpot: VertexCoords) {
+    const roads = this.map.getRoads(settlementSpot).filter(r => r && r.playerIdx === undefined);
+    const randomRoadIdx = Math.floor(Math.random() * roads.length);
+    const buildAction = new BuildRoadAction(playerIdx, roads[randomRoadIdx]!.coords);
+    console.log(`picking road for player ${playerIdx} at ${buildAction.location.toString()}`)
+    console.log(this.submitBuildAction(buildAction));
   }
 
   getCurrPlayer() {

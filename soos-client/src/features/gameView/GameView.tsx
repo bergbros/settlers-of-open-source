@@ -153,6 +153,13 @@ export const GameView = (props: GameViewProps) => {
       {/* Build & other actions */}
 
       <div className="BottomRightActions">
+        {game.setupPhase() && (<button
+          onClick={() => socket.emit("autoPickSettlements")}
+          className="AutoPickSettlementsButton"
+        >
+          Auto Pick Settlements
+        </button>)}
+
         <button
           onClick={() => {
             game.nextPlayer();

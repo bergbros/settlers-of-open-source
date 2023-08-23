@@ -100,13 +100,14 @@ export class BuildRoadAction implements BuildAction {
       return false;
     }
 
+    // if it's setup phase, it just needs to be their turn
     if (gameState.setupPhase()) {
       return gameState.currPlayerIdx === this.playerId && gameState.claimedSettlement;
-    } else {
-      const player = gameState.players[this.playerId];
-      if (!player || !player.hasResources(AllBuildCosts[this.type])) {
-        return false;
-      }
+    }
+
+    const player = gameState.players[this.playerId];
+    if (!player || !player.hasResources(AllBuildCosts[this.type])) {
+      return false;
     }
 
     // New location must be adjacent to an existing town or road for this player
@@ -168,6 +169,11 @@ export class BuildSettlementAction implements BuildAction {
       return false;
     }
 
+    // if it's setup phase, it just needs to be their turn
+    if (gameState.setupPhase()) {
+      return gameState.currPlayerIdx === this.playerId && !gameState.claimedSettlement;
+    }
+
     // TODO check adjacent to player's roads
 
     const player = gameState.players[this.playerId];
@@ -178,28 +184,24 @@ export class BuildSettlementAction implements BuildAction {
   }
 
   shouldDisqualify(gameState: Game): boolean {
-    //console.log("Checking valid action");
-    const town = gameState.map.townAt(this.location);
-    //console.log("got town")
-    if (town === undefined) {
-      console.log("town undefined")
-      return true;
-    }
-    //console.log("returning: " + !town.isUnclaimed())
-    return !town.isUnclaimed();
+    return !gameState.map.townAt(this.location)?.isUnclaimed();
   }
 
   execute(gameState: Game): boolean {
-    console.log("checking setup status: " + gameState.setupPhase());
     if (!gameState.setupPhase() && !gameState.players[this.playerId].spend(AllBuildCosts[this.type]))
       return false;
+
     let town = gameState.map.townAt(this.location)
     if (town === undefined) {
-      console.log("undefined town");
       return false;
     }
-    console.log(" built settlement!");
+
     town.claimTown(this.playerId);
+    if (gameState.setupPhase()) {
+      gameState.claimedSettlement = true;
+      return true;
+    }
+
     gameState.updatePlayerTradeRatios(town);
     gameState.updatePlayerProduction(town);
     gameState.updateRobberHexes(town);

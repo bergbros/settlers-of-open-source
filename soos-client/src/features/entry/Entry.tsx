@@ -35,11 +35,10 @@ export const Entry = () => {
         if (response.status == 204) {
           // game exists but is not joinable, explain to user
         } else {
-          navigate('/lobby', {
+          navigate(`/lobby/${formData.gamecode}`, {
             state: {
               userID: userID,
-              name: formData.username,
-              gamecode: formData.gamecode
+              name: formData.username
             }
           });
         }
@@ -62,11 +61,10 @@ export const Entry = () => {
       axios.get('/api/game/new').then((response) => {
         var gamecode = response.data;
 
-        navigate('/lobby', {
+        navigate(`/lobby/${gamecode}`, {
           state: {
             userID: userID,
-            name: formData.username,
-            gamecode: gamecode
+            name: formData.username
           }
         });
       });

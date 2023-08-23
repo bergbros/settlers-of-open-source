@@ -38,12 +38,16 @@ export var userManager = {
     );
     userTable.splice(indexToRemove, 1);
   },
-  getSocketforUser: (userID: string) => {
-    return userTable[userTable.findIndex(
-      genUserLookupFn('userID', userID)
-    )];
+  getSocketForUser: (userID: string) => {
+    try { //TODO add try-catch everywhere here
+      return userTable[userTable.findIndex(
+        genUserLookupFn('userID', userID)
+      )];
+    } catch (error) {
+      return null;
+    }
   },
-  getUserforSocket: (socketID: string) => {
+  getUserForSocket: (socketID: string) => {
     return userTable[userTable.findIndex(
       genUserLookupFn('socketID', socketID)
     )];

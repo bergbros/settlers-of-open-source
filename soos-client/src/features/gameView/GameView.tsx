@@ -28,7 +28,7 @@ export const GameView = (props: GameViewProps) => {
   // TODO wrap this in another component and don't display placeholder
   // game when waiting for multiplayer game to start
   const [game, setGame] = React.useState<Game>(
-    new Game({ debugAutoPickSettlements: false })
+    new Game({ debugAutoPickSettlements: import.meta.env.VITE_GAME_DEBUG })
   );
   const [playerId, setPlayerId] = React.useState<number | undefined>(undefined);
   const [isTradeWindowShowing, setIsTradeWindowShowing] = React.useState<boolean>(false);

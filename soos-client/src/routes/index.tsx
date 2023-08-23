@@ -1,8 +1,13 @@
 import * as React from 'react';
-import { Entry, Lobby, GameView } from '../features';
+import {
+  Entry,
+  Lobby,
+  LobbyLoader,
+  GameView,
+  GameViewLoader
+} from '../features';
 
 import { io } from 'socket.io-client';
-import { useRoutes } from 'react-router-dom';
 
 export const AppRoutes = () => {
   const socket = io();
@@ -13,16 +18,16 @@ export const AppRoutes = () => {
       element: <Entry />,
     },
     {
-      path: "/lobby",
-      element: <Lobby socket={socket} />
+      path: "/lobby/:gamecode",
+      element: <Lobby socket={socket} />,
+      //loader: LobbyLoader
     },
     {
-      path: "/game",
-      element: <GameView socket={socket} />
+      path: "/game/:gamecode",
+      element: <GameView socket={socket} />,
+      //loader: GameViewLoader
     },
   ]
 
-  const element = useRoutes(routes);
-
-  return <>{element}</>
+  return routes;
 }

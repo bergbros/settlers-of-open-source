@@ -1,4 +1,8 @@
-import { randomBytes } from 'crypto';
+import {
+  generateUserID,
+  getObjInTableByAttr,
+  removeObjInTableByAttr,
+} from './utils.js';
 
 type User = {
   userID: string,
@@ -16,14 +20,10 @@ let genUserLookupFn = (userAttr: string, userAttrVal: string) => {
   return lookupFn;
 }
 
-let generateUserID = () => {
-  return randomBytes(16).toString('hex');
-}
-
 export var userManager = {
   userTable: userTable,
   addUser: (name: string) => {
-    if (userTable.findIndex(genUserLookupFn('name', name)) != -1) {
+    if (!getObjInTableByAttr(userTable, 'name', name)) {
       return null;
     }
 

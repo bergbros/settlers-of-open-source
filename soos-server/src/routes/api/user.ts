@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { userManager } from '../../user-manager.js';
+import { userManager } from '../../db/user-manager.js';
 
 var router = express.Router();
 

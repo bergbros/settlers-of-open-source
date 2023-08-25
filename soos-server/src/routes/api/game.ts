@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { userManager } from '../../user-manager.js';
-import { gameManager } from '../../game-manager.js';
+import { userManager } from '../../db/user-manager.js';
+import { gameManager } from '../../db/game-manager.js';
 
 var router = express.Router();
 

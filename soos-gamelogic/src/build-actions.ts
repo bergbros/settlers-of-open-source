@@ -199,6 +199,8 @@ export class BuildSettlementAction implements BuildAction {
     town.claimTown(this.playerId);
     if (gameState.setupPhase()) {
       gameState.claimedSettlement = true;
+
+      // TODO get resources for settlements you're next to
     }
 
     gameState.updatePlayerTradeRatios(town);

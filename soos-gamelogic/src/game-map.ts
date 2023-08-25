@@ -242,22 +242,6 @@ export default class GameMap {
     return resourcePile;
   }
 
-  resetDisplayTowns() {
-    for (const town of this.towns) {
-      town.resetDisplay();
-    }
-  }
-
-  updateDisplayTowns(vertex?: VertexCoords) {
-    if (!vertex) {
-      return;
-    }
-    const town = this.townAt(vertex);
-    if (town) {
-      town.display = true;
-    }
-  }
-
   getNeighboringRoads(town: GameTown): (GameRoad | undefined)[] {
     return this.getRoads(town.getCoords());
   }
@@ -344,6 +328,20 @@ export default class GameMap {
         }
       }
     }
+  }
+
+  buildableTownLocations(playerIdx: number): VertexCoords[] {
+    const townLocations: { [vertexCoordsStr: string]: VertexCoords } = {};
+    for (const road of this.roads) {
+      if (road.coords && road.playerIdx && road.playerIdx === playerIdx) {
+        for (const town of this.getTowns(road)) {
+          if (town && town.coords && !townLocations[town.coords.toString()]) {
+            townLocations[town.coords.toString()] = town.coords
+          }
+        }
+      }
+    }
+    return Object.values(townLocations);
   }
 
   toString() {

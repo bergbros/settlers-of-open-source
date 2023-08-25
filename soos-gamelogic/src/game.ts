@@ -73,7 +73,6 @@ export default class Game {
     this.robberLocation = this.map.robberLocation;
     this.gamePhase = GamePhase.PlaceSettlement1;
     this.instructionText = 'Game Started! Player 1 place first settlement.js';
-    this.displayEmptyTowns();
     this.robberHexes = [];
     this.premoveActions = [];
     // if (options.debugAutoPickSettlements) {
@@ -133,17 +132,6 @@ export default class Game {
     }
   }
 
-  displayEmptyTowns() {
-    for (const town of this.map.towns) {
-      town.showMe();
-    }
-  }
-
-  clearAllDisplaysAndForceUpdate() {
-    this.map.resetDisplayTowns();
-    this.forceUpdate();
-  }
-
   isLocalPlayerTurn(): boolean {
     return true;
   }
@@ -156,7 +144,6 @@ export default class Game {
         this.nextPhaseTurn();
       } else {
         this.currPlayerIdx++;
-        this.displayEmptyTowns();
         this.instructionText = `${this.getCurrPlayer().name} place first settlement & road`;
       }
     } else if (this.gamePhase === GamePhase.PlaceSettlement2) {
@@ -164,7 +151,6 @@ export default class Game {
         this.nextPhaseTurn();
       } else {
         this.currPlayerIdx--;
-        this.displayEmptyTowns();
         this.instructionText = `${this.getCurrPlayer().name} place second settlement & road`;
       }
 
@@ -314,7 +300,6 @@ export default class Game {
     if (this.gamePhase === GamePhase.PlaceSettlement1) {
       this.gamePhase = GamePhase.PlaceSettlement2;
       this.currPlayerIdx = this.players.length - 1;
-      this.displayEmptyTowns();
       this.instructionText = `${this.getCurrPlayer().name} place second settlement & road`;
       return;
 
@@ -360,13 +345,9 @@ export default class Game {
       case BuildActionType.Settlement:
         this.claimedSettlement = false;
         this.gamePhase = GamePhase.BuildSettlement;
-        this.map.resetDisplayTowns();
         for (const road of this.map.roads) {
           if (road.playerIdx !== this.currPlayerIdx) {
             continue;
-          }
-          for (const town of this.map.getTowns(road)) {
-            town.showMe();
           }
         }
         break;
@@ -374,9 +355,6 @@ export default class Game {
         for (const town of this.map.towns) {
           if (town.isUnclaimed()) {
             continue;
-          }
-          if (town.playerIdx === this.currPlayerIdx) {
-            town.highlightMe();
           }
         }
         this.claimedSettlement = false;
@@ -387,59 +365,6 @@ export default class Game {
         break;
     }
     this.forceUpdate();
-  }
-
-  // - get valid town vertices
-  // - buildTownSetup
-  // - buildTown - buildActions
-  // - preBuildTown
-  // - upgradeTownToCity
-
-  // getValidBuildActions
-  // submitSetupBuildAction - only roads/towns
-  // submitBuildAction - immediate - new game state or invalid
-  // submitPremoveBuildAction - new game state or invalid
-
-
-
-  onClientVertex(vertex: VertexCoords, playerID: number, premove: boolean = false): BuildActionResponse {
-    const town = this.map.townAt(vertex);
-    if (town === undefined) {
-      return { type: 'invalid' };
-    }
-
-    let buildAction = this.getBuildActionTown(town, playerID);
-    if (!this.setupPhase()) {
-      console.log("main game: returning BuildAction");
-      return buildAction;
-    }
-
-    // Specifics for game setup phase!
-    if (this.currPlayerIdx !== playerID || this.claimedSettlement)
-      return { type: 'invalid' };
-
-    if (buildAction.type === 'invalid' || buildAction.type === 'complete')
-      return buildAction;
-
-    console.log("Executing action:");
-    console.log(buildAction);
-    const success = buildAction.execute(this);
-    if (success) {
-      console.log("it worked");
-      //next player
-      this.claimedSettlement = true;
-      if (this.gamePhase === GamePhase.PlaceSettlement2) {
-        const currPlayer = this.players[this.currPlayerIdx];
-        for (const coords of getHexes(vertex)) {
-          currPlayer.addCard(this.map.getHex(coords)?.resourceType, 1);
-        }
-      }
-      // this.map.updateDisplayRoads(vertex);
-      return { type: 'complete' };
-    } else {
-      console.log("it failed");
-      return { type: 'invalid' };
-    }
   }
 
   getBuildActionTown(town: GameTown, playerID: number, premove: boolean = false): BuildActionResponse {
@@ -507,51 +432,6 @@ export default class Game {
     return;
   }
 
-  onClientEdge(edge: EdgeCoords, playerID: number, premove: boolean = false): BuildActionResponse {
-    console.log('on client edge');
-    if (this.setupPhase()) {
-      console.log('set up phase');
-      if (!this.claimedSettlement) {
-        return { type: 'invalid' };
-      }
-
-      if (this.onEdgeClicked(edge)) {      //setup phase build road code
-        return { type: 'complete' };
-      } else {
-        return { type: 'invalid' };
-      }
-
-    } else {
-      if (this.gamePhase !== GamePhase.BuildRoad && !premove) {
-        return { type: 'invalid' };
-      } else if (this.gamePhase === GamePhase.BuildRoad && this.onEdgeClicked(edge)) {
-        return { type: 'complete' };
-      } else {
-        this.gamePhase = GamePhase.MainGameplay;
-        return new BuildRoadAction(playerID, edge);
-      }
-    }
-  }
-
-  onEdgeClicked(edge: EdgeCoords): boolean {
-    if (!this.claimedSettlement && (this.gamePhase === GamePhase.PlaceSettlement1 || this.gamePhase === GamePhase.PlaceSettlement2)) {
-      return false;
-    }
-    if (this.gamePhase !== GamePhase.BuildRoad && this.gamePhase !== GamePhase.PlaceSettlement1 && this.gamePhase !== GamePhase.PlaceSettlement2) {
-      return false;
-    }
-
-    const currPlayer = this.getCurrPlayer();
-    const roadThere = this.map.roadAt(edge);
-    roadThere?.claimRoad(currPlayer);
-    if (this.gamePhase === GamePhase.BuildRoad) {
-      currPlayer.spend(AllBuildCosts[BuildActionType.Road]);
-    }
-    this.nextPlayer();
-    this.forceUpdate();
-    return true;
-  }
-
   getPremoves(playerId: number) {
     const playerMoves: BuildAction[] = [];
     for (const move of this.premoveActions) {
@@ -592,8 +472,6 @@ export default class Game {
       const town = this.map.townAt(new VertexCoords(clickedHex.coords, dir));
       if (town && town.playerIdx !== undefined && town.playerIdx !== this.currPlayerIdx) {
         // Highlight town for player choosing who to steal from
-        town.highlightMe();
-
         if (!robbablePlayers.includes(town.playerIdx)) {
           robbablePlayers.push(town.playerIdx);
         }
@@ -607,7 +485,6 @@ export default class Game {
       this.instructionText =
         `${this.getCurrPlayer().name} placed the robber, but there was no one to steal from.
          ${this.getCurrPlayer().name}'s turn!`;
-      this.clearAllDisplaysAndForceUpdate();
       return;
     }
 
@@ -616,7 +493,6 @@ export default class Game {
       // Only 1 player to rob, rob them automatically
       const randPlayer = Math.floor(Math.random() * robbablePlayers.length);
       this.stealResourceFromPlayer(robbablePlayers[randPlayer]);
-      this.clearAllDisplaysAndForceUpdate();
       return;
     }
 
@@ -646,7 +522,6 @@ export default class Game {
 
     this.gamePhase = GamePhase.MainGameplay;
     this.robberPhase = undefined;
-    this.clearAllDisplaysAndForceUpdate();
   }
 
   toString() {
@@ -757,6 +632,10 @@ export default class Game {
       case BuildActionType.Road:
         return this.map.buildableRoadLocations(playerIdx)
           .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
+
+      case BuildActionType.Settlement:
+        return this.map.buildableTownLocations(playerIdx)
+          .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords));
 
       default:
         throw new Error(`getValidBuildActions unsupported BuildActionType: ${actionToString(type)}`);

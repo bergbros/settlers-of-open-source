@@ -7,8 +7,6 @@ export default class GameTown {
   coords?: VertexCoords;
   playerIdx?: number;
   townLevel: number;
-  display: boolean;
-  highlighted: boolean;
   production: number[];
   eval: number;
   constructor(coords?: VertexCoords) {
@@ -17,11 +15,9 @@ export default class GameTown {
     }
     this.playerIdx = undefined;
     this.townLevel = 0;
-    this.eval = 0;//player specific eval number
-    this.display = false;
-    this.highlighted = false;
+    this.eval = 0; // player specific evaluation number (for AI)
     this.production = [];
-    for (const resource of AllResourceTypes) {
+    for (const _resource of AllResourceTypes) {
       this.production.push(0);
     }
   }
@@ -56,19 +52,6 @@ export default class GameTown {
 
   getCoords() {
     return this.coords;
-  }
-
-  showMe() {
-    this.display = true;
-  }
-
-  resetDisplay() {
-    this.display = this.playerIdx !== undefined;
-    this.highlighted = false;
-  }
-
-  highlightMe() {
-    this.highlighted = true;
   }
 
   setChildPrototypes() {

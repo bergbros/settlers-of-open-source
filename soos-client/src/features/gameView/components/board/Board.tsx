@@ -13,7 +13,7 @@ import {
   Game,
   BuildActionType,
 } from "soos-gamelogic";
-import { BuildRoadAction } from 'soos-gamelogic/dist/src/build-actions';
+import { BuildRoadAction, BuildSettlementAction } from 'soos-gamelogic/dist/src/build-actions';
 import { Hex, Town, Road, Robber, Player } from "~/src/components";
 
 type BoardProps = {
@@ -56,36 +56,33 @@ export const Board = (props: BoardProps) => {
     }
   }
 
+  let townBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Settlement || pba.type === BuildActionType.City);
+
+  const isSettlementSetup = game.setupPhase() && game.currPlayerIdx === playerId && !game.claimedSettlement;
+
   const towns = [];
   for (const town of game.map.towns) {
-    const townCoords = town.coords!;
-
-    if (!town.display && !makingPremoves) {
+    if (!town || !town.coords)
       continue;
+
+    const townCoords = town.coords;
+
+    let buildAction: BuildAction | undefined;
+    if (isSettlementSetup) {
+      buildAction = new BuildSettlementAction(playerId, townCoords);
+    } else {
+      // TODO optimize
+      buildAction = townBuildActions.find(pba => townCoords.equals(pba.location));
     }
 
     towns.push(
       <Town
         gameTown={town}
+        highlighted={!!buildAction}
         premove={makingPremoves && town.playerIdx === playerId}
-        onClick={(vertexCoords) => {
-          if (playerId === undefined) {
-            console.log('town onclick, playerid undef')
-            return;
-          }
-          const actionResponse = game.onClientVertex(
-            vertexCoords,
-            playerId,
-            makingPremoves
-          );
-          console.log(actionResponse);
-          if (actionResponse.type === "complete") {
-            sendGameStateToServer();
-          } else if (actionResponse.type === "invalid") {
-            socket.emit("check");
-            //no action
-          } else {
-            socket.emit("premove", actionResponse);
+        onClick={() => {
+          if (buildAction) {
+            socket.emit("build", buildAction);
           }
         }}
         key={`t:${townCoords.hexCoords.x},${townCoords.hexCoords.y},${townCoords.direction}`}
@@ -106,7 +103,8 @@ export const Board = (props: BoardProps) => {
   for (const road of game.map.roads) {
     const roadCoords = road.coords;
 
-    const buildAction = roadBuildActions.find(pba => pba.type === BuildActionType.Road && road.coords.equals(pba.location));
+    // TODO optimize
+    const buildAction = roadBuildActions.find(pba => road.coords.equals(pba.location));
 
     roads.push(
       <Road

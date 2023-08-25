@@ -5,8 +5,9 @@ import './Town.scss';
 
 export type TownProps = {
   gameTown: GameTown;
-  onClick: (vertexCoords: VertexCoords) => void;
+  highlighted: boolean;
   premove: boolean;
+  onClick: (vertexCoords: VertexCoords) => void;
 };
 
 // offset slightly from 0,0 so stroke doesn't go outside bounds of svg
@@ -33,15 +34,15 @@ const suburbSize = 28;
 const suburbPolygonPoints = townPoints(suburbSize, [[0, .25], [0, 1], [1, 1], [1, .5], [.5, .5], [.5, .25], [.25, 0]]);
 
 export const Town = (props: TownProps) => {
-  const { gameTown, onClick, premove } = props;
+  const { gameTown, onClick, premove, highlighted } = props;
 
   const playerIdx = gameTown.playerIdx ?? -1;
   const playerColor = Variables.PlayerColors[playerIdx];
 
   const playerClass = gameTown.isUnclaimed() ? 'unclaimed' : '';
-  let highlighted = '';
-  if (gameTown.highlighted || premove) {
-    highlighted = 'highlight';
+  let highlightedClass = '';
+  if (highlighted || premove) {
+    highlightedClass = 'highlight';
   }
   // let townLevel = '';
   let townSize = 10, points;
@@ -86,8 +87,11 @@ export const Town = (props: TownProps) => {
 
   const { x, y } = vertexCoordsToPixels(gameTown.coords!);
 
+  const shouldDisplay = premove || highlighted || playerIdx !== -1;
+  if (!shouldDisplay) return null;
+
   return (
-    <div className={'Town ' + playerClass + ' ' + highlighted}
+    <div className={'Town ' + playerClass + ' ' + highlightedClass}
       key={`t:${gameTown.coords!.hexCoords.x},${gameTown.coords!.hexCoords.y},${gameTown.coords!.direction}`}
       style={{
         left: x + 'px',
@@ -95,7 +99,7 @@ export const Town = (props: TownProps) => {
       }}
       onClick={() => onClick(gameTown.coords!)}
     >
-      {gameTown.highlighted && gameTown.eval}
+      {/* {highlighted && gameTown.eval} */}
       {svg}
     </div>
   );

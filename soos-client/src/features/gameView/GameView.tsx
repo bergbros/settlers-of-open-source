@@ -108,10 +108,10 @@ export const GameView = (props: GameViewProps) => {
     );
   }
 
-  let playerName = "waiting to connect";
-  if (playerId !== undefined) {
-    playerName = game.players[playerId].name;
-  }
+  // let playerName = "waiting to connect";
+  // if (playerId !== undefined) {
+  //   playerName = game.players[playerId].name;
+  // }
 
   return (
     // <div className="App">
@@ -183,7 +183,7 @@ export const GameView = (props: GameViewProps) => {
                     setPossibleBuildActions([]);
                   }
 
-                  if (buildActionType === BuildActionType.Road) {
+                  if (buildActionType === BuildActionType.Road || buildActionType === BuildActionType.Settlement) {
                     setPossibleBuildActions(game.getValidBuildActions(playerId!, buildActionType));
                   } else {
                     game.displayActionOptions(buildActionType);

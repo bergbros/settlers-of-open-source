@@ -28,8 +28,11 @@ export const registerGeneralSocketListeners = (socket: Socket, io: Server) => {
 
       var sockets_in_room = await io.in(gamecode).fetchSockets();
       var users_in_room: string[] = [];
-      sockets_in_room.forEach(element => {
-        users_in_room.push(userManager.getUserForSocket(element.id).name);
+      sockets_in_room.forEach(sckt => {
+        var user = userManager.getUserBySocketID(sckt.id)
+        if (user)
+          users_in_room.push(user.name);
+        // else probably throw error? socket not assoc. with user?
       });
 
       io.to(gamecode).emit('gameUserList', users_in_room);

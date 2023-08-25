@@ -1,8 +1,5 @@
-import {
-  generateUserID,
-  getObjInTableByAttr,
-  removeObjInTableByAttr,
-} from './utils.js';
+import { generateUserID } from './utils.js';
+import { DataManager } from './data-manager.js';
 
 type User = {
   userID: string,
@@ -11,68 +8,88 @@ type User = {
   ownerOfGameCode: string,
 }
 
-let userTable: User[] = [];
+class UserManager {
+  private userTable: DataManager;
 
-let genUserLookupFn = (userAttr: string, userAttrVal: string) => {
-  let lookupFn = (user: User) => {
-    return user[userAttr] === userAttrVal;
+  public constructor() {
+    this.userTable = new DataManager();
   }
-  return lookupFn;
-}
 
-export var userManager = {
-  userTable: userTable,
-  addUser: (name: string) => {
-    if (!getObjInTableByAttr(userTable, 'name', name)) {
+  public addUser(name: string) {
+    if (this.userTable.objectWithAttrExists('name', name))
       return null;
-    }
 
     var userID = generateUserID();
-    userTable.push({ userID: userID, socketID: '', name: name, ownerOfGameCode: '' });
-    console.log("Added user", userID, userTable);
+    this.userTable.addObject({
+      userID: userID,
+      socketID: '',
+      name: name,
+      ownerOfGameCode: ''
+    });
+    console.log("Added user", userID, this.userTable);
+
     return userID;
-  },
-  removeUser: (userID: string) => {
-    var indexToRemove = userTable.findIndex(
-      genUserLookupFn('userID', userID)
-    );
-    userTable.splice(indexToRemove, 1);
-  },
-  getSocketForUser: (userID: string) => {
-    try { //TODO add try-catch everywhere here
-      return userTable[userTable.findIndex(
-        genUserLookupFn('userID', userID)
-      )];
-    } catch (error) {
+  }
+
+  public removeUser(userID: string) {
+    var result = this.userTable.removeObjectByAttr('userID', userID);
+    if (result) {
+      return true;
+    } else {
+      // throw error
+    }
+  }
+
+  public getSocketForUser(userID: string) {
+    var user = this.userTable.getObjectByAttr('userID', userID) as User;
+    if (user) {
+      return user.socketID;
+    } else {
+      return null;
+      // maybe throw?
+    }
+  }
+
+  public getUserBySocketID(socketID: string) {
+    var user = this.userTable.getObjectByAttr('socketID', socketID) as User;
+    if (user) {
+      return user;
+    } else {
       return null;
     }
-  },
-  getUserForSocket: (socketID: string) => {
-    return userTable[userTable.findIndex(
-      genUserLookupFn('socketID', socketID)
-    )];
-  },
-  assocSocketWithUser: (userID: string, socketID: string) => {
-    var userIndex = userTable.findIndex(
-      genUserLookupFn('userID', userID)
-    );
-    if (userIndex === -1)
+  }
+
+  public getUserByUserID(userID: string) {
+    var user = this.userTable.getObjectByAttr('userID', userID) as User;
+    if (user) {
+      return user;
+    } else {
+      return null;
+    }
+  }
+
+  public assocSocketWithUser(userID: string, socketID: string) {
+    var user = this.getUserByUserID(userID);
+
+    if (user) {
+      user.socketID = socketID;
+      console.log(`associated socket ${socketID} with user ${userID} `)
+      return true;
+    } else {
       return false;
+    }
+  }
 
-    userTable[userIndex].socketID = socketID;
-    console.log(`associated socket ${socketID} with user ${userID}`)
-    return true;
-  },
-  makeUserOwnerOfGameCode: (userID: string, gamecode: string) => {
-    var userIndex = userTable.findIndex(
-      genUserLookupFn('userID', userID)
-    );
-    if (userIndex === -1)
+  public makeUserOwnerOfGameCode(userID: string, gamecode: string) {
+    var user = this.getUserByUserID(userID);
+    if (user) {
+      user.ownerOfGameCode = gamecode;
+      console.log(`made user ${userID} owner of game ${gamecode} `);
+      return true;
+    } else {
       return false;
-
-    userTable[userIndex].ownerOfGameCode = gamecode;
-    console.log(`made user ${userID} owner of game ${gamecode}`);
-    return true;
-  },
-
+    }
+  }
 }
+
+export let userManager = new UserManager();

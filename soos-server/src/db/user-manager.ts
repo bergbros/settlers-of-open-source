@@ -1,4 +1,4 @@
-import { generateUserID } from './utils.js';
+import { generateUserID } from './utils/utils.js';
 import { DataManager } from './data-manager.js';
 import { Socket } from 'socket.io';
 

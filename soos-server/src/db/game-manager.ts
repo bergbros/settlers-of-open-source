@@ -1,7 +1,7 @@
 import { Game } from 'soos-gamelogic';
 import ServerAction from '../server-action.js';
 
-import { generateGameCode } from './utils.js';
+import { generateGameCode } from './utils/utils.js';
 import { DataManager } from './data-manager.js';
 import { userManager } from './user-manager.js';
 

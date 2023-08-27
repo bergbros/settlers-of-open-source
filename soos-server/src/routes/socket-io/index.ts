@@ -9,13 +9,9 @@ import { registerGameSocketListeners } from './game.js'
 
 export const registerSocketListeners = (
   socket: Socket,
-  io: Server,
-  // TODO refactor this so it doesn't have to be passed around
-  game: Game,
-  id: number,
-  premoveActions: ServerAction[]
+  io: Server
 ) => {
   registerGeneralSocketListeners(socket, io);
   registerLobbySocketListeners(socket, io);
-  registerGameSocketListeners(socket, io, game, id, premoveActions);
+  registerGameSocketListeners(socket, io);
 }

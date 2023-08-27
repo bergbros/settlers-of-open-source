@@ -9,9 +9,6 @@ import { timingMiddleware } from './routes/utils.js';
 
 import { registerSocketListeners } from './routes/socket-io/index.js';
 
-import { Game } from 'soos-gamelogic';
-import ServerAction from './server-action.js';
-
 const port = 3000;
 
 const app: Express = express();
@@ -30,28 +27,17 @@ app.use(cookieSession({
 
 app.use('/api', apiRouter);
 
-const connectedPlayers: (Socket | null)[] = [];
-const premoveActions: ServerAction[] = [];
-let game = new Game({ debugAutoPickSettlements: false });
-
 io.on('connection', socket => {
-  let id = connectedPlayers.indexOf(null);
-  if (id === -1) {
-    id = connectedPlayers.length;
-  }
-
-  console.log('user connected! giving id: ' + id);
-  connectedPlayers[id] = socket;
-  socket.emit('playerId', id);
-
-  registerSocketListeners(socket, io, game, id, premoveActions);
-
-  socket.on('disconnect', () => {
-    console.log(`user ${id} disconnected`);
-    connectedPlayers[id] = null;
+  registerSocketListeners(socket, io);
+  socket.on('check1', () => {
+    console.log('check1');
   });
 
-  socket.emit('updateGameState', game.toString());
+  socket.on('disconnect', () => {
+    console.log('disconnected');
+  });
+
+  //socket.emit('updateGameState', game.toString());
 });
 
 server.listen(port, () => {

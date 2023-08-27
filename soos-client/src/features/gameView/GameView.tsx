@@ -44,8 +44,12 @@ export const GameView = (props: GameViewProps) => {
 
   React.useEffect(() => {
     function receivePlayerId(id: number) {
-      console.log("Got player ID:", id);
-      setPlayerId(id);
+      if (!id) {
+        console.log('Error getting player id, check server logs');
+      } else {
+        console.log("Got player ID:", id);
+        setPlayerId(id);
+      }
     }
 
     function updateGameState(gameState: string) {
@@ -69,7 +73,9 @@ export const GameView = (props: GameViewProps) => {
       game.forceUpdate();
     }
 
-    socket.on("playerId", receivePlayerId);
+    socket.emit("playerId", receivePlayerId);
+    setTimeout(() => console.log('getting game state'), 3000);
+    socket.emit("retrieveGameState", updateGameState);
     socket.on("updateGameState", updateGameState);
     socket.on("premoves", setPremoves);
 

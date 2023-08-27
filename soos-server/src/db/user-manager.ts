@@ -1,5 +1,6 @@
 import { generateUserID } from './utils.js';
 import { DataManager } from './data-manager.js';
+import { Socket } from 'socket.io';
 
 type User = {
   userID: string,
@@ -68,12 +69,13 @@ class UserManager {
     }
   }
 
-  public assocSocketWithUser(userID: string, socketID: string) {
+  public assocSocketWithUser(userID: string, socket: Socket) {
     var user = this.getUserByUserID(userID);
 
     if (user) {
-      user.socketID = socketID;
-      console.log(`associated socket ${socketID} with user ${userID} `)
+      user.socketID = socket.id;
+      socket.data.userID = userID;
+      console.log(`associated socket ${socket.id} with user ${userID} `)
       return true;
     } else {
       return false;

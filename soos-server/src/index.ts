@@ -29,9 +29,6 @@ app.use('/api', apiRouter);
 
 io.on('connection', socket => {
   registerSocketListeners(socket, io);
-  socket.on('check1', () => {
-    console.log('check1');
-  });
 
   socket.on('disconnect', () => {
     console.log('disconnected');

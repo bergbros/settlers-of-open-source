@@ -173,11 +173,6 @@ export const registerGameSocketListeners = (
     socket.emit('premoves', gameMoves);
   });
 
-  socket.on('disconnect', () => {
-  });
-
-
-
   /*This is never called, commenting out for now. 
   
   socket.on('logPremoves', () => {

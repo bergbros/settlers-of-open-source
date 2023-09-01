@@ -1,4 +1,4 @@
-import { GameRoad, EdgeCoords, HexDirection } from 'soos-gamelogic';
+import { GameRoad, HexDirection } from 'soos-gamelogic';
 import { edgeCoordsToPixels } from '../../utils';
 import Variables from '../../scss/variables';
 import './Road.scss';

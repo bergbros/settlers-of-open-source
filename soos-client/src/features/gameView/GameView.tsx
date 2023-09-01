@@ -7,13 +7,11 @@ import {
   BuildAction,
   hydrateBuildAction,
   gameFromString,
-  GameHex,
   GamePhase,
-  RobberPhase,
   Game,
   BuildActionType,
 } from 'soos-gamelogic';
-import { Hex, Town, Road, Robber, Player } from '~/src/components';
+import { Player } from '~/src/components';
 import { Board, ResourceBar, TradeWindow } from './components';
 
 let premoves: BuildAction[] = [];

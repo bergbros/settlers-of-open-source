@@ -1,11 +1,11 @@
 export class DataManager<T> {
   dataTable: T[];
 
-  public constructor() {
+  constructor() {
     this.dataTable = [];
   }
 
-  public addObject(object: T): void {
+  addObject(object: T): void {
     this.dataTable.push(object);
   }
 
@@ -22,7 +22,7 @@ export class DataManager<T> {
     );
   }
 
-  public getObjectByAttr(attr: string, attrVal: string): T | null {
+  getObjectByAttr(attr: string, attrVal: string): T | null {
     const index = this.getIndexForObjectByAttr(attr, attrVal);
     if (index === -1) {
       return null;
@@ -31,7 +31,7 @@ export class DataManager<T> {
     }
   }
 
-  public objectWithAttrExists(attr: string, attrVal: string): boolean {
+  objectWithAttrExists(attr: string, attrVal: string): boolean {
     const index = this.getIndexForObjectByAttr(attr, attrVal);
     if (index === -1) {
       return false;
@@ -40,7 +40,7 @@ export class DataManager<T> {
     }
   }
 
-  public removeObjectByAttr(attr: string, attrVal: string): boolean {
+  removeObjectByAttr(attr: string, attrVal: string): boolean {
     const indexToRemove = this.getIndexForObjectByAttr(attr, attrVal);
     if (indexToRemove === -1) {
       return false;

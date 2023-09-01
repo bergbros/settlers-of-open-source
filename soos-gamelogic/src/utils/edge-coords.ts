@@ -13,23 +13,23 @@ export function edgeDirName(dir: HexDirection): string {
 
 export function vertexToEdge(direction: VertexDirection) {
   switch (direction) {
-    case VertexDirection.N:
-      return HexDirection.NE;
+  case VertexDirection.N:
+    return HexDirection.NE;
 
-    case VertexDirection.NE:
-      return HexDirection.E;
+  case VertexDirection.NE:
+    return HexDirection.E;
 
-    case VertexDirection.SE:
-      return HexDirection.SE;
+  case VertexDirection.SE:
+    return HexDirection.SE;
 
-    case VertexDirection.S:
-      return HexDirection.SW;
+  case VertexDirection.S:
+    return HexDirection.SW;
 
-    case VertexDirection.SW:
-      return HexDirection.W;
+  case VertexDirection.SW:
+    return HexDirection.W;
 
-    case VertexDirection.NW:
-      return HexDirection.NW;
+  case VertexDirection.NW:
+    return HexDirection.NW;
   }
 }
 

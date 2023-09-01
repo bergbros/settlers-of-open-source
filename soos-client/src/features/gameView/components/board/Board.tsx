@@ -1,20 +1,14 @@
-import * as React from 'react';
 import { Socket } from 'socket.io-client';
 import {
-  actionCostString,
-  actionToString,
-  AllBuildActionTypes,
   BuildAction,
-  hydrateBuildAction,
-  gameFromString,
   GameHex,
   GamePhase,
   RobberPhase,
   Game,
   BuildActionType,
 } from 'soos-gamelogic';
-import { BuildRoadAction, BuildSettlementAction } from 'soos-gamelogic/dist/src/build-actions';
-import { Hex, Town, Road, Robber, Player } from '~/src/components';
+import { BuildSettlementAction } from 'soos-gamelogic/dist/src/build-actions';
+import { Hex, Town, Road, Robber } from '~/src/components';
 
 type BoardProps = {
   game: Game;

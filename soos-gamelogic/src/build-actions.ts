@@ -17,22 +17,22 @@ export const AllBuildActionTypes = Object.freeze([
 ]);
 
 export const AllBuildCosts = Object.freeze([
-  [1, 1, 0, 0, 0], //road
-  [1, 1, 1, 1, 0], //settlement
-  [0, 0, 0, 3, 2], //city
-  [0, 0, 1, 1, 1], //development
+  [ 1, 1, 0, 0, 0 ], //road
+  [ 1, 1, 1, 1, 0 ], //settlement
+  [ 0, 0, 0, 3, 2 ], //city
+  [ 0, 0, 1, 1, 1 ], //development
 ]);
 
 export function actionToString(action: BuildActionType): string {
   switch (action) {
-    case BuildActionType.Road:
-      return 'Road';
-    case BuildActionType.Settlement:
-      return 'Settlement';
-    case BuildActionType.City:
-      return 'City';
-    case BuildActionType.Development:
-      return 'Development Card';
+  case BuildActionType.Road:
+    return 'Road';
+  case BuildActionType.Settlement:
+    return 'Settlement';
+  case BuildActionType.City:
+    return 'City';
+  case BuildActionType.Development:
+    return 'Development Card';
   }
   return 'null Action';
 }
@@ -66,20 +66,20 @@ export type BuildAction = {
 export function hydrateBuildAction(buildAction: BuildAction): BuildAction {
   let action;
   switch (buildAction.type) {
-    case BuildActionType.Road:
-      action = new BuildRoadAction(buildAction.playerId, (buildAction as BuildRoadAction).location);
-      break;
-    case BuildActionType.Settlement:
-      action = new BuildSettlementAction(buildAction.playerId, (buildAction as BuildSettlementAction).location);
-      break;
-    case BuildActionType.City:
-      action = new BuildCityAction(buildAction.playerId, (buildAction as BuildCityAction).location);
-      break;
-    case BuildActionType.Development:
-      action = new BuildDevelopmentCardAction(buildAction.playerId);
-      break;
-    default:
-      throw new Error(`Can't hydrate build action of type ${buildAction.type}`);
+  case BuildActionType.Road:
+    action = new BuildRoadAction(buildAction.playerId, (buildAction as BuildRoadAction).location);
+    break;
+  case BuildActionType.Settlement:
+    action = new BuildSettlementAction(buildAction.playerId, (buildAction as BuildSettlementAction).location);
+    break;
+  case BuildActionType.City:
+    action = new BuildCityAction(buildAction.playerId, (buildAction as BuildCityAction).location);
+    break;
+  case BuildActionType.Development:
+    action = new BuildDevelopmentCardAction(buildAction.playerId);
+    break;
+  default:
+    throw new Error(`Can't hydrate build action of type ${buildAction.type}`);
   }
   action.setChildPrototypes();
   return action;
@@ -120,11 +120,13 @@ export class BuildRoadAction implements BuildAction {
   }
 
   execute(gameState: Game): boolean {
-    console.log("executing build road");
+    console.log('executing build road');
     const player = gameState.players[this.playerId];
     if (gameState.setupPhase() || gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
-      let road = gameState.map.roadAt(this.location)
-      if (road === undefined) return false
+      const road = gameState.map.roadAt(this.location);
+      if (road === undefined) {
+        return false;
+      }
       road.claimRoad(player);
 
       if (gameState.setupPhase()) {
@@ -147,7 +149,9 @@ export class BuildRoadAction implements BuildAction {
   }
 
   equals(compareAction: BuildAction) {
-    if (this.type !== compareAction.type) return false;
+    if (this.type !== compareAction.type) {
+      return false;
+    }
     compareAction = new BuildRoadAction(compareAction.playerId, compareAction.location);
     return this.location.equals(compareAction.location);
   }
@@ -188,10 +192,11 @@ export class BuildSettlementAction implements BuildAction {
   }
 
   execute(gameState: Game): boolean {
-    if (!gameState.setupPhase() && !gameState.players[this.playerId].spend(AllBuildCosts[this.type]))
+    if (!gameState.setupPhase() && !gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
       return false;
+    }
 
-    let town = gameState.map.townAt(this.location)
+    const town = gameState.map.townAt(this.location);
     if (town === undefined) {
       return false;
     }
@@ -219,7 +224,9 @@ export class BuildSettlementAction implements BuildAction {
   }
 
   equals(compareAction: BuildAction) {
-    if (this.type !== compareAction.type) return false;
+    if (this.type !== compareAction.type) {
+      return false;
+    }
     compareAction = new BuildSettlementAction(compareAction.playerId, compareAction.location);
     return this.location.equals(compareAction.location);
   }
@@ -247,15 +254,16 @@ export class BuildCityAction implements BuildAction {
   }
 
   shouldDisqualify(gameState: Game): boolean {
-    console.log("checking valid city move")
+    console.log('checking valid city move');
     const validSettlePlan = gameState.settlePremovePresent(this.location, this.playerId);
     return !validSettlePlan || gameState.map.townAt(this.location)?.playerIdx !== this.playerId;
   }
 
   execute(gameState: Game): boolean {
-    console.log("executing build city");
-    if (!gameState.players[this.playerId].spend(AllBuildCosts[this.type]))
+    console.log('executing build city');
+    if (!gameState.players[this.playerId].spend(AllBuildCosts[this.type])) {
       return false;
+    }
 
     gameState.map.townAt(this.location)?.upgradeCity();
     gameState.forceUpdate();
@@ -267,7 +275,9 @@ export class BuildCityAction implements BuildAction {
   }
 
   equals(compareAction: BuildAction) {
-    if (this.type !== compareAction.type) return false;
+    if (this.type !== compareAction.type) {
+      return false;
+    }
     compareAction = new BuildCityAction(compareAction.playerId, compareAction.location);
     return this.location.equals(compareAction.location);
   }
@@ -299,7 +309,7 @@ export class BuildDevelopmentCardAction implements BuildAction {
 
   execute(gameState: Game): boolean {
     //todo: implement development cards!
-    console.log("TODO: BuildDevelopmentCardAction.execute()");
+    console.log('TODO: BuildDevelopmentCardAction.execute()');
     gameState.forceUpdate();
     return false;
   }

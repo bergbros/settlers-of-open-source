@@ -4,7 +4,7 @@ import { userApiRouter } from './user.js';
 import { socketApiRouter } from './socket.js';
 import { gameApiRouter } from './game.js';
 
-var router = express.Router();
+const router = express.Router();
 
 // Adding child routes
 router.use('/user', userApiRouter);

@@ -1,4 +1,4 @@
-import { AllResourceTypes, ResourceType, resourceToLand, resourceToSymbol } from 'soos-gamelogic';
+import { AllResourceTypes, resourceToLand, resourceToSymbol } from 'soos-gamelogic';
 import './ResourceBar.scss';
 
 export type ResourceBarProps = {

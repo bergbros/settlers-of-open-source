@@ -71,27 +71,27 @@ export default class VertexCoords {
       let y = this.hexCoords.y;
 
       switch (this.direction) {
-        case VertexDirection.NE:
-          x++;
-          this.direction = VertexDirection.NW;
-          break;
+      case VertexDirection.NE:
+        x++;
+        this.direction = VertexDirection.NW;
+        break;
 
-        case VertexDirection.SE:
-          x += y % 2;
-          y++;
-          this.direction = VertexDirection.N;
-          break;
+      case VertexDirection.SE:
+        x += y % 2;
+        y++;
+        this.direction = VertexDirection.N;
+        break;
 
-        case VertexDirection.S:
-          x += y % 2;
-          y++;
-          this.direction = VertexDirection.NW;
-          break;
-        case VertexDirection.SW:
-          x += y % 2 - 1;
-          y++;
-          this.direction = VertexDirection.N;
-          break;
+      case VertexDirection.S:
+        x += y % 2;
+        y++;
+        this.direction = VertexDirection.NW;
+        break;
+      case VertexDirection.SW:
+        x += y % 2 - 1;
+        y++;
+        this.direction = VertexDirection.N;
+        break;
       }
 
       this.hexCoords = new HexCoords(x, y);
@@ -115,33 +115,33 @@ export function hydrateVertexCoords(vertexCoords: VertexCoords): VertexCoords {
 export function edgeToVertex(direction: HexDirection): VertexDirection {
   const myvert = VertexDirection.N;
   switch (direction) {
-    case HexDirection.NE: return VertexDirection.N;
-    case HexDirection.E: return VertexDirection.NE;
-    case HexDirection.SE: return VertexDirection.SE;
-    case HexDirection.SW: return VertexDirection.S;
-    case HexDirection.W: return VertexDirection.SW;
-    case HexDirection.NW: return VertexDirection.NW;
+  case HexDirection.NE: return VertexDirection.N;
+  case HexDirection.E: return VertexDirection.NE;
+  case HexDirection.SE: return VertexDirection.SE;
+  case HexDirection.SW: return VertexDirection.S;
+  case HexDirection.W: return VertexDirection.SW;
+  case HexDirection.NW: return VertexDirection.NW;
   }
 }
 
 export function vertexDirToHexDirection(direction: VertexDirection) {
   switch (direction) {
-    case VertexDirection.N: return HexDirection.NE;
-    case VertexDirection.NE: return HexDirection.E;
-    case VertexDirection.SE: return HexDirection.SE;
-    case VertexDirection.S: return HexDirection.SW;
-    case VertexDirection.SW: return HexDirection.W;
-    case VertexDirection.NW: return HexDirection.NW;
+  case VertexDirection.N: return HexDirection.NE;
+  case VertexDirection.NE: return HexDirection.E;
+  case VertexDirection.SE: return HexDirection.SE;
+  case VertexDirection.S: return HexDirection.SW;
+  case VertexDirection.SW: return HexDirection.W;
+  case VertexDirection.NW: return HexDirection.NW;
   }
 }
 export function vertexDirToHexDirectionStaggered(direction: VertexDirection) {
   switch (direction) {
-    case VertexDirection.N: return HexDirection.NW;
-    case VertexDirection.NE: return HexDirection.NE;
-    case VertexDirection.SE: return HexDirection.E;
-    case VertexDirection.S: return HexDirection.SE;
-    case VertexDirection.SW: return HexDirection.SW;
-    case VertexDirection.NW: return HexDirection.W;
+  case VertexDirection.N: return HexDirection.NW;
+  case VertexDirection.NE: return HexDirection.NE;
+  case VertexDirection.SE: return HexDirection.E;
+  case VertexDirection.S: return HexDirection.SE;
+  case VertexDirection.SW: return HexDirection.SW;
+  case VertexDirection.NW: return HexDirection.W;
   }
 }
 
@@ -161,12 +161,12 @@ export function getEdges(vertex: VertexCoords) {
   const newHC = vertex.hexCoords.addHC(vertexDirToHexDirection(vertex.direction));
   let newDir: HexDirection = HexDirection.E;
   switch (vertex.direction) {
-    case VertexDirection.N: newDir = HexDirection.W; break;
-    case VertexDirection.NE: newDir = HexDirection.NW; break;
-    case VertexDirection.SE: newDir = HexDirection.NE; break;
-    case VertexDirection.S: newDir = HexDirection.E; break;
-    case VertexDirection.SW: newDir = HexDirection.SE; break;
-    case VertexDirection.NW: newDir = HexDirection.SW; break;
+  case VertexDirection.N: newDir = HexDirection.W; break;
+  case VertexDirection.NE: newDir = HexDirection.NW; break;
+  case VertexDirection.SE: newDir = HexDirection.NE; break;
+  case VertexDirection.S: newDir = HexDirection.E; break;
+  case VertexDirection.SW: newDir = HexDirection.SE; break;
+  case VertexDirection.NW: newDir = HexDirection.SW; break;
   }
   adjEdges.push(new EdgeCoords(newHC, newDir));
   return adjEdges;

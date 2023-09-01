@@ -41,7 +41,7 @@ function populateContext(socket: Socket): MiddlewareContext | null {
     var game = gameStorage.game;
     var gamecode = gameStorage.gamecode;
     var playerIndex = gameManager.getPlayerIndexBySocketID(gamecode, socket.id);
-
+    console.log('populating context for ' + playerIndex);// + gamecode + "//" + game + "//" + playerIndex);
     let context: MiddlewareContext = {
       activeGamecode: gamecode,
       game: game,
@@ -60,7 +60,7 @@ function saveGame(context: MiddlewareContext) {
 }
 
 const gameEvents: Set<string> = new Set([
-  'playerID',
+  'playerId',
   'newGameState',
   'autoPickSettlements',
   'build',
@@ -92,7 +92,10 @@ export const registerGameSocketListeners = (
     }
   });
 
-  socket.on('playerID', (callback) => {
+  socket.on('playerId', (callback) => {
+    if (!context)
+      console.log('Context is not defined!')
+    console.log('attempting to pass socket playerId: ' + context?.playerIndex);
     callback(context?.playerIndex);
   });
 

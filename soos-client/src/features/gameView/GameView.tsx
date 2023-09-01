@@ -44,7 +44,8 @@ export const GameView = (props: GameViewProps) => {
 
   React.useEffect(() => {
     function receivePlayerId(id: number) {
-      if (!id) {
+      console.log("received playerId " + id);
+      if (id === undefined) {
         console.log('Error getting player id, check server logs');
       } else {
         console.log("Got player ID:", id);
@@ -90,14 +91,14 @@ export const GameView = (props: GameViewProps) => {
     socket.emit("newGameState", game.toString());
   }
 
-  let premoveItems = premoves.map((action: BuildAction) => (
-    <li>{action.displayString()}</li>
-  ));
-  let premoveDisplay = (
-    <div>
-      <ul> Your Premoves:{premoveItems}</ul>
-    </div>
-  );
+  // let premoveItems = premoves.map((action: BuildAction) => (
+  //   <li>{action.displayString()}</li>
+  // ));
+  // let premoveDisplay = (
+  //   <div>
+  //     <ul> Your Premoves:{premoveItems}</ul>
+  //   </div>
+  // );
 
   const dialogBoxes = [];
   if (isTradeWindowShowing && playerId !== undefined) {
@@ -178,7 +179,7 @@ export const GameView = (props: GameViewProps) => {
         </button>
 
         <div className="BuildActions">
-          <div className="BuildActionsLabel">Build</div>
+          <div className="BuildActionsLabel">Build: you are player _{playerId} _</div>
           <div className="BuildActionButtons">
             {AllBuildActionTypes.map((buildActionType, index) => (
               <button

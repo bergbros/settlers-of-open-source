@@ -82,6 +82,7 @@ class GameManager {
 
       game?.players.addObject(pdf);
       players.push(player.userID);
+      //playerSocket.emit('playerID', players[length]);
     });
 
     console.log(`Launching game ${gamecode} with players ${players}`)

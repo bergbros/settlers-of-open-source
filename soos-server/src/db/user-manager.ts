@@ -10,7 +10,7 @@ type User = {
 }
 
 class UserManager {
-  private userTable: DataManager;
+  private userTable: DataManager<User>;
 
   public constructor() {
     this.userTable = new DataManager();
@@ -20,7 +20,7 @@ class UserManager {
     if (this.userTable.objectWithAttrExists('name', name))
       return null;
 
-    var userID = generateUserID();
+    let userID = generateUserID();
     this.userTable.addObject({
       userID: userID,
       socketID: '',

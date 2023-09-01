@@ -3,7 +3,7 @@ import { Socket, Server } from 'socket.io'
 import { EdgeCoords, Game, gameFromString } from 'soos-gamelogic';
 import ServerAction from '../../server-action.js';
 import { BuildAction, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions.js';
-import { gameManager, GameStorage } from '../../db/game-manager.js';
+import { gameManager, GameSlot } from '../../db/game-manager.js';
 
 type MiddlewareContext = {
   activeGamecode: string,
@@ -11,26 +11,36 @@ type MiddlewareContext = {
   playerIndex: number,
 }
 
-function getGameForSocket(socket: Socket): GameStorage {
+function getGameForSocket(socket: Socket): GameSlot {
   let gamecode: string | null = null;
 
-  if (!socket.data.gamecode) {
+  if (socket.data.gamecode) {
+    gamecode = socket.data.gamecode;
+  } else {
     socket.rooms.forEach((roomName) => {
       if (gameManager.gameExists(roomName)) {
         gamecode = roomName;
         socket.data.gamecode = gamecode;
       }
     });
-  } else {
-    gamecode = socket.data.gamecode;
+  }
+
+  if (!gamecode) {
+    // TODO maybe only do this in development
+    gamecode = 'testgamecode';
   }
 
   if (!gamecode) {
     throw new Error('No game found for socket ' + socket.id);
   } else {
-    var gamestorage = gameManager.getGame(gamecode);
-    if (!gamestorage)
-      throw new Error('No game found for socket ' + socket.id);
+    let gamestorage = gameManager.getGame(gamecode);
+    if (!gamestorage) {
+      gameManager.createGame(gamecode);
+      gamestorage = gameManager.getGame(gamecode)!;
+
+      // TODO throw error in production
+      // throw new Error('No game found for socket ' + socket.id);
+    }
     return gamestorage;
   }
 }
@@ -41,7 +51,7 @@ function populateContext(socket: Socket): MiddlewareContext | null {
     var game = gameStorage.game;
     var gamecode = gameStorage.gamecode;
     var playerIndex = gameManager.getPlayerIndexBySocketID(gamecode, socket.id);
-
+    console.log('populating context for ' + playerIndex);// + gamecode + "//" + game + "//" + playerIndex);
     let context: MiddlewareContext = {
       activeGamecode: gamecode,
       game: game,
@@ -60,7 +70,7 @@ function saveGame(context: MiddlewareContext) {
 }
 
 const gameEvents: Set<string> = new Set([
-  'playerID',
+  'playerId',
   'newGameState',
   'autoPickSettlements',
   'build',
@@ -92,7 +102,10 @@ export const registerGameSocketListeners = (
     }
   });
 
-  socket.on('playerID', (callback) => {
+  socket.on('playerId', (callback) => {
+    if (!context)
+      console.log('Context is not defined!')
+    console.log('attempting to pass socket playerId: ' + context?.playerIndex);
     callback(context?.playerIndex);
   });
 
@@ -181,7 +194,7 @@ export const registerGameSocketListeners = (
     console.log();
 
     for (const serverAction of premoveActions) {
-      console.log('premoves: ' + serverAction.playerID + ' wants ' + serverAction.actionJSON);
+      console.log('premoves: ' + serverAction.playerId + ' wants ' + serverAction.actionJSON);
     }
   });*/
 

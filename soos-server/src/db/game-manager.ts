@@ -13,23 +13,23 @@ export type PlayerDataFields = {
   connected: boolean
 }
 
-export type GameStorage = {
+export type GameSlot = {
   gamecode: string,
   game: Game,
-  players: DataManager,
+  players: DataManager<PlayerDataFields>,
   launched: boolean,
   premoveActions: ServerAction[]
 }
 
 class GameManager {
-  private gameTable: DataManager;
+  private gameTable: DataManager<GameSlot>;
 
   public constructor() {
     this.gameTable = new DataManager();
   }
 
   public getGame(gamecode: string) {
-    var game = this.gameTable.getObjectByAttr('gamecode', gamecode) as GameStorage;
+    var game = this.gameTable.getObjectByAttr('gamecode', gamecode) as GameSlot;
     if (game) {
       return game;
     } else {
@@ -45,9 +45,9 @@ class GameManager {
     }
   }
 
-  public createGame() {
-    var gamecode = generateGameCode();
-    var createdGame: GameStorage = {
+  public createGame(gamecode?: string) {
+    gamecode = gamecode || generateGameCode();
+    var createdGame: GameSlot = {
       gamecode: gamecode,
       game: new Game({ debugAutoPickSettlements: false }),
       players: new DataManager(),
@@ -82,6 +82,7 @@ class GameManager {
 
       game?.players.addObject(pdf);
       players.push(player.userID);
+      //playerSocket.emit('playerId', players[length]);
     });
 
     console.log(`Launching game ${gamecode} with players ${players}`)
@@ -98,15 +99,24 @@ class GameManager {
   }
 
   public getPlayerIndexBySocketID(gamecode: string, socketID: string): number {
-    var user = userManager.getUserBySocketID(socketID);
-    if (!user)
-      throw new Error('Socket ' + socketID + ' not associated with any userID');
+    let user = userManager.getUserBySocketID(socketID);
+    if (!user) {
+      const userId = userManager.addUser(socketID.slice(0, 3))!;
+      user = userManager.getUserByUserID(userId)!;
+
+      // TODO put error back
+      // throw new Error('Socket ' + socketID + ' not associated with any userID');
+    }
 
     var game = this.getGame(gamecode);
     var player = game?.players.getObjectByAttr('userID', user.userID) as PlayerDataFields;
 
-    if (!player)
-      throw new Error('User ' + user.userID + ' not in game');
+    if (!player) {
+      player = game?.players.dataTable[0]!;
+
+      // TODO put error back
+      // throw new Error('User ' + user.userID + ' not in game');
+    }
 
     return player.playerIndex;
   }

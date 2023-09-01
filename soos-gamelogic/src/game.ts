@@ -367,16 +367,16 @@ export default class Game {
     this.forceUpdate();
   }
 
-  getBuildActionTown(town: GameTown, playerID: number, premove: boolean = false): BuildActionResponse {
-    if (town.playerIdx !== undefined && town.playerIdx !== playerID) return { type: 'invalid' };
+  getBuildActionTown(town: GameTown, playerId: number, premove: boolean = false): BuildActionResponse {
+    if (town.playerIdx !== undefined && town.playerIdx !== playerId) return { type: 'invalid' };
     if (town.coords === undefined) return { type: 'invalid' };
 
     let returnAction: BuildAction;
     console.log("making BuildTownAction:");
-    if (!town.isUnclaimed() || this.settlePremovePresent(town.coords, playerID))
-      returnAction = new BuildCityAction(playerID, town.coords);
+    if (!town.isUnclaimed() || this.settlePremovePresent(town.coords, playerId))
+      returnAction = new BuildCityAction(playerId, town.coords);
     else
-      returnAction = new BuildSettlementAction(playerID, town.coords);
+      returnAction = new BuildSettlementAction(playerId, town.coords);
     console.log(returnAction);
     //only return valid actions!
     if (returnAction.shouldDisqualify(this)) {//Why is this true during setup?

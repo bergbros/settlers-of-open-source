@@ -20,6 +20,7 @@ let premoves: BuildAction[] = [];
 
 type GameViewProps = {
   socket: Socket;
+  game: Game;
 };
 
 export const GameView = (props: GameViewProps) => {
@@ -27,9 +28,7 @@ export const GameView = (props: GameViewProps) => {
 
   // TODO wrap this in another component and don't display placeholder
   // game when waiting for multiplayer game to start
-  const [game, setGame] = React.useState<Game>(
-    new Game({ debugAutoPickSettlements: import.meta.env.VITE_GAME_DEBUG })
-  );
+  const [game, setGame] = React.useState<Game>(props.game);
   const [playerId, setPlayerId] = React.useState<number | undefined>(undefined);
   const [isTradeWindowShowing, setIsTradeWindowShowing] = React.useState<boolean>(false);
   const [makingPremoves, setMakingPremoves] = React.useState<boolean>(false);
@@ -44,7 +43,6 @@ export const GameView = (props: GameViewProps) => {
 
   React.useEffect(() => {
     function receivePlayerId(id: number) {
-      console.log("received playerId " + id);
       if (id === undefined) {
         console.log('Error getting player id, check server logs');
       } else {
@@ -74,14 +72,14 @@ export const GameView = (props: GameViewProps) => {
       game.forceUpdate();
     }
 
+    console.log('sending playerId')
     socket.emit("playerId", receivePlayerId);
-    setTimeout(() => console.log('getting game state'), 3000);
-    socket.emit("retrieveGameState", updateGameState);
+
     socket.on("updateGameState", updateGameState);
     socket.on("premoves", setPremoves);
 
     return () => {
-      socket.off("playerId", receivePlayerId);
+      // socket.off("playerId", receivePlayerId);
       socket.off("updateGameState", updateGameState);
       socket.off("premoves", setPremoves);
     };

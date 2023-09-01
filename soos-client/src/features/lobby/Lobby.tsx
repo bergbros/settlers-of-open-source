@@ -36,9 +36,9 @@ export const Lobby = (props: LobbyProps) => {
 
     function gameLaunch() {
       console.log('Game launching...');
-      setTimeout(() => {
-        navigate(`/game/${gamecode}`);
-      }, 5000)
+      // setTimeout(() => {
+      navigate(`/game/${gamecode}`);
+      // }, 5000)
     }
 
     socket.on('socketAssocError', printSocketMsg);

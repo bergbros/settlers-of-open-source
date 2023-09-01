@@ -1,10 +1,10 @@
 
 
 export default class ServerAction {
-    actionJSON: string;
-    playerID: number;
-    constructor(actionJSON: string, playerID: number) {
-        this.actionJSON = actionJSON;
-        this.playerID = playerID;
-    }
+  actionJSON: string;
+  playerId: number;
+  constructor(actionJSON: string, playerId: number) {
+    this.actionJSON = actionJSON;
+    this.playerId = playerId;
+  }
 }

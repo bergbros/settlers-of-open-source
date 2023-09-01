@@ -1,5 +1,5 @@
-import * as React from "react";
-import { Socket } from "socket.io-client";
+import * as React from 'react';
+import { Socket } from 'socket.io-client';
 import {
   actionCostString,
   actionToString,
@@ -12,9 +12,9 @@ import {
   RobberPhase,
   Game,
   BuildActionType,
-} from "soos-gamelogic";
+} from 'soos-gamelogic';
 import { BuildRoadAction, BuildSettlementAction } from 'soos-gamelogic/dist/src/build-actions';
-import { Hex, Town, Road, Robber, Player } from "~/src/components";
+import { Hex, Town, Road, Robber, Player } from '~/src/components';
 
 type BoardProps = {
   game: Game;
@@ -24,13 +24,13 @@ type BoardProps = {
   possibleBuildActions: BuildAction[];
 };
 
-let premoves: BuildAction[] = [];
+const premoves: BuildAction[] = [];
 
 export const Board = (props: BoardProps) => {
   const { game, socket, makingPremoves, playerId, possibleBuildActions } = props;
 
   function sendGameStateToServer() {
-    socket.emit("newGameState", game.toString());
+    socket.emit('newGameState', game.toString());
   }
 
   const hexes = [];
@@ -51,19 +51,20 @@ export const Board = (props: BoardProps) => {
             game.currPlayerIdx === playerId
           }
           key={`h:${gameHex.coords.x},${gameHex.coords.y}`}
-        />
+        />,
       );
     }
   }
 
-  let townBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Settlement || pba.type === BuildActionType.City);
+  const townBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Settlement || pba.type === BuildActionType.City);
 
   const isSettlementSetup = game.setupPhase() && game.currPlayerIdx === playerId && !game.claimedSettlement;
 
   const towns = [];
   for (const town of game.map.towns) {
-    if (!town || !town.coords)
+    if (!town || !town.coords) {
       continue;
+    }
 
     const townCoords = town.coords;
 
@@ -82,11 +83,11 @@ export const Board = (props: BoardProps) => {
         premove={makingPremoves && town.playerIdx === playerId}
         onClick={() => {
           if (buildAction) {
-            socket.emit("build", buildAction);
+            socket.emit('build', buildAction);
           }
         }}
         key={`t:${townCoords.hexCoords.x},${townCoords.hexCoords.y},${townCoords.direction}`}
-      />
+      />,
     );
   }
 
@@ -113,19 +114,19 @@ export const Board = (props: BoardProps) => {
         premove={makingPremoves && road.playerIdx === playerId}
         onClick={() => {
           if (buildAction) {
-            socket.emit("build", buildAction);
+            socket.emit('build', buildAction);
           }
         }}
         key={`r:${roadCoords.hexCoords.x},${roadCoords.hexCoords.y},${roadCoords.direction}`}
-      />
+      />,
     );
   }
   const robber = <Robber game={game}></Robber>;
 
-  let premoveItems = premoves.map((action: BuildAction) => (
+  const premoveItems = premoves.map((action: BuildAction) => (
     <li>{action.displayString()}</li>
   ));
-  let premoveDisplay = (
+  const premoveDisplay = (
     <div>
       <ul> Your Premoves:{premoveItems}</ul>
     </div>

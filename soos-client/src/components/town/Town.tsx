@@ -24,14 +24,14 @@ function townPoints(townSize: number, pointList: [number, number][]) {
 }
 
 const settlementSize = 20;
-const settlementPolygonPoints = townPoints(settlementSize, [[0, 1], [0, .4], [.5, 0], [1, .4], [1, 1]]);
+const settlementPolygonPoints = townPoints(settlementSize, [[ 0, 1 ], [ 0, .4 ], [ .5, 0 ], [ 1, .4 ], [ 1, 1 ]]);
 
 const citySize = 24;
-const cityPolygonPoints = townPoints(citySize, [[0, .25], [0, 1], [1, 1], [1, .5], [.5, .5], [.5, .25], [.25, 0]]);
+const cityPolygonPoints = townPoints(citySize, [[ 0, .25 ], [ 0, 1 ], [ 1, 1 ], [ 1, .5 ], [ .5, .5 ], [ .5, .25 ], [ .25, 0 ]]);
 
 const suburbSize = 28;
 // same as city for now
-const suburbPolygonPoints = townPoints(suburbSize, [[0, .25], [0, 1], [1, 1], [1, .5], [.5, .5], [.5, .25], [.25, 0]]);
+const suburbPolygonPoints = townPoints(suburbSize, [[ 0, .25 ], [ 0, 1 ], [ 1, 1 ], [ 1, .5 ], [ .5, .5 ], [ .5, .25 ], [ .25, 0 ]]);
 
 export const Town = (props: TownProps) => {
   const { gameTown, onClick, premove, highlighted } = props;
@@ -49,19 +49,19 @@ export const Town = (props: TownProps) => {
 
   let svg = null;
   switch (gameTown.townLevel) {
-    case 0:
-    case 1:
-      townSize = settlementSize;
-      points = settlementPolygonPoints;
-      break;
-    case 2:
-      townSize = citySize;
-      points = cityPolygonPoints;
-      break;
-    case 3:
-      townSize = suburbSize;
-      points = suburbPolygonPoints;
-      break;
+  case 0:
+  case 1:
+    townSize = settlementSize;
+    points = settlementPolygonPoints;
+    break;
+  case 2:
+    townSize = citySize;
+    points = cityPolygonPoints;
+    break;
+  case 3:
+    townSize = suburbSize;
+    points = suburbPolygonPoints;
+    break;
   }
 
   let fillOpacity, strokeDasharray, strokeWidth = 0;
@@ -88,7 +88,9 @@ export const Town = (props: TownProps) => {
   const { x, y } = vertexCoordsToPixels(gameTown.coords!);
 
   const shouldDisplay = premove || highlighted || playerIdx !== -1;
-  if (!shouldDisplay) return null;
+  if (!shouldDisplay) {
+    return null;
+  }
 
   return (
     <div className={'Town ' + playerClass + ' ' + highlightedClass}

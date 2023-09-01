@@ -1,4 +1,4 @@
-import { Socket, Server } from 'socket.io'
+import { Socket, Server } from 'socket.io';
 
 import { EdgeCoords, Game, gameFromString } from 'soos-gamelogic';
 import ServerAction from '../../server-action.js';
@@ -9,7 +9,7 @@ type MiddlewareContext = {
   activeGamecode: string,
   game: Game,
   playerIndex: number,
-}
+};
 
 function getGameForSocket(socket: Socket): GameSlot {
   let gamecode: string | null = null;
@@ -47,16 +47,16 @@ function getGameForSocket(socket: Socket): GameSlot {
 
 function populateContext(socket: Socket): MiddlewareContext | null {
   try {
-    var gameStorage = getGameForSocket(socket);
-    var game = gameStorage.game;
-    var gamecode = gameStorage.gamecode;
-    var playerIndex = gameManager.getPlayerIndexBySocketID(gamecode, socket.id);
+    const gameStorage = getGameForSocket(socket);
+    const game = gameStorage.game;
+    const gamecode = gameStorage.gamecode;
+    const playerIndex = gameManager.getPlayerIndexBySocketID(gamecode, socket.id);
     console.log('populating context for ' + playerIndex);// + gamecode + "//" + game + "//" + playerIndex);
-    let context: MiddlewareContext = {
+    const context: MiddlewareContext = {
       activeGamecode: gamecode,
       game: game,
-      playerIndex: playerIndex
-    }
+      playerIndex: playerIndex,
+    };
 
     return context;
   } catch (e) {
@@ -81,7 +81,7 @@ const gameEvents: Set<string> = new Set([
 
 export const registerGameSocketListeners = (
   socket: Socket,
-  io: Server
+  io: Server,
 ) => {
   // Middleware should check that socket is in exactly one gamecode room
   let context: MiddlewareContext | null;
@@ -90,21 +90,23 @@ export const registerGameSocketListeners = (
   // if userIsInActiveGame:
   //   socket.emit('updateGameState', game.toString());
 
-  socket.use(([event, ...args]: any[], next: Function) => {
+  socket.use(([ event, ...args ]: any[], next: Function) => {
     if (gameEvents.has(event)) {
       context = populateContext(socket);
-      if (context)
+      if (context) {
         next();
-      else
+      } else {
         return next(new Error());
+      }
     } else {
       next();
     }
   });
 
   socket.on('playerId', (callback) => {
-    if (!context)
-      console.log('Context is not defined!')
+    if (!context) {
+      console.log('Context is not defined!');
+    }
     console.log('attempting to pass socket playerId: ' + context?.playerIndex);
     callback(context?.playerIndex);
   });
@@ -116,14 +118,16 @@ export const registerGameSocketListeners = (
   });
 
   socket.on('newGameState', (newGameState) => {
-    if (!context)
+    if (!context) {
       return new Error();
+    }
 
     //console.log(newGameState);
     console.log('got New Game State');
     let premoves: BuildAction[] = [];
-    if (context.game)
+    if (context.game) {
       premoves = context.game.premoveActions;
+    }
     context.game = gameFromString(newGameState);
     for (const moves of premoves) {
       context.game.addPremove(moves);
@@ -134,8 +138,9 @@ export const registerGameSocketListeners = (
   });
 
   socket.on('autoPickSettlements', () => {
-    if (!context)
+    if (!context) {
       return new Error();
+    }
 
     if (!context.game.setupPhase()) {
       console.error('got autoPickSettlements command but game is not in setup phase');
@@ -149,8 +154,9 @@ export const registerGameSocketListeners = (
   });
 
   socket.on('build', (buildAction: BuildAction) => {
-    if (!context)
+    if (!context) {
       return new Error();
+    }
 
     buildAction = hydrateBuildAction(buildAction);
 
@@ -169,8 +175,9 @@ export const registerGameSocketListeners = (
   });
 
   socket.on('premove', (premove: BuildAction) => {
-    if (!context)
+    if (!context) {
       return new Error();
+    }
 
     premove = hydrateBuildAction(premove);
 
@@ -186,8 +193,8 @@ export const registerGameSocketListeners = (
     socket.emit('premoves', gameMoves);
   });
 
-  /*This is never called, commenting out for now. 
-  
+  /*This is never called, commenting out for now.
+
   socket.on('logPremoves', () => {
     console.log();
     console.log();
@@ -198,5 +205,4 @@ export const registerGameSocketListeners = (
     }
   });*/
 
-
-}
+};

@@ -1,4 +1,4 @@
-import { Socket, Server } from 'socket.io'
+import { Socket, Server } from 'socket.io';
 
 export const registerGeneralSocketListeners = (socket: Socket, io: Server) => {
   console.log('Registering general socket listeners');
@@ -16,4 +16,4 @@ export const registerGeneralSocketListeners = (socket: Socket, io: Server) => {
   socket.on('check', () => {
     console.log('check');
   });
-}
+};

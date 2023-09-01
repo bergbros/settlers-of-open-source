@@ -8,7 +8,7 @@ export function findBestSettlementSpots(game: Game, count: number): VertexCoords
     town: GameTown;
     coords: VertexCoords;
     production: number;
-  }
+  };
 
   const towns: EvaluatedTown[] = [];
 
@@ -18,7 +18,7 @@ export function findBestSettlementSpots(game: Game, count: number): VertexCoords
         town,
         coords: town.coords!,
         production: evaluateTown(game, town),
-      })
+      });
     }
   }
 

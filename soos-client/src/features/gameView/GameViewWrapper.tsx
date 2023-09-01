@@ -1,20 +1,20 @@
-import * as React from "react";
+import * as React from 'react';
 import { Socket } from 'socket.io-client';
 import { Game, gameFromString } from 'soos-gamelogic';
 import { GameView } from './GameView';
 
 type GameViewWrapperProps = {
   socket: Socket;
-}
+};
 
 export const GameViewWrapper = (props: GameViewWrapperProps) => {
   const { socket } = props;
 
-  const [game, setGame] = React.useState<Game | undefined>(undefined);
+  const [ game, setGame ] = React.useState<Game | undefined>(undefined);
 
   if (game === undefined) {
     console.log('sending retrieveGameState');
-    socket.emit("retrieveGameState", (gameStateStr: string) => {
+    socket.emit('retrieveGameState', (gameStateStr: string) => {
       console.log('got gamestate');
       const gameState = gameFromString(gameStateStr);
       setGame(gameState);
@@ -22,9 +22,8 @@ export const GameViewWrapper = (props: GameViewWrapperProps) => {
 
     return <div>
       Waiting for initial game state ...
-    </div>
-  }
-  else {
-    return <GameView socket={socket} game={game}></GameView>
+    </div>;
+  } else {
+    return <GameView socket={socket} game={game}></GameView>;
   }
 };

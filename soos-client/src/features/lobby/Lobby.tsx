@@ -6,7 +6,7 @@ import { Socket } from 'socket.io-client';
 
 type LobbyProps = {
   socket: Socket
-}
+};
 
 function launchGame(socket: Socket) {
   socket.emit('launchGame');
@@ -15,19 +15,18 @@ function launchGame(socket: Socket) {
 export const Lobby = (props: LobbyProps) => {
   const { socket } = props;
   const initialUserSet: Set<string> = new Set<string>();
-  const [userSet, setUserSet] = useState(initialUserSet);
+  const [ userSet, setUserSet ] = useState(initialUserSet);
   const { state } = useLocation();
   const { gamecode } = useParams();
   const navigate = useNavigate();
-
 
   useEffect(() => {
     function updateUserList(newUsernames: string[]) {
       console.log('Received user list', newUsernames);
 
-      // TODO maybe error checking to see if any duplicate names were included in the list that disappeared in the set? 
+      // TODO maybe error checking to see if any duplicate names were included in the list that disappeared in the set?
       // Shouldn't ever happen because usernames are unique
-      var newUserSet = new Set(newUsernames);
+      const newUserSet = new Set(newUsernames);
 
       if (!setsAreEqual(userSet, newUserSet)) {
         setUserSet(newUserSet);
@@ -52,7 +51,7 @@ export const Lobby = (props: LobbyProps) => {
     } else {
       // TODO axios.get(/api/socket/socketSecret) instead of just userID
       console.log('game code found');
-      console.log('associatingWithHTTP ' + state.userID)
+      console.log('associatingWithHTTP ' + state.userID);
       socket.emit('associateWithHTTP', state.userID);
       socket.emit('joinGame', gamecode);
     }
@@ -61,19 +60,19 @@ export const Lobby = (props: LobbyProps) => {
       socket.off('socketAssocError', printSocketMsg);
       socket.off('joinGameError', printSocketMsg);
       socket.off('gameUserList', updateUserList);
-    }
+    };
   }, []);
 
   return (
     <div>Lobby page <br />
       <div>Connected Users: <br />
         <ul>
-          {[...userSet].map((data) => {
+          {[ ...userSet ].map((data) => {
             return (
               <li key={data}>
                 {data}
               </li>
-            )
+            );
           })}
         </ul>
       </div>
@@ -84,5 +83,5 @@ export const Lobby = (props: LobbyProps) => {
         </button>
       </div>
     </div>
-  )
-}
+  );
+};

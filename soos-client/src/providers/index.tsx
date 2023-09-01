@@ -3,10 +3,10 @@ import { RouteObject, RouterProvider, createBrowserRouter } from 'react-router-d
 
 type AppProviderProps = {
   routes: RouteObject[]
-}
+};
 
 export const AppProvider = (props: AppProviderProps) => {
-  let router = createBrowserRouter(props.routes);
+  const router = createBrowserRouter(props.routes);
 
-  return <RouterProvider router={router} />
-}
+  return <RouterProvider router={router} />;
+};

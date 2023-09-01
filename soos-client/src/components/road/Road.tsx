@@ -18,7 +18,9 @@ export const Road = (props: RoadProps) => {
   const shouldDisplay = premove || highlighted || playerIdx !== -1;
 
   // don't display anything at all
-  if (!shouldDisplay) return null;
+  if (!shouldDisplay) {
+    return null;
+  }
 
   return (
     <div
@@ -33,7 +35,7 @@ export const Road = (props: RoadProps) => {
       {makeSVG(
         coords.direction,
         Variables.PlayerColors[playerIdx],
-        props.premove || (playerIdx === -1 && props.highlighted)
+        props.premove || (playerIdx === -1 && props.highlighted),
       )}
     </div>
   );

@@ -10,20 +10,20 @@ export class DataManager<T> {
   }
 
   private genLookupFn(attr: string, attrVal: string) {
-    let lookupFn = (obj: T) => {
+    const lookupFn = (obj: T) => {
       return obj[attr] === attrVal;
-    }
+    };
     return lookupFn;
   }
 
   private getIndexForObjectByAttr(attr: string, attrVal: string): number {
     return this.dataTable.findIndex(
-      this.genLookupFn(attr, attrVal)
+      this.genLookupFn(attr, attrVal),
     );
   }
 
   public getObjectByAttr(attr: string, attrVal: string): T | null {
-    var index = this.getIndexForObjectByAttr(attr, attrVal);
+    const index = this.getIndexForObjectByAttr(attr, attrVal);
     if (index === -1) {
       return null;
     } else {
@@ -32,7 +32,7 @@ export class DataManager<T> {
   }
 
   public objectWithAttrExists(attr: string, attrVal: string): boolean {
-    var index = this.getIndexForObjectByAttr(attr, attrVal);
+    const index = this.getIndexForObjectByAttr(attr, attrVal);
     if (index === -1) {
       return false;
     } else {
@@ -41,7 +41,7 @@ export class DataManager<T> {
   }
 
   public removeObjectByAttr(attr: string, attrVal: string): boolean {
-    var indexToRemove = this.getIndexForObjectByAttr(attr, attrVal);
+    const indexToRemove = this.getIndexForObjectByAttr(attr, attrVal);
     if (indexToRemove === -1) {
       return false;
     } else {

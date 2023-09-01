@@ -283,9 +283,16 @@ export default class GameMap {
   buildableRoadLocations(playerIdx: number): EdgeCoords[] {
     const roadLocations: { [edgeCoordsStr: string]: EdgeCoords } = {};
     const visitedVertices: { [vertexCoordsStr: string]: true } = {};
-    for (const town of this.towns) {
-      if (town.coords) {
-        this.buildableRoadLocationsRecursive(playerIdx, town.coords, roadLocations, visitedVertices);
+    for (const road of this.roads) {
+      const roadCoordsStr = road.coords.toString();
+      if (road.coords && road.playerIdx === playerIdx && !roadLocations[roadCoordsStr]) {
+        roadLocations[roadCoordsStr] = road.coords;
+        const bothTowns = this.getTowns(road);
+        for (const town of bothTowns) {
+          if (town && town.coords) {
+            this.buildableRoadLocationsRecursive(playerIdx, town.coords, roadLocations, visitedVertices);
+          }
+        }
       }
     }
 
@@ -303,11 +310,6 @@ export default class GameMap {
     }
     visitedVertices[vertexCoords.toString()] = true;
 
-    const town = this.townAt(vertexCoords);
-    if (town?.playerIdx !== playerIdx) {
-      return;
-    }
-
     const egressRoads = this.getRoads(vertexCoords);
     for (const road of egressRoads) {
       // off edge of map
@@ -323,7 +325,7 @@ export default class GameMap {
           // continue on the other side
           const bothTowns = this.getTowns(road);
           const otherTown = bothTowns.find(t => !t.coords?.equals(vertexCoords));
-          if (otherTown?.coords) {
+          if (otherTown?.coords && otherTown?.playerIdx === playerIdx) {
             this.buildableRoadLocationsRecursive(playerIdx, otherTown.coords, roadLocations, visitedVertices);
           }
         }

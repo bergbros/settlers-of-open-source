@@ -51,7 +51,7 @@ export const Board = (props: BoardProps) => {
   }
 
   const townBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Settlement || pba.type === BuildActionType.City);
-
+  console.log("town build actions: " + townBuildActions.length);
   const isSettlementSetup = game.setupPhase() && game.currPlayerIdx === playerId && !game.claimedSettlement;
 
   const towns = [];
@@ -68,6 +68,7 @@ export const Board = (props: BoardProps) => {
     } else {
       // TODO optimize
       buildAction = townBuildActions.find(pba => townCoords.equals(pba.location));
+      if(buildAction!==undefined) console.log('Found build action for location: ' + townCoords.toString());
     }
 
     towns.push(

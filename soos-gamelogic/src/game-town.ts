@@ -9,6 +9,7 @@ export default class GameTown {
   townLevel: number;
   production: number[];
   eval: number;
+  maxLevel:number = 3;
   constructor(coords?: VertexCoords) {
     if (coords) {
       this.coords = coords;
@@ -35,7 +36,7 @@ export default class GameTown {
   }
 
   upgradeCity(): boolean {
-    if (this.playerIdx === undefined) {
+    if (this.playerIdx === undefined || this.townLevel>=this.maxLevel) {
       return false;
     }
     this.townLevel++;

@@ -5,7 +5,7 @@ import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import HexCoords, { hydrateHexCoords } from './utils/hex-coords.js';
-import VertexCoords, { AllVertexDirections, getHexes } from './utils/vertex-coords.js';
+import VertexCoords, { AllVertexDirections, getHexes, vertexDirName } from './utils/vertex-coords.js';
 
 // phases requiring input
 export enum GamePhase {
@@ -207,9 +207,10 @@ export default class Game {
   nextPlayerMainGameplay() {
     // check for win conditions!
     const maxPoints = this.calculateVictoryPoints();
-    if (maxPoints > 3) {
+    if (maxPoints > 10) { //max victory point count for game over
       this.gamePhase = GamePhase.GameOver;
       this.endGame(maxPoints);
+      this.instructionText = "The game is over!"
       return;
     }
 
@@ -599,7 +600,7 @@ export default class Game {
       if (hex && this.robberHexes.indexOf(hcoords) === -1) {
         console.log('updated robberhexes!');
         this.robberHexes.push(hcoords);
-        console.log(this.robberHexes);
+        //console.log(this.robberHexes);
       }
     }
   }
@@ -640,6 +641,7 @@ export default class Game {
   }
 
   getValidBuildActions(playerIdx: number, type: BuildActionType): BuildAction[] {
+    console.log("get valid build actions: " + type.toString());
     switch (type) {
     case BuildActionType.Road:
       return this.map.buildableRoadLocations(playerIdx)
@@ -648,6 +650,9 @@ export default class Game {
     case BuildActionType.Settlement:
       return this.map.buildableTownLocations(playerIdx)
         .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords));
+    case BuildActionType.City:
+      return this.map.buildableCityLocations(playerIdx)
+        .map(vertexCoords => new BuildCityAction(playerIdx, vertexCoords));
 
     default:
       throw new Error(`getValidBuildActions unsupported BuildActionType: ${actionToString(type)}`);

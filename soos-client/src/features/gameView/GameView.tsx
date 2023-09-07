@@ -57,6 +57,7 @@ export const GameView = (props: GameViewProps) => {
       };
       setGame(updatedGame);
       setPossibleBuildActions([]);
+      console.log("pba: " + possibleBuildActions.length);
       console.log('got new game state');
     }
 
@@ -181,12 +182,12 @@ export const GameView = (props: GameViewProps) => {
               <button
                 key={index}
                 onClick={() => {
+                  console.log("clicked " + buildActionType.toString());
                   if (possibleBuildActions.length > 0) {
                     // they clicked again, clear it
                     setPossibleBuildActions([]);
                   }
-
-                  if (buildActionType === BuildActionType.Road || buildActionType === BuildActionType.Settlement) {
+                  if (buildActionType === BuildActionType.Road || buildActionType === BuildActionType.Settlement || buildActionType ===BuildActionType.City) {
                     setPossibleBuildActions(game.getValidBuildActions(playerId!, buildActionType));
                   } else {
                     game.displayActionOptions(buildActionType);

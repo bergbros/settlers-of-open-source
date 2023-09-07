@@ -97,16 +97,19 @@ export class BuildRoadAction implements BuildAction {
 
   isPossible(gameState: Game): boolean {
     if (this.shouldDisqualify(gameState)) {
+      console.log("road is claimed");
       return false;
     }
 
     // if it's setup phase, it just needs to be their turn
     if (gameState.setupPhase()) {
+      console.log("road being built during set up phase");
       return gameState.currPlayerIdx === this.playerId && gameState.claimedSettlement;
     }
 
     const player = gameState.players[this.playerId];
-    if (!player || !player.hasResources(AllBuildCosts[this.type])) {
+    if (player===undefined || !player.hasResources(AllBuildCosts[this.type])) {
+      console.log("player does not have resources or player does not exist");
       return false;
     }
 
@@ -244,18 +247,21 @@ export class BuildCityAction implements BuildAction {
 
   isPossible(gameState: Game): boolean {
     if (this.shouldDisqualify(gameState)) {//city action: town has to be claimed, and player ID has to be the same.
+      console.log("city not possible: not claimed or wrong player");
       return false;
     }
     const player = gameState.players[this.playerId];
     if (player) {
+      console.log("city possible? checking resources");
       return player.hasResources(AllBuildCosts[this.type]);
     }
+    console.log("city is possible default fail");
     return false;
   }
 
   shouldDisqualify(gameState: Game): boolean {
-    console.log('checking valid city move');
     const validSettlePlan = gameState.settlePremovePresent(this.location, this.playerId);
+    console.log('checking valid city move: city owned by ' + gameState.map.townAt(this.location)?.playerIdx + " vs " + this.playerId + " and validSP: " + validSettlePlan);
     return !validSettlePlan || gameState.map.townAt(this.location)?.playerIdx !== this.playerId;
   }
 

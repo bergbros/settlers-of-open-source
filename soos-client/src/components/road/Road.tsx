@@ -30,7 +30,10 @@ export const Road = (props: RoadProps) => {
         left: x + 'px',
         top: y + 'px',
       }}
-      onClick={() => onClick()}
+      onClick={() => {
+        console.log("road Clicked"); 
+        onClick()
+      }}
     >
       {makeSVG(
         coords.direction,

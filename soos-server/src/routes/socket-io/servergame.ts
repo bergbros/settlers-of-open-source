@@ -1,6 +1,6 @@
 import { Socket, Server } from 'socket.io';
 
-import { EdgeCoords, Game, gameFromString } from 'soos-gamelogic';
+import { AllResourceTypes, EdgeCoords, Game, ResourceType, gameFromString } from 'soos-gamelogic';
 import ServerAction from '../../server-action.js';
 import { BuildAction, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions.js';
 import { gameManager, GameSlot } from '../../db/game-manager.js';
@@ -190,9 +190,29 @@ export const registerGameSocketListeners = (
     }
 
     saveGame(context);
-    socket.emit('premoves', gameMoves);
+    socket.emit('setPremoves', gameMoves);
   });
 
+  socket.on('nextTurn', ()=>{
+    if (!context) {
+      return new Error();
+    }
+    if(true){//context.playerIndex===context.game.currPlayerIdx){
+      context.game.nextPlayer();
+      saveGame(context);
+      io.to(context.activeGamecode).emit('updateGameState', context.game.toString());
+    }
+  });
+
+  socket.on('trade', (offer:ResourceType, target:ResourceType)=>{
+    if (!context) {
+      return new Error();
+    }
+    
+    context.game.executeTrade(offer,target,context.playerIndex);
+    saveGame(context);    
+    io.to(context.activeGamecode).emit('updateGameState', context.game.toString());
+  });
   /*This is never called, commenting out for now.
 
   socket.on('logPremoves', () => {

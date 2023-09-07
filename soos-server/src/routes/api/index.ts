@@ -1,8 +1,8 @@
 import express from 'express';
 
-import { userApiRouter } from './user.js';
-import { socketApiRouter } from './socket.js';
-import { gameApiRouter } from './game.js';
+import { userApiRouter } from './serveruser.js';
+import { socketApiRouter } from './serversocket.js';
+import { gameApiRouter } from './servergame.js';
 
 const router = express.Router();
 

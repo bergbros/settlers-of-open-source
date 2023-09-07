@@ -3,9 +3,9 @@ import { Socket, Server } from 'socket.io';
 import { Game } from 'soos-gamelogic';
 import ServerAction from '../../server-action.js';
 
-import { registerGeneralSocketListeners } from './general.js';
-import { registerLobbySocketListeners } from './lobby.js';
-import { registerGameSocketListeners } from './game.js';
+import { registerGeneralSocketListeners } from './servergeneral.js';
+import { registerLobbySocketListeners } from './serverlobby.js';
+import { registerGameSocketListeners } from './servergame.js';
 
 export const registerSocketListeners = (
   socket: Socket,

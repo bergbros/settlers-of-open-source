@@ -88,11 +88,15 @@ export const Board = (props: BoardProps) => {
 
   let roadBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Road);
 
-  if ((game.gamePhase === GamePhase.PlaceSettlement1 || game.gamePhase === GamePhase.PlaceSettlement2)
+  if (playerId!==undefined && ((game.gamePhase === GamePhase.PlaceSettlement1 || game.gamePhase === GamePhase.PlaceSettlement2)
     && game.currPlayerIdx === playerId
-    && game.claimedSettlement) {
+    && game.claimedSettlement) || makingPremoves) {
     // custom roadBuildActions for setup phase
     roadBuildActions = game.getValidBuildActions(playerId, BuildActionType.Road);
+  }
+  for (const premoveAction of premoves){
+    if(premoveAction.type===BuildActionType.Road)
+      roadBuildActions.push(premoveAction);
   }
 
   const roads = [];
@@ -106,10 +110,14 @@ export const Board = (props: BoardProps) => {
       <Road
         gameRoad={road}
         highlighted={!!buildAction}
-        premove={makingPremoves && road.playerIdx === playerId}
+        premove={false && makingPremoves && road.playerIdx === playerId}
         onClick={() => {
           if (buildAction) {
-            socket.emit('build', buildAction);
+            if(makingPremoves){
+              socket.emit('premove', buildAction);
+            } else {
+              socket.emit('build', buildAction);
+            }
           }
         }}
         key={`r:${roadCoords.hexCoords.x},${roadCoords.hexCoords.y},${roadCoords.direction}`}

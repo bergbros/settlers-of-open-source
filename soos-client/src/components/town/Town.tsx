@@ -48,7 +48,7 @@ export const Town = (props: TownProps) => {
   let townSize = 10, points:string = "";
 
   let svg = null;
-  switch (gameTown.townLevel) {
+  switch (gameTown.townLevel + (premove?1:0)) {
   case 0:
   case 1:
     townSize = settlementSize;
@@ -85,7 +85,7 @@ export const Town = (props: TownProps) => {
   //   </svg >
   // );
 
-  svg = makeTownSVG(townSize,points,playerColor,highlighted);
+  svg = makeTownSVG(townSize,points,playerColor,highlighted||premove);
 
   const { x, y } = vertexCoordsToPixels(gameTown.coords!);
 

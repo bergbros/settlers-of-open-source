@@ -274,7 +274,6 @@ export default class Game {
 
   actionViable(action: BuildActionType): boolean {
     //negative cost indicates any one resource less than requirement is an option
-    //TODO: implement ports eventually...
     let defaultReturnValue = true;
     for (const resource of AllResourceTypes) {
 

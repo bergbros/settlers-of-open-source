@@ -75,12 +75,12 @@ export const GameView = (props: GameViewProps) => {
     socket.emit('playerId', receivePlayerId);
 
     socket.on('updateGameState', updateGameState);
-    socket.on('premoves', setPremoves);
+    socket.on('setPremoves', setPremoves);
 
     return () => {
       // socket.off("playerId", receivePlayerId);
       socket.off('updateGameState', updateGameState);
-      socket.off('premoves', setPremoves);
+      socket.off('setPremoves', setPremoves);
     };
   }, []);
 
@@ -105,8 +105,9 @@ export const GameView = (props: GameViewProps) => {
         resources={game.players[playerId].cards}
         closeWindowHandler={() => setIsTradeWindowShowing(false)}
         executeTradeHandler={(tradeIn: number, tradeFor: number) => {
-          game.executeTrade(tradeIn, tradeFor, playerId);
-          game.forceUpdate();
+          //game.executeTrade(tradeIn, tradeFor, playerId);
+          //game.forceUpdate();
+          socket.emit('trade',tradeIn,tradeFor);
         }}
       />,
     );
@@ -166,8 +167,9 @@ export const GameView = (props: GameViewProps) => {
 
         <button
           onClick={() => {
-            game.nextPlayer();
-            sendGameStateToServer();
+            //game.nextPlayer();
+            //sendGameStateToServer();
+            socket.emit('nextTurn');
           }}
           className="NextTurnButton"
           disabled={game.gamePhase !== GamePhase.MainGameplay}

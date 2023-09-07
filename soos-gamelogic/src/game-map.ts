@@ -309,7 +309,10 @@ export default class GameMap {
       return;
     }
     visitedVertices[vertexCoords.toString()] = true;
-
+    const vertTown = this.townAt(vertexCoords);
+    if(vertTown && !vertTown.isUnclaimed() &&vertTown.playerIdx && vertTown.playerIdx!== playerIdx){
+      return; // can't build past opponents towns!
+    }
     const egressRoads = this.getRoads(vertexCoords);
     for (const road of egressRoads) {
       // off edge of map

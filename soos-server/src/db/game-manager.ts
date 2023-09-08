@@ -7,28 +7,28 @@ import { userManager } from './user-manager.js';
 
 import { Socket } from 'socket.io';
 
-export type PlayerDataFields = {
+export type ServerGamePlayer = {
   userID: string,
   playerIndex: number,
   connected: boolean
 };
 
-export type GameSlot = {
+export type ServerGame = {
   gamecode: string,
   game: Game,
-  players: DataManager<PlayerDataFields>,
+  playerList: DataManager<ServerGamePlayer>,
   launched: boolean,
   premoveActions: ServerAction[]
 };
 
 class GameManager {
-  private gameTable: DataManager<GameSlot>;
+  private gameTable: DataManager<ServerGame>;
 
   constructor() {
     this.gameTable = new DataManager();
   }
 
-  getGame(gamecode: string) {
+  getGame(gamecode: string): ServerGame | null {
     return this.gameTable.getObjectByAttr('gamecode', gamecode);
   }
 
@@ -38,10 +38,10 @@ class GameManager {
 
   createGame(gamecode?: string) {
     gamecode = gamecode || generateGameCode();
-    const createdGame: GameSlot = {
+    const createdGame: ServerGame = {
       gamecode: gamecode,
       game: new Game({ debugAutoPickSettlements: false }),
-      players: new DataManager(),
+      playerList: new DataManager(),
       premoveActions: [],
       launched: false,
     };
@@ -56,27 +56,24 @@ class GameManager {
       throw new Error();
     }
 
-    const playerIndex = 0;
     const players: string[] = [];
 
     // These might actually be RemoteSockets (hence the any[] above) but it shouldn't matter here.
-    playerSockets.forEach((playerSocket: Socket) => {
+    for (let i = 0; i < playerSockets.length; i++) {
+      const playerSocket = playerSockets[i];
       const player = userManager.getUserBySocketID(playerSocket.id);
       if (!player) {
         throw new Error();
       } // unassociated socket
       // Possibly also check that player.userID == socket.data.userID
 
-      const pdf: PlayerDataFields = {
+      game.playerList.addObject({
         userID: player.userID,
-        playerIndex: playerIndex,
+        playerIndex: i,
         connected: true,
-      };
-
-      game?.players.addObject(pdf);
+      });
       players.push(player.userID);
-      //playerSocket.emit('playerId', players[length]);
-    });
+    }
 
     console.log(`Launching game ${gamecode} with players ${players}`);
   }
@@ -103,7 +100,7 @@ class GameManager {
     }
 
     const game = this.getGame(gamecode);
-    const player = game?.players.getObjectByAttr('userID', user.userID) as PlayerDataFields;
+    const player = game?.playerList.getObjectByAttr('userID', user.userID) as ServerGamePlayer;
 
     if (!player) {
       // player = game?.players.dataTable[0];

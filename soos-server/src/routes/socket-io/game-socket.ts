@@ -3,7 +3,7 @@ import { Socket, Server } from 'socket.io';
 import { AllResourceTypes, EdgeCoords, Game, ResourceType, gameFromString } from 'soos-gamelogic';
 import ServerAction from '../../server-action.js';
 import { BuildAction, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions.js';
-import { gameManager, GameSlot } from '../../db/game-manager.js';
+import { gameManager, ServerGame } from '../../db/game-manager.js';
 
 type MiddlewareContext = {
   activeGamecode: string,
@@ -11,7 +11,7 @@ type MiddlewareContext = {
   playerIndex: number,
 };
 
-function getGameForSocket(socket: Socket): GameSlot {
+function getGameForSocket(socket: Socket): ServerGame {
   let gamecode: string | null = null;
 
   if (socket.data.gamecode) {
@@ -51,7 +51,7 @@ function populateContext(socket: Socket): MiddlewareContext | null {
     const game = gameStorage.game;
     const gamecode = gameStorage.gamecode;
     const playerIndex = gameManager.getPlayerIndexBySocketID(gamecode, socket.id);
-    console.log('populating context for ' + playerIndex);// + gamecode + "//" + game + "//" + playerIndex);
+    console.log(`populating context for ${playerIndex}, socket id ${socket.id}`);// + gamecode + "//" + game + "//" + playerIndex);
     const context: MiddlewareContext = {
       activeGamecode: gamecode,
       game: game,
@@ -208,9 +208,9 @@ export const registerGameSocketListeners = (
     if (!context) {
       return new Error();
     }
-    
-    context.game.executeTrade(offer,target,context.playerIndex);
-    saveGame(context);    
+
+    context.game.executeTrade(offer, target, context.playerIndex);
+    saveGame(context);
     io.to(context.activeGamecode).emit('updateGameState', context.game.toString());
   });
   /*This is never called, commenting out for now.

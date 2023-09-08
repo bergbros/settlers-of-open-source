@@ -1,5 +1,4 @@
 
-
 export default class ServerAction {
   actionJSON: string;
   playerId: number;

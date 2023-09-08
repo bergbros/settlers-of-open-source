@@ -9,14 +9,14 @@ function getTerrainClass(terrainType: TerrainType, resourceType?: ResourceType):
   let terrainClass = '';
   if (terrainType === TerrainType.Water) {
     switch (resourceType) {
-      case ResourceType.BrickPort: terrainClass = 'brick port'; break;
-      case ResourceType.GrainPort: terrainClass = 'grain port'; break;
-      case ResourceType.OrePort: terrainClass = 'ore port'; break;
-      case ResourceType.SheepPort: terrainClass = 'sheep port'; break;
-      case ResourceType.WoodPort: terrainClass = 'wood port'; break;
-      case ResourceType.AnyPort: terrainClass = 'desert port'; break;
-      case ResourceType.None: terrainClass = 'water'; break;
-      default: terrainClass = 'water'; break;
+    case ResourceType.BrickPort: terrainClass = 'brick port'; break;
+    case ResourceType.GrainPort: terrainClass = 'grain port'; break;
+    case ResourceType.OrePort: terrainClass = 'ore port'; break;
+    case ResourceType.SheepPort: terrainClass = 'sheep port'; break;
+    case ResourceType.WoodPort: terrainClass = 'wood port'; break;
+    case ResourceType.AnyPort: terrainClass = 'desert port'; break;
+    case ResourceType.None: terrainClass = 'water'; break;
+    default: terrainClass = 'water'; break;
     }
     return terrainClass;
   }
@@ -24,13 +24,13 @@ function getTerrainClass(terrainType: TerrainType, resourceType?: ResourceType):
     return '';
   }
   switch (resourceType) {
-    case ResourceType.Brick: terrainClass = 'brick'; break;
-    case ResourceType.Grain: terrainClass = 'grain'; break;
-    case ResourceType.Ore: terrainClass = 'ore'; break;
-    case ResourceType.Sheep: terrainClass = 'sheep'; break;
-    case ResourceType.Wood: terrainClass = 'wood'; break;
-    case ResourceType.None: terrainClass = 'desert'; break;
-    default: terrainClass = 'empty'; break;
+  case ResourceType.Brick: terrainClass = 'brick'; break;
+  case ResourceType.Grain: terrainClass = 'grain'; break;
+  case ResourceType.Ore: terrainClass = 'ore'; break;
+  case ResourceType.Sheep: terrainClass = 'sheep'; break;
+  case ResourceType.Wood: terrainClass = 'wood'; break;
+  case ResourceType.None: terrainClass = 'desert'; break;
+  default: terrainClass = 'empty'; break;
   }
 
   return terrainClass;

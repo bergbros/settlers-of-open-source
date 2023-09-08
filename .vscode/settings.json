@@ -2,7 +2,7 @@
   "editor.insertSpaces": true,
   "typescript.tsc.autoDetect": "off",
   "typescript.preferences.quoteStyle": "single",
-  "editor.formatOnSave": true,
+  // "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "[scss]": {
@@ -10,8 +10,8 @@
   },
   "[css]": {
     "editor.tabSize": 4,
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
   }
-  // "editor.codeActionsOnSave": {
-  // 	"source.fixAll.eslint": true
-  // }
 }

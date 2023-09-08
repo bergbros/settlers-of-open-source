@@ -31,4 +31,4 @@ export const GameViewLoader = async () => {
       return redirect('/');
     }
   }
-}
+};

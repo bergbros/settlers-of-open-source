@@ -24,14 +24,14 @@ function townPoints(townSize: number, pointList: [number, number][]) {
 }
 
 const settlementSize = 20;
-const settlementPolygonPoints = townPoints(settlementSize, [[0, 1], [0, .4], [.5, 0], [1, .4], [1, 1]]);
+const settlementPolygonPoints = townPoints(settlementSize, [[ 0, 1 ], [ 0, .4 ], [ .5, 0 ], [ 1, .4 ], [ 1, 1 ]]);
 
 const citySize = 24;
-const cityPolygonPoints = townPoints(citySize, [[0, .25], [0, 1], [1, 1], [1, .5], [.5, .5], [.5, .25], [.25, 0]]);
+const cityPolygonPoints = townPoints(citySize, [[ 0, .25 ], [ 0, 1 ], [ 1, 1 ], [ 1, .5 ], [ .5, .5 ], [ .5, .25 ], [ .25, 0 ]]);
 
 const suburbSize = 28;
 // same as city for now
-const suburbPolygonPoints = townPoints(suburbSize, [[0, .25], [0, 1], [1, 1], [1, .5], [.5, .5], [.5, .25], [.25, 0]]);
+const suburbPolygonPoints = townPoints(suburbSize, [[ 0, .25 ], [ 0, 1 ], [ 1, 1 ], [ 1, .5 ], [ .5, .5 ], [ .5, .25 ], [ .25, 0 ]]);
 
 export const Town = (props: TownProps) => {
   const { gameTown, onClick, premove, highlighted } = props;
@@ -45,23 +45,23 @@ export const Town = (props: TownProps) => {
     highlightedClass = 'highlight';
   }
   // let townLevel = '';
-  let townSize = 10, points;
+  let townSize = 10, points:string = "";
 
   let svg = null;
-  switch (gameTown.townLevel) {
-    case 0:
-    case 1:
-      townSize = settlementSize;
-      points = settlementPolygonPoints;
-      break;
-    case 2:
-      townSize = citySize;
-      points = cityPolygonPoints;
-      break;
-    case 3:
-      townSize = suburbSize;
-      points = suburbPolygonPoints;
-      break;
+  switch (gameTown.townLevel + (premove?1:0)) {
+  case 0:
+  case 1:
+    townSize = settlementSize;
+    points = settlementPolygonPoints;
+    break;
+  case 2:
+    townSize = citySize;
+    points = cityPolygonPoints;
+    break;
+  case 3:
+    townSize = suburbSize;
+    points = suburbPolygonPoints;
+    break;
   }
 
   let fillOpacity, strokeDasharray, strokeWidth = 0;
@@ -72,23 +72,27 @@ export const Town = (props: TownProps) => {
     strokeWidth = 3;
   }
 
-  svg = (
-    <svg width={townSize + 5} height={townSize + 5} style={{ transform: `translate(${-baseOffset}px, ${-baseOffset}px)` }}>
-      <polygon
-        points={points}
-        fill={playerColor}
-        fillOpacity={fillOpacity}
-        stroke={playerColor}
-        strokeWidth={strokeWidth}
-        strokeDasharray={strokeDasharray}
-      />
-    </svg >
-  );
+  // svg = (
+  //   <svg width={townSize + 5} height={townSize + 5} style={{ transform: `translate(${-baseOffset}px, ${-baseOffset}px)` }}>
+  //     <polygon
+  //       points={points}
+  //       fill={playerColor}
+  //       fillOpacity={fillOpacity}
+  //       stroke={playerColor}
+  //       strokeWidth={strokeWidth}
+  //       strokeDasharray={strokeDasharray}
+  //     />
+  //   </svg >
+  // );
+
+  svg = makeTownSVG(townSize,points,playerColor,highlighted||premove);
 
   const { x, y } = vertexCoordsToPixels(gameTown.coords!);
 
   const shouldDisplay = premove || highlighted || playerIdx !== -1;
-  if (!shouldDisplay) return null;
+  if (!shouldDisplay) {
+    return null;
+  }
 
   return (
     <div className={'Town ' + playerClass + ' ' + highlightedClass}
@@ -104,3 +108,29 @@ export const Town = (props: TownProps) => {
     </div>
   );
 };
+
+function makeTownSVG(townSize:number, points:string,  playerColor:string, dotted:boolean){
+
+  let fillOpacity, strokeDasharray, strokeWidth = 0;
+  if (dotted) {
+    // dotted line
+    fillOpacity = '0';
+    strokeDasharray = '3 2';
+    strokeWidth = 3;
+  }
+
+  return (<svg 
+    width={townSize + 5} 
+    height={townSize + 5} 
+    style={{ transform: `translate(${-baseOffset}px, ${-baseOffset}px)` }}>
+    <polygon
+      points={points}
+      fill={playerColor}
+      fillOpacity={fillOpacity}
+      stroke={playerColor}
+      strokeWidth={strokeWidth}
+      strokeDasharray={strokeDasharray}
+    />
+  </svg >);
+
+}

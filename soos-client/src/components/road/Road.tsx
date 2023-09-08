@@ -1,4 +1,4 @@
-import { GameRoad, EdgeCoords, HexDirection } from 'soos-gamelogic';
+import { GameRoad, HexDirection } from 'soos-gamelogic';
 import { edgeCoordsToPixels } from '../../utils';
 import Variables from '../../scss/variables';
 import './Road.scss';
@@ -18,7 +18,9 @@ export const Road = (props: RoadProps) => {
   const shouldDisplay = premove || highlighted || playerIdx !== -1;
 
   // don't display anything at all
-  if (!shouldDisplay) return null;
+  if (!shouldDisplay) {
+    return null;
+  }
 
   return (
     <div
@@ -28,12 +30,15 @@ export const Road = (props: RoadProps) => {
         left: x + 'px',
         top: y + 'px',
       }}
-      onClick={() => onClick()}
+      onClick={() => {
+        console.log("road Clicked"); 
+        onClick()
+      }}
     >
       {makeSVG(
         coords.direction,
         Variables.PlayerColors[playerIdx],
-        props.premove || (playerIdx === -1 && props.highlighted)
+        props.premove || (playerIdx === -1 && props.highlighted),
       )}
     </div>
   );

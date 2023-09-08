@@ -13,16 +13,18 @@ export const Entry = () => {
 
   const createUserThenAction = async (username: string, callback: CallableFunction) => {
     axios.get('/api/user/create', { params: { username: username } })
-      .then((response) => { callback(response) })
+      .then((response) => {
+        callback(response);
+      })
       .catch((error) => {
         if (error.response.status == 409) {
-          console.log(error.response.data)
+          console.log(error.response.data);
         }
       });
-  }
+  };
 
   const onJoinGame: SubmitHandler<IFormInput> = (formData) => {
-    var userID: string;
+    let userID: string;
 
     createUserThenAction(formData.username, (response: any) => {
       userID = response.data;
@@ -30,7 +32,7 @@ export const Entry = () => {
       // Send request to determine if game exists/is joinable
       // if yes, redirect to appropriate lobby with userID as state
       // if no, error
-      axios.get('/api/game/check', { params: { gamecode: formData.gamecode } }
+      axios.get('/api/game/check', { params: { gamecode: formData.gamecode } },
       ).then((response) => {
         if (response.status == 204) {
           // game exists but is not joinable, explain to user
@@ -38,8 +40,8 @@ export const Entry = () => {
           navigate(`/lobby/${formData.gamecode}`, {
             state: {
               userID: userID,
-              name: formData.username
-            }
+              name: formData.username,
+            },
           });
         }
       }).catch((reason) => {
@@ -48,10 +50,10 @@ export const Entry = () => {
         }
       });
     });
-  }
+  };
 
   const onNewGame: SubmitHandler<IFormInput> = (formData) => {
-    var userID: string;
+    let userID: string;
 
     createUserThenAction(formData.username, (response: any) => {
       userID = response.data;
@@ -59,17 +61,17 @@ export const Entry = () => {
       // Send request to create game, retrieve game code
       // Redirect to lobby with user ID as state
       axios.get('/api/game/new').then((response) => {
-        var gamecode = response.data;
+        const gamecode = response.data;
 
         navigate(`/lobby/${gamecode}`, {
           state: {
             userID: userID,
-            name: formData.username
-          }
+            name: formData.username,
+          },
         });
       });
     });
-  }
+  };
 
   return (
     <div>Entry page
@@ -84,5 +86,5 @@ export const Entry = () => {
         <button type='submit' onClick={handleSubmit(onNewGame)}>New Game</button>
       </form>
     </div>
-  )
-}
+  );
+};

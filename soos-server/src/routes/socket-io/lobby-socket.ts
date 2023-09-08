@@ -1,4 +1,4 @@
-import { Socket, Server } from 'socket.io'
+import { Socket, Server } from 'socket.io';
 import { gameManager } from '../../db/game-manager.js';
 import { userManager } from '../../db/user-manager.js';
 
@@ -19,12 +19,13 @@ export const registerLobbySocketListeners = (socket: Socket, io: Server) => {
       socket.data.gamecode = gamecode;
       console.log(`Socket ${socket.id} has joined room ${gamecode}`);
 
-      var sockets_in_room = await io.in(gamecode).fetchSockets();
-      var users_in_room: string[] = [];
+      const sockets_in_room = await io.in(gamecode).fetchSockets();
+      const users_in_room: string[] = [];
       sockets_in_room.forEach(sckt => {
-        var user = userManager.getUserBySocketID(sckt.id)
-        if (user)
+        const user = userManager.getUserBySocketID(sckt.id);
+        if (user) {
           users_in_room.push(user.name);
+        }
         // else probably throw error? socket not assoc. with user?
       });
 
@@ -35,12 +36,13 @@ export const registerLobbySocketListeners = (socket: Socket, io: Server) => {
   });
 
   socket.on('launchGame', async () => {
-    var gamecode = socket.data.gamecode;
-    if (!gamecode)
+    const gamecode = socket.data.gamecode;
+    if (!gamecode) {
       return new Error('Socket not associated with game');
+    }
     // Check if user is game owner
     // Check that it's a valid gamecode
-    var players = await io.in(gamecode).fetchSockets();
+    const players = await io.in(gamecode).fetchSockets();
     try {
       gameManager.launchGame(gamecode, players);
     } catch (e) {
@@ -49,4 +51,4 @@ export const registerLobbySocketListeners = (socket: Socket, io: Server) => {
 
     io.to(gamecode).emit('gameLaunch');
   });
-}
+};

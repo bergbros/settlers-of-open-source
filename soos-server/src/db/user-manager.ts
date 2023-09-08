@@ -7,33 +7,34 @@ type User = {
   socketID: string,
   name: string,
   ownerOfGameCode: string,
-}
+};
 
 class UserManager {
   private userTable: DataManager<User>;
 
-  public constructor() {
+  constructor() {
     this.userTable = new DataManager();
   }
 
-  public addUser(name: string) {
-    if (this.userTable.objectWithAttrExists('name', name))
+  addUser(name: string) {
+    if (this.userTable.objectWithAttrExists('name', name)) {
       return null;
+    }
 
-    let userID = generateUserID();
+    const userID = generateUserID();
     this.userTable.addObject({
       userID: userID,
       socketID: '',
       name: name,
-      ownerOfGameCode: ''
+      ownerOfGameCode: '',
     });
-    console.log("Added user", userID, this.userTable);
+    console.log('Added user', userID, this.userTable);
 
     return userID;
   }
 
-  public removeUser(userID: string) {
-    var result = this.userTable.removeObjectByAttr('userID', userID);
+  removeUser(userID: string) {
+    const result = this.userTable.removeObjectByAttr('userID', userID);
     if (result) {
       return true;
     } else {
@@ -41,8 +42,8 @@ class UserManager {
     }
   }
 
-  public getSocketForUser(userID: string) {
-    var user = this.userTable.getObjectByAttr('userID', userID) as User;
+  getSocketForUser(userID: string) {
+    const user = this.userTable.getObjectByAttr('userID', userID) as User;
     if (user) {
       return user.socketID;
     } else {
@@ -51,8 +52,8 @@ class UserManager {
     }
   }
 
-  public getUserBySocketID(socketID: string) {
-    var user = this.userTable.getObjectByAttr('socketID', socketID) as User;
+  getUserBySocketID(socketID: string) {
+    const user = this.userTable.getObjectByAttr('socketID', socketID) as User;
     if (user) {
       return user;
     } else {
@@ -60,8 +61,8 @@ class UserManager {
     }
   }
 
-  public getUserByUserID(userID: string) {
-    var user = this.userTable.getObjectByAttr('userID', userID) as User;
+  getUserByUserID(userID: string) {
+    const user = this.userTable.getObjectByAttr('userID', userID) as User;
     if (user) {
       return user;
     } else {
@@ -69,21 +70,21 @@ class UserManager {
     }
   }
 
-  public assocSocketWithUser(userID: string, socket: Socket) {
-    var user = this.getUserByUserID(userID);
+  assocSocketWithUser(userID: string, socket: Socket) {
+    const user = this.getUserByUserID(userID);
 
     if (user) {
       user.socketID = socket.id;
       socket.data.userID = userID;
-      console.log(`associated socket ${socket.id} with user ${userID} `)
+      console.log(`associated socket ${socket.id} with user ${userID} `);
       return true;
     } else {
       return false;
     }
   }
 
-  public makeUserOwnerOfGameCode(userID: string, gamecode: string) {
-    var user = this.getUserByUserID(userID);
+  makeUserOwnerOfGameCode(userID: string, gamecode: string) {
+    const user = this.getUserByUserID(userID);
     if (user) {
       user.ownerOfGameCode = gamecode;
       console.log(`made user ${userID} owner of game ${gamecode} `);
@@ -94,4 +95,4 @@ class UserManager {
   }
 }
 
-export let userManager = new UserManager();
+export const userManager = new UserManager();

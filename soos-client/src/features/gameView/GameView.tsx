@@ -1,5 +1,5 @@
-import * as React from "react";
-import { Socket } from "socket.io-client";
+import * as React from 'react';
+import { Socket } from 'socket.io-client';
 import {
   actionCostString,
   actionToString,
@@ -7,14 +7,12 @@ import {
   BuildAction,
   hydrateBuildAction,
   gameFromString,
-  GameHex,
   GamePhase,
-  RobberPhase,
   Game,
   BuildActionType,
-} from "soos-gamelogic";
-import { Hex, Town, Road, Robber, Player } from "~/src/components";
-import { Board, ResourceBar, TradeWindow } from "./components";
+} from 'soos-gamelogic';
+import { Player } from '~/src/components';
+import { Board, ResourceBar, TradeWindow } from './components';
 
 let premoves: BuildAction[] = [];
 
@@ -28,15 +26,15 @@ export const GameView = (props: GameViewProps) => {
 
   // TODO wrap this in another component and don't display placeholder
   // game when waiting for multiplayer game to start
-  const [game, setGame] = React.useState<Game>(props.game);
-  const [playerId, setPlayerId] = React.useState<number | undefined>(undefined);
-  const [isTradeWindowShowing, setIsTradeWindowShowing] = React.useState<boolean>(false);
-  const [makingPremoves, setMakingPremoves] = React.useState<boolean>(false);
+  const [ game, setGame ] = React.useState<Game>(props.game);
+  const [ playerId, setPlayerId ] = React.useState<number | undefined>(undefined);
+  const [ isTradeWindowShowing, setIsTradeWindowShowing ] = React.useState<boolean>(false);
+  const [ makingPremoves, setMakingPremoves ] = React.useState<boolean>(false);
 
-  const [possibleBuildActions, setPossibleBuildActions] = React.useState<BuildAction[]>([]);
+  const [ possibleBuildActions, setPossibleBuildActions ] = React.useState<BuildAction[]>([]);
 
   // Set up force update function
-  const [count, setCount] = React.useState<number>(0);
+  const [ count, setCount ] = React.useState<number>(0);
   game.forceUpdate = () => {
     setCount(count + 1);
   };
@@ -46,7 +44,7 @@ export const GameView = (props: GameViewProps) => {
       if (id === undefined) {
         console.log('Error getting player id, check server logs');
       } else {
-        console.log("Got player ID:", id);
+        console.log('Got player ID:', id);
         setPlayerId(id);
       }
     }
@@ -59,11 +57,12 @@ export const GameView = (props: GameViewProps) => {
       };
       setGame(updatedGame);
       setPossibleBuildActions([]);
-      console.log("got new game state");
+      console.log("pba: " + possibleBuildActions.length);
+      console.log('got new game state');
     }
 
     function setPremoves(serverPremoves: BuildAction[]) {
-      console.log("got premoves: ");
+      console.log('got premoves: ');
       console.log(serverPremoves);
       premoves = [];
       for (const serverMove of serverPremoves) {
@@ -72,21 +71,21 @@ export const GameView = (props: GameViewProps) => {
       game.forceUpdate();
     }
 
-    console.log('sending playerId')
-    socket.emit("playerId", receivePlayerId);
+    console.log('sending playerId');
+    socket.emit('playerId', receivePlayerId);
 
-    socket.on("updateGameState", updateGameState);
-    socket.on("premoves", setPremoves);
+    socket.on('updateGameState', updateGameState);
+    socket.on('setPremoves', setPremoves);
 
     return () => {
       // socket.off("playerId", receivePlayerId);
-      socket.off("updateGameState", updateGameState);
-      socket.off("premoves", setPremoves);
+      socket.off('updateGameState', updateGameState);
+      socket.off('setPremoves', setPremoves);
     };
   }, []);
 
   function sendGameStateToServer() {
-    socket.emit("newGameState", game.toString());
+    socket.emit('newGameState', game.toString());
   }
 
   // let premoveItems = premoves.map((action: BuildAction) => (
@@ -106,10 +105,11 @@ export const GameView = (props: GameViewProps) => {
         resources={game.players[playerId].cards}
         closeWindowHandler={() => setIsTradeWindowShowing(false)}
         executeTradeHandler={(tradeIn: number, tradeFor: number) => {
-          game.executeTrade(tradeIn, tradeFor, playerId);
-          game.forceUpdate();
+          //game.executeTrade(tradeIn, tradeFor, playerId);
+          //game.forceUpdate();
+          socket.emit('trade',tradeIn,tradeFor);
         }}
-      />
+      />,
     );
   }
 
@@ -119,11 +119,11 @@ export const GameView = (props: GameViewProps) => {
   // }
 
   return (
-    // <div className="App">
-    //   <div>You are player: {playerName}</div>
-    //   <div>Round #0{game.turnNumber}</div>
-    //   <div className={'p' + game.currPlayerIdx}>{game.instructionText}
-    //   </div>
+  // <div className="App">
+  //   <div>You are player: {playerName}</div>
+  //   <div>Round #0{game.turnNumber}</div>
+  //   <div className={'p' + game.currPlayerIdx}>{game.instructionText}
+  //   </div>
 
     <div className="Board">
       <Board
@@ -159,7 +159,7 @@ export const GameView = (props: GameViewProps) => {
 
       <div className="BottomRightActions">
         {game.setupPhase() && (<button
-          onClick={() => socket.emit("autoPickSettlements")}
+          onClick={() => socket.emit('autoPickSettlements')}
           className="AutoPickSettlementsButton"
         >
           Auto Pick Settlements
@@ -167,8 +167,9 @@ export const GameView = (props: GameViewProps) => {
 
         <button
           onClick={() => {
-            game.nextPlayer();
-            sendGameStateToServer();
+            //game.nextPlayer();
+            //sendGameStateToServer();
+            socket.emit('nextTurn');
           }}
           className="NextTurnButton"
           disabled={game.gamePhase !== GamePhase.MainGameplay}
@@ -183,12 +184,12 @@ export const GameView = (props: GameViewProps) => {
               <button
                 key={index}
                 onClick={() => {
+                  console.log("clicked " + buildActionType.toString());
                   if (possibleBuildActions.length > 0) {
                     // they clicked again, clear it
                     setPossibleBuildActions([]);
                   }
-
-                  if (buildActionType === BuildActionType.Road || buildActionType === BuildActionType.Settlement) {
+                  if (buildActionType === BuildActionType.Road || buildActionType === BuildActionType.Settlement || buildActionType ===BuildActionType.City) {
                     setPossibleBuildActions(game.getValidBuildActions(playerId!, buildActionType));
                   } else {
                     game.displayActionOptions(buildActionType);
@@ -207,12 +208,14 @@ export const GameView = (props: GameViewProps) => {
           <button
             className="ActionButton chunky-btn"
             onClick={() => {
-              if (makingPremoves) game.gamePhase = GamePhase.MainGameplay;
+              if (makingPremoves) {
+                game.gamePhase = GamePhase.MainGameplay;
+              }
               setMakingPremoves(!makingPremoves);
             }}
             disabled={game.setupPhase()}
           >
-            {makingPremoves ? "Done Planning" : "Set Premoves"}
+            {makingPremoves ? 'Done Planning' : 'Set Premoves'}
           </button>
         </div>
       </div>

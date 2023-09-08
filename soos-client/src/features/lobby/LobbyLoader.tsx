@@ -23,4 +23,4 @@ export const LobbyLoader = async () => {
   } else {
     return null;
   }
-}
+};

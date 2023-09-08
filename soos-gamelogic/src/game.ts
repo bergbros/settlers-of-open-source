@@ -1,12 +1,11 @@
 import { findBestSettlementSpots } from './ai.js';
-import { AllBuildCosts, AllBuildActionTypes, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, hydrateBuildAction, BuildActionResponse, actionToString } from './build-actions.js';
+import { AllBuildCosts, BuildAction, BuildCityAction, BuildActionType, BuildRoadAction, BuildSettlementAction, hydrateBuildAction, BuildActionResponse, actionToString } from './build-actions.js';
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
-import EdgeCoords from './utils/edge-coords.js';
-import HexCoords, { AllHexDirections, HexDirection, hydrateHexCoords } from './utils/hex-coords.js';
-import VertexCoords, { AllVertexDirections, edgeToVertex, getEdges, getHexes, VertexDirection } from './utils/vertex-coords.js';
+import HexCoords, { hydrateHexCoords } from './utils/hex-coords.js';
+import VertexCoords, { AllVertexDirections, getHexes, vertexDirName } from './utils/vertex-coords.js';
 
 // phases requiring input
 export enum GamePhase {
@@ -59,7 +58,7 @@ export default class Game {
   turnNumber: number;
   premoveActions: BuildAction[];
 
-  constructor(options: { debugAutoPickSettlements?: boolean }) {
+  constructor(_options: { debugAutoPickSettlements?: boolean }) {
     this.turnNumber = 0;
     this.claimedSettlement = false;
     this.players = [
@@ -92,7 +91,7 @@ export default class Game {
     for (let i = 0; i < this.players.length; i++) {
       const pickedSpot = pickedSpots[nextSpotIdx++];
       const buildAction = new BuildSettlementAction(i, pickedSpot);
-      console.log(`picking settlement for player ${i} at ${pickedSpot.toString()}`)
+      console.log(`picking settlement for player ${i} at ${pickedSpot.toString()}`);
       console.log(this.submitBuildAction(buildAction));
       this.buildRandomRoadForSettlement(i, pickedSpot);
     }
@@ -110,7 +109,7 @@ export default class Game {
     const roads = this.map.getRoads(settlementSpot).filter(r => r && r.playerIdx === undefined);
     const randomRoadIdx = Math.floor(Math.random() * roads.length);
     const buildAction = new BuildRoadAction(playerIdx, roads[randomRoadIdx]!.coords);
-    console.log(`picking road for player ${playerIdx} at ${buildAction.location.toString()}`)
+    console.log(`picking road for player ${playerIdx} at ${buildAction.location.toString()}`);
     console.log(this.submitBuildAction(buildAction));
   }
 
@@ -208,9 +207,10 @@ export default class Game {
   nextPlayerMainGameplay() {
     // check for win conditions!
     const maxPoints = this.calculateVictoryPoints();
-    if (maxPoints > 3) {
+    if (maxPoints > 10) { //max victory point count for game over
       this.gamePhase = GamePhase.GameOver;
       this.endGame(maxPoints);
+      this.instructionText = "The game is over!"
       return;
     }
 
@@ -265,7 +265,6 @@ export default class Game {
       }
       this.gamePhase = GamePhase.MainGameplay;
 
-
     } else {
       //let player build if desired/possible
       this.instructionText = `Dice roll was: ${diceRoll}\n ${this.getCurrPlayer().name}'s turn!`;
@@ -275,7 +274,6 @@ export default class Game {
 
   actionViable(action: BuildActionType): boolean {
     //negative cost indicates any one resource less than requirement is an option
-    //TODO: implement ports eventually...
     let defaultReturnValue = true;
     for (const resource of AllResourceTypes) {
 
@@ -331,7 +329,7 @@ export default class Game {
   executeTrade(tradeInResource: number, tradeForResource: number, playerId: number) {
     const player = this.players[playerId];
     if (player.cards[tradeInResource] >= player.tradeRatio[tradeInResource]) {
-      const cost = [0, 0, 0, 0, 0];
+      const cost = [ 0, 0, 0, 0, 0 ];
       cost[tradeInResource] = player.tradeRatio[tradeInResource];
       console.log('executing trade:' + cost);
       player.spend(cost);
@@ -342,56 +340,67 @@ export default class Game {
 
   displayActionOptions(action: BuildActionType) {
     switch (action) {
-      case BuildActionType.Settlement:
-        this.claimedSettlement = false;
-        this.gamePhase = GamePhase.BuildSettlement;
-        for (const road of this.map.roads) {
-          if (road.playerIdx !== this.currPlayerIdx) {
-            continue;
-          }
+    case BuildActionType.Settlement:
+      this.claimedSettlement = false;
+      this.gamePhase = GamePhase.BuildSettlement;
+      for (const road of this.map.roads) {
+        if (road.playerIdx !== this.currPlayerIdx) {
+          continue;
         }
-        break;
-      case BuildActionType.City:
-        for (const town of this.map.towns) {
-          if (town.isUnclaimed()) {
-            continue;
-          }
+      }
+      break;
+    case BuildActionType.City:
+      for (const town of this.map.towns) {
+        if (town.isUnclaimed()) {
+          continue;
         }
-        this.claimedSettlement = false;
-        this.gamePhase = GamePhase.BuildCity;
-        break;
-      default:
-        console.error(`displayActionOptions unexpected action type: ${actionToString(action)}`)
-        break;
+      }
+      this.claimedSettlement = false;
+      this.gamePhase = GamePhase.BuildCity;
+      break;
+    default:
+      console.error(`displayActionOptions unexpected action type: ${actionToString(action)}`);
+      break;
     }
     this.forceUpdate();
   }
 
-  getBuildActionTown(town: GameTown, playerId: number, premove: boolean = false): BuildActionResponse {
-    if (town.playerIdx !== undefined && town.playerIdx !== playerId) return { type: 'invalid' };
-    if (town.coords === undefined) return { type: 'invalid' };
+  getBuildActionTown(town: GameTown, playerId: number, _premove: boolean = false): BuildActionResponse {
+    if (town.playerIdx !== undefined && town.playerIdx !== playerId) {
+      return { type: 'invalid' };
+    }
+    if (town.coords === undefined) {
+      return { type: 'invalid' };
+    }
 
     let returnAction: BuildAction;
-    console.log("making BuildTownAction:");
-    if (!town.isUnclaimed() || this.settlePremovePresent(town.coords, playerId))
+    console.log('making BuildTownAction:');
+    if (!town.isUnclaimed() || this.settlePremovePresent(town.coords, playerId)) {
       returnAction = new BuildCityAction(playerId, town.coords);
-    else
+    } else {
       returnAction = new BuildSettlementAction(playerId, town.coords);
+    }
     console.log(returnAction);
     //only return valid actions!
     if (returnAction.shouldDisqualify(this)) {//Why is this true during setup?
-      console.log("Action Disqualified");
+      console.log('Action Disqualified');
       return { type: 'invalid' };
-    }
-    else
+    } else {
       return returnAction;
+    }
   }
 
   settlePremovePresent(location: VertexCoords, playerId: number): boolean {
-    if (!this.map.townAt(location)?.isUnclaimed()) return false;
+    if (!this.map.townAt(location)?.isUnclaimed()) {
+      return false;
+    }
     for (const playerPremove of this.getPremoves(playerId)) {
-      if (playerPremove.type !== BuildActionType.Settlement) continue;
-      if (playerPremove.location !== location) continue;
+      if (playerPremove.type !== BuildActionType.Settlement) {
+        continue;
+      }
+      if (playerPremove.location !== location) {
+        continue;
+      }
       return true;
     }
     return false;
@@ -401,7 +410,7 @@ export default class Game {
     const buildAction = hydrateBuildAction(buildActionJSON);
     console.log(buildAction.displayString());
     // check if the action is already present in the premoves
-    for (let action of this.premoveActions) {
+    for (const action of this.premoveActions) {
       if (action.equals(buildAction)) {
         return;
       }
@@ -417,17 +426,20 @@ export default class Game {
     do {
       const currentPremoves = this.getPremoves(playerIndex);
       for (const action of currentPremoves) {
-        if (action.isPossible(this)) action.execute(this);
+        if (action.isPossible(this)) {
+          action.execute(this);
+        }
       }
       playerIndex++;
-      if (playerIndex >= this.players.length)
+      if (playerIndex >= this.players.length) {
         playerIndex = 0;
+      }
       loopBreaker++;
       if (loopBreaker > this.players.length + 1) {
-        console.log("Infinite loop detected! Emergency measures deployed!");
+        console.log('Infinite loop detected! Emergency measures deployed!');
         return;
       }
-    } while (playerIndex !== this.currPlayerIdx)
+    } while (playerIndex !== this.currPlayerIdx);
 
     return;
   }
@@ -587,7 +599,7 @@ export default class Game {
       if (hex && this.robberHexes.indexOf(hcoords) === -1) {
         console.log('updated robberhexes!');
         this.robberHexes.push(hcoords);
-        console.log(this.robberHexes);
+        //console.log(this.robberHexes);
       }
     }
   }
@@ -610,35 +622,39 @@ export default class Game {
     }
 
     switch (hex.resourceType) {
-      case ResourceType.AnyPort:
-        return [3, 3, 3, 3, 3];
-      case ResourceType.WoodPort:
-        return [2, 4, 4, 4, 4];
-      case ResourceType.BrickPort:
-        return [4, 2, 4, 4, 4];
-      case ResourceType.SheepPort:
-        return [4, 4, 2, 4, 4];
-      case ResourceType.GrainPort:
-        return [4, 4, 4, 2, 4];
-      case ResourceType.OrePort:
-        return [4, 4, 4, 4, 2];
-      default:
-        return undefined;
+    case ResourceType.AnyPort:
+      return [ 3, 3, 3, 3, 3 ];
+    case ResourceType.WoodPort:
+      return [ 2, 4, 4, 4, 4 ];
+    case ResourceType.BrickPort:
+      return [ 4, 2, 4, 4, 4 ];
+    case ResourceType.SheepPort:
+      return [ 4, 4, 2, 4, 4 ];
+    case ResourceType.GrainPort:
+      return [ 4, 4, 4, 2, 4 ];
+    case ResourceType.OrePort:
+      return [ 4, 4, 4, 4, 2 ];
+    default:
+      return undefined;
     }
   }
 
   getValidBuildActions(playerIdx: number, type: BuildActionType): BuildAction[] {
+    console.log("get valid build actions: " + type.toString());
     switch (type) {
-      case BuildActionType.Road:
-        return this.map.buildableRoadLocations(playerIdx)
-          .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
+    case BuildActionType.Road:
+      return this.map.buildableRoadLocations(playerIdx)
+        .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
 
-      case BuildActionType.Settlement:
-        return this.map.buildableTownLocations(playerIdx)
-          .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords));
+    case BuildActionType.Settlement:
+      return this.map.buildableTownLocations(playerIdx)
+        .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords));
+    case BuildActionType.City:
+      return this.map.buildableCityLocations(playerIdx)
+        .map(vertexCoords => new BuildCityAction(playerIdx, vertexCoords));
 
-      default:
-        throw new Error(`getValidBuildActions unsupported BuildActionType: ${actionToString(type)}`);
+    default:
+      throw new Error(`getValidBuildActions unsupported BuildActionType: ${actionToString(type)}`);
     }
   }
 

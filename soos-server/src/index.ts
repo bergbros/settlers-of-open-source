@@ -4,7 +4,7 @@ import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import cookieSession from 'cookie-session';
 
-import { apiRouter } from './routes/api/index.js'
+import { apiRouter } from './routes/api/index.js';
 import { timingMiddleware } from './routes/utils.js';
 
 import { registerSocketListeners } from './routes/socket-io/index.js';

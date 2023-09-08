@@ -1,17 +1,17 @@
-import { Socket, Server } from 'socket.io'
+import { Socket, Server } from 'socket.io';
 
-import { EdgeCoords, Game, gameFromString } from 'soos-gamelogic';
+import { AllResourceTypes, EdgeCoords, Game, ResourceType, gameFromString } from 'soos-gamelogic';
 import ServerAction from '../../server-action.js';
 import { BuildAction, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions.js';
-import { gameManager, GameSlot } from '../../db/game-manager.js';
+import { gameManager, ServerGame } from '../../db/game-manager.js';
 
 type MiddlewareContext = {
   activeGamecode: string,
   game: Game,
   playerIndex: number,
-}
+};
 
-function getGameForSocket(socket: Socket): GameSlot {
+function getGameForSocket(socket: Socket): ServerGame {
   let gamecode: string | null = null;
 
   if (socket.data.gamecode) {
@@ -47,16 +47,16 @@ function getGameForSocket(socket: Socket): GameSlot {
 
 function populateContext(socket: Socket): MiddlewareContext | null {
   try {
-    var gameStorage = getGameForSocket(socket);
-    var game = gameStorage.game;
-    var gamecode = gameStorage.gamecode;
-    var playerIndex = gameManager.getPlayerIndexBySocketID(gamecode, socket.id);
-    console.log('populating context for ' + playerIndex);// + gamecode + "//" + game + "//" + playerIndex);
-    let context: MiddlewareContext = {
+    const gameStorage = getGameForSocket(socket);
+    const game = gameStorage.game;
+    const gamecode = gameStorage.gamecode;
+    const playerIndex = gameManager.getPlayerIndexBySocketID(gamecode, socket.id);
+    console.log(`populating context for ${playerIndex}, socket id ${socket.id}`);// + gamecode + "//" + game + "//" + playerIndex);
+    const context: MiddlewareContext = {
       activeGamecode: gamecode,
       game: game,
-      playerIndex: playerIndex
-    }
+      playerIndex: playerIndex,
+    };
 
     return context;
   } catch (e) {
@@ -81,7 +81,7 @@ const gameEvents: Set<string> = new Set([
 
 export const registerGameSocketListeners = (
   socket: Socket,
-  io: Server
+  io: Server,
 ) => {
   // Middleware should check that socket is in exactly one gamecode room
   let context: MiddlewareContext | null;
@@ -90,21 +90,23 @@ export const registerGameSocketListeners = (
   // if userIsInActiveGame:
   //   socket.emit('updateGameState', game.toString());
 
-  socket.use(([event, ...args]: any[], next: Function) => {
+  socket.use(([ event, ...args ]: any[], next: Function) => {
     if (gameEvents.has(event)) {
       context = populateContext(socket);
-      if (context)
+      if (context) {
         next();
-      else
+      } else {
         return next(new Error());
+      }
     } else {
       next();
     }
   });
 
   socket.on('playerId', (callback) => {
-    if (!context)
-      console.log('Context is not defined!')
+    if (!context) {
+      console.log('Context is not defined!');
+    }
     console.log('attempting to pass socket playerId: ' + context?.playerIndex);
     callback(context?.playerIndex);
   });
@@ -116,14 +118,16 @@ export const registerGameSocketListeners = (
   });
 
   socket.on('newGameState', (newGameState) => {
-    if (!context)
+    if (!context) {
       return new Error();
+    }
 
     //console.log(newGameState);
     console.log('got New Game State');
     let premoves: BuildAction[] = [];
-    if (context.game)
+    if (context.game) {
       premoves = context.game.premoveActions;
+    }
     context.game = gameFromString(newGameState);
     for (const moves of premoves) {
       context.game.addPremove(moves);
@@ -134,8 +138,9 @@ export const registerGameSocketListeners = (
   });
 
   socket.on('autoPickSettlements', () => {
-    if (!context)
+    if (!context) {
       return new Error();
+    }
 
     if (!context.game.setupPhase()) {
       console.error('got autoPickSettlements command but game is not in setup phase');
@@ -149,8 +154,9 @@ export const registerGameSocketListeners = (
   });
 
   socket.on('build', (buildAction: BuildAction) => {
-    if (!context)
+    if (!context) {
       return new Error();
+    }
 
     buildAction = hydrateBuildAction(buildAction);
 
@@ -169,8 +175,9 @@ export const registerGameSocketListeners = (
   });
 
   socket.on('premove', (premove: BuildAction) => {
-    if (!context)
+    if (!context) {
       return new Error();
+    }
 
     premove = hydrateBuildAction(premove);
 
@@ -183,11 +190,31 @@ export const registerGameSocketListeners = (
     }
 
     saveGame(context);
-    socket.emit('premoves', gameMoves);
+    socket.emit('setPremoves', gameMoves);
   });
 
-  /*This is never called, commenting out for now. 
-  
+  socket.on('nextTurn', ()=>{
+    if (!context) {
+      return new Error();
+    }
+    if(true){//context.playerIndex===context.game.currPlayerIdx){
+      context.game.nextPlayer();
+      saveGame(context);
+      io.to(context.activeGamecode).emit('updateGameState', context.game.toString());
+    }
+  });
+
+  socket.on('trade', (offer:ResourceType, target:ResourceType)=>{
+    if (!context) {
+      return new Error();
+    }
+
+    context.game.executeTrade(offer, target, context.playerIndex);
+    saveGame(context);
+    io.to(context.activeGamecode).emit('updateGameState', context.game.toString());
+  });
+  /*This is never called, commenting out for now.
+
   socket.on('logPremoves', () => {
     console.log();
     console.log();
@@ -198,5 +225,4 @@ export const registerGameSocketListeners = (
     }
   });*/
 
-
-}
+};

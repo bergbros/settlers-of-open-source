@@ -8,7 +8,7 @@ export function findBestSettlementSpots(game: Game, count: number): VertexCoords
     town: GameTown;
     coords: VertexCoords;
     production: number;
-  }
+  };
 
   const towns: EvaluatedTown[] = [];
 
@@ -18,7 +18,7 @@ export function findBestSettlementSpots(game: Game, count: number): VertexCoords
         town,
         coords: town.coords!,
         production: evaluateTown(game, town),
-      })
+      });
     }
   }
 
@@ -32,10 +32,13 @@ function evaluateTown(game: Game, newTown: GameTown, log = false): number {
   const tradeBenefit: number[] = [];
   const potentialNewProduction: number[] = [];
   const currPlayer = game.players[game.currPlayerIdx];
+  let allResourcesBonus = 0;
   for (const resource of AllResourceTypes) {
     prodScore += newTown.production[resource] * ((currPlayer.tradeRatio[resource] - 4) / 3 + 1);
     potentialNewProduction.push(currPlayer.resourceProduction[resource] + newTown.production[resource]);
     tradeBenefit.push(0);
+    if (potentialNewProduction[resource]>0)
+    allResourcesBonus = allResourcesBonus + 1;
   }
   if (!newTown.coords) {
     throw new Error('evaluated town has no coords??');
@@ -58,10 +61,11 @@ function evaluateTown(game: Game, newTown: GameTown, log = false): number {
   for (const resource of AllResourceTypes) {
     tradeScore += tradeBenefit[resource];
   }
+  
   if (log) {
     console.log(potentialNewProduction);
     console.log(tradeBenefit);
   }
-  newTown.eval = prodScore + tradeScore / 8;
+  newTown.eval = prodScore + tradeScore / 8 + allResourcesBonus*allResourcesBonus*allResourcesBonus;
   return newTown.eval;
 }

@@ -5,100 +5,91 @@ import { generateGameCode } from './utils/utils.js';
 import { DataManager } from './data-manager.js';
 import { userManager } from './user-manager.js';
 
-import { RemoteSocket, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 
-export type PlayerDataFields = {
+export type ServerGamePlayer = {
   userID: string,
   playerIndex: number,
   connected: boolean
-}
+};
 
-export type GameSlot = {
+export type ServerGame = {
   gamecode: string,
   game: Game,
-  players: DataManager<PlayerDataFields>,
+  playerList: DataManager<ServerGamePlayer>,
   launched: boolean,
   premoveActions: ServerAction[]
-}
+};
 
 class GameManager {
-  private gameTable: DataManager<GameSlot>;
+  private gameTable: DataManager<ServerGame>;
 
-  public constructor() {
+  constructor() {
     this.gameTable = new DataManager();
   }
 
-  public getGame(gamecode: string) {
-    var game = this.gameTable.getObjectByAttr('gamecode', gamecode) as GameSlot;
-    if (game) {
-      return game;
-    } else {
-      return null;
-    }
+  getGame(gamecode: string): ServerGame | null {
+    return this.gameTable.getObjectByAttr('gamecode', gamecode);
   }
 
-  public gameExists(gamecode: string) {
-    if (this.getGame(gamecode)) {
-      return true;
-    } else {
-      return false;
-    }
+  gameExists(gamecode: string) {
+    return !!this.getGame(gamecode);
   }
 
-  public createGame(gamecode?: string) {
+  createGame(gamecode?: string) {
     gamecode = gamecode || generateGameCode();
-    var createdGame: GameSlot = {
+    const createdGame: ServerGame = {
       gamecode: gamecode,
       game: new Game({ debugAutoPickSettlements: false }),
-      players: new DataManager(),
+      playerList: new DataManager(),
       premoveActions: [],
-      launched: false
-    }
+      launched: false,
+    };
     this.gameTable.addObject(createdGame);
 
     return gamecode;
   }
 
-  public launchGame(gamecode: string, playerSockets: any[]) {
-    var game = this.getGame(gamecode);
-    if (!game)
+  launchGame(gamecode: string, playerSockets: any[]) {
+    const game = this.getGame(gamecode);
+    if (!game) {
       throw new Error();
+    }
 
-    let playerIndex = 0;
-    let players: string[] = [];
+    const players: string[] = [];
 
     // These might actually be RemoteSockets (hence the any[] above) but it shouldn't matter here.
-    playerSockets.forEach((playerSocket: Socket) => {
-      var player = userManager.getUserBySocketID(playerSocket.id);
-      if (!player)
-        throw new Error(); // unassociated socket
+    for (let i = 0; i < playerSockets.length; i++) {
+      const playerSocket = playerSockets[i];
+      const player = userManager.getUserBySocketID(playerSocket.id);
+      if (!player) {
+        throw new Error();
+      } // unassociated socket
       // Possibly also check that player.userID == socket.data.userID
 
-      var pdf: PlayerDataFields = {
+      game.playerList.addObject({
         userID: player.userID,
-        playerIndex: playerIndex,
-        connected: true
-      }
-
-      game?.players.addObject(pdf);
+        playerIndex: i,
+        connected: true,
+      });
       players.push(player.userID);
-      //playerSocket.emit('playerId', players[length]);
-    });
+    }
 
-    console.log(`Launching game ${gamecode} with players ${players}`)
+    console.log(`Launching game ${gamecode} with players ${players}`);
   }
 
-  public updateGame(gamecode: string, game: Game) {
+  updateGame(gamecode: string, game: Game) {
     console.log('Updating game ' + gamecode);
-    var gameStorageUnit = this.getGame(gamecode);
-    if (!gameStorageUnit)
+    const gameStorageUnit = this.getGame(gamecode);
+    if (!gameStorageUnit) {
       return false;
+    }
 
     gameStorageUnit.game = game;
     return true;
   }
 
-  public getPlayerIndexBySocketID(gamecode: string, socketID: string): number {
+  getPlayerIndexBySocketID(gamecode: string, socketID: string): number {
     let user = userManager.getUserBySocketID(socketID);
     if (!user) {
       const userId = userManager.addUser(socketID.slice(0, 3))!;
@@ -108,11 +99,11 @@ class GameManager {
       // throw new Error('Socket ' + socketID + ' not associated with any userID');
     }
 
-    var game = this.getGame(gamecode);
-    var player = game?.players.getObjectByAttr('userID', user.userID) as PlayerDataFields;
+    const game = this.getGame(gamecode);
+    const player = game?.playerList.getObjectByAttr('userID', user.userID) as ServerGamePlayer;
 
     if (!player) {
-      player = game?.players.dataTable[0]!;
+      // player = game?.players.dataTable[0];
 
       // TODO put error back
       // throw new Error('User ' + user.userID + ' not in game');
@@ -121,18 +112,17 @@ class GameManager {
     return player.playerIndex;
   }
 
-  public gameActive(gamecode: string): boolean {
-    var game = this.getGame(gamecode);
-    if (!game)
+  gameActive(gamecode: string): boolean {
+    const game = this.getGame(gamecode);
+    if (!game) {
       return false;
+    }
     return game.launched;
   }
 
-  public deleteGame(gamecode: string) {
-    var result = this.gameTable.removeObjectByAttr('gamecode', gamecode);
-    if (result)
-      return true;
+  deleteGame(gamecode: string) {
+    return this.gameTable.removeObjectByAttr('gamecode', gamecode);
   }
 }
 
-export let gameManager = new GameManager();
+export const gameManager = new GameManager();

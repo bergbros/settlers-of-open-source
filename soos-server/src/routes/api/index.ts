@@ -1,10 +1,10 @@
 import express from 'express';
 
-import { userApiRouter } from './user.js';
-import { socketApiRouter } from './socket.js';
-import { gameApiRouter } from './game.js';
+import { userApiRouter } from './serveruser.js';
+import { socketApiRouter } from './serversocket.js';
+import { gameApiRouter } from './servergame.js';
 
-var router = express.Router();
+const router = express.Router();
 
 // Adding child routes
 router.use('/user', userApiRouter);

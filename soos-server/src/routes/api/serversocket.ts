@@ -1,11 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { userManager } from '../../db/user-manager.js';
 
-var router = express.Router();
+const router = express.Router();
 
 router.route('/check')
   .get((req: Request, res: Response) => {
-    var socketID = userManager.getSocketForUser(req.session?.userID);
+    const socketID = userManager.getSocketForUser(req.session?.userID);
     if (socketID) {
       res.sendStatus(200);
     } else {

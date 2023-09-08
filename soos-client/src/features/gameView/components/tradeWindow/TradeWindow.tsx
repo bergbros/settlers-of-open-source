@@ -13,11 +13,11 @@ export const TradeWindow = (props: TradeWindowProps) => {
   const { tradeRatio, resources, closeWindowHandler, executeTradeHandler } =
     props;
 
-  const [step, setStep] = React.useState<'trade' | 'prize' | 'confirm'>(
+  const [ step, setStep ] = React.useState<'trade' | 'prize' | 'confirm'>(
     'trade',
   );
-  const [tradeResource, setTradeResource] = React.useState<number>();
-  const [prizeResource, setPrizeResource] = React.useState<number>();
+  const [ tradeResource, setTradeResource ] = React.useState<number>();
+  const [ prizeResource, setPrizeResource ] = React.useState<number>();
 
   function onCancel() {
     setStep('trade');
@@ -32,7 +32,7 @@ export const TradeWindow = (props: TradeWindowProps) => {
 
   function onSubmit() {
     if (tradeResource !== undefined && prizeResource !== undefined) {
-      console.log("trading");
+      console.log('trading');
       executeTradeHandler(tradeResource, prizeResource);
     }
     onClose();

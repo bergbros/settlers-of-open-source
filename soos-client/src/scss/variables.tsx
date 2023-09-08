@@ -10,4 +10,4 @@ export default {
     [2]: 'rgb(55, 255, 55)',
   } as { [key: number]: string },
 
-}
+};

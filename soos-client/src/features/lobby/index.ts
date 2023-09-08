@@ -1,2 +1,2 @@
-export * from './Lobby'
-export * from './LobbyLoader'
+export * from './Lobby';
+export * from './LobbyLoader';

@@ -49,7 +49,7 @@ export const GameView = (props: GameViewProps) => {
       }
     }
 
-    function updateGameState(gameState: string) {
+    function updateGameState(gameState: string): void {
       // parse game
       const updatedGame = gameFromString(gameState);
       updatedGame.forceUpdate = () => {
@@ -57,7 +57,7 @@ export const GameView = (props: GameViewProps) => {
       };
       setGame(updatedGame);
       setPossibleBuildActions([]);
-      console.log("pba: " + possibleBuildActions.length);
+      console.log('pba: ' + possibleBuildActions.length);
       console.log('got new game state');
     }
 
@@ -107,7 +107,7 @@ export const GameView = (props: GameViewProps) => {
         executeTradeHandler={(tradeIn: number, tradeFor: number) => {
           //game.executeTrade(tradeIn, tradeFor, playerId);
           //game.forceUpdate();
-          socket.emit('trade',tradeIn,tradeFor);
+          socket.emit('trade', tradeIn, tradeFor);
         }}
       />,
     );
@@ -184,7 +184,7 @@ export const GameView = (props: GameViewProps) => {
               <button
                 key={index}
                 onClick={() => {
-                  console.log("clicked " + buildActionType.toString());
+                  console.log('clicked ' + buildActionType.toString());
                   if (possibleBuildActions.length > 0) {
                     // they clicked again, clear it
                     setPossibleBuildActions([]);
@@ -208,8 +208,14 @@ export const GameView = (props: GameViewProps) => {
           <button
             className="ActionButton chunky-btn"
             onClick={() => {
+              if(playerId===undefined) {
+                return;
+              }
               if (makingPremoves) {
                 game.gamePhase = GamePhase.MainGameplay;
+                setPossibleBuildActions([]);
+              } else {
+                setPossibleBuildActions(game.getAllValidBuildActions(playerId));
               }
               setMakingPremoves(!makingPremoves);
             }}

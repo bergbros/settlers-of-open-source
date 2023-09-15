@@ -51,7 +51,7 @@ export const Board = (props: BoardProps) => {
   }
 
   const townBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Settlement || pba.type === BuildActionType.City);
-  console.log("town build actions: " + townBuildActions.length);
+  console.log('town build actions: ' + townBuildActions.length);
   const isSettlementSetup = game.setupPhase() && game.currPlayerIdx === playerId && !game.claimedSettlement;
 
   const towns = [];
@@ -59,7 +59,6 @@ export const Board = (props: BoardProps) => {
     if (!town || !town.coords) {
       continue;
     }
-
     const townCoords = town.coords;
 
     let buildAction: BuildAction | undefined;
@@ -68,17 +67,24 @@ export const Board = (props: BoardProps) => {
     } else {
       // TODO optimize
       buildAction = townBuildActions.find(pba => townCoords.equals(pba.location));
-      if(buildAction!==undefined) console.log('Found build action for location: ' + townCoords.toString());
+      if(buildAction!==undefined) {
+        console.log('Found build action for location: ' + townCoords.toString());
+      }
     }
 
     towns.push(
       <Town
+        boardPlayerIdx={playerId}
         gameTown={town}
         highlighted={!!buildAction}
-        premove={makingPremoves && town.playerIdx === playerId}
+        makingPremove={makingPremoves}
         onClick={() => {
           if (buildAction) {
-            socket.emit('build', buildAction);
+            if(makingPremoves){
+              socket.emit('premove', buildAction);
+            } else {
+              socket.emit('build', buildAction);
+            }
           }
         }}
         key={`t:${townCoords.hexCoords.x},${townCoords.hexCoords.y},${townCoords.direction}`}
@@ -92,11 +98,12 @@ export const Board = (props: BoardProps) => {
     && game.currPlayerIdx === playerId
     && game.claimedSettlement) || makingPremoves) {
     // custom roadBuildActions for setup phase
-    roadBuildActions = game.getValidBuildActions(playerId, BuildActionType.Road);
+    roadBuildActions = game.getValidBuildActions(playerId!, BuildActionType.Road);
   }
   for (const premoveAction of premoves){
-    if(premoveAction.type===BuildActionType.Road)
+    if(premoveAction.type===BuildActionType.Road) {
       roadBuildActions.push(premoveAction);
+    }
   }
 
   const roads = [];

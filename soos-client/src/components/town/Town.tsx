@@ -4,9 +4,10 @@ import Variables from '../../scss/variables';
 import './Town.scss';
 
 export type TownProps = {
+  boardPlayerIdx:number|undefined;
   gameTown: GameTown;
   highlighted: boolean;
-  premove: boolean;
+  makingPremove: boolean;
   onClick: (vertexCoords: VertexCoords) => void;
 };
 
@@ -34,21 +35,29 @@ const suburbSize = 28;
 const suburbPolygonPoints = townPoints(suburbSize, [[ 0, .25 ], [ 0, 1 ], [ 1, 1 ], [ 1, .5 ], [ .5, .5 ], [ .5, .25 ], [ .25, 0 ]]);
 
 export const Town = (props: TownProps) => {
-  const { gameTown, onClick, premove, highlighted } = props;
+  const { boardPlayerIdx, gameTown, onClick, makingPremove, highlighted } = props;
 
   const playerIdx = gameTown.playerIdx ?? -1;
   const playerColor = Variables.PlayerColors[playerIdx];
-
   const playerClass = gameTown.isUnclaimed() ? 'unclaimed' : '';
   let highlightedClass = '';
-  if (highlighted || premove) {
+  if (highlighted) {
     highlightedClass = 'highlight';
   }
   // let townLevel = '';
-  let townSize = 10, points:string = "";
+  let townSize = 10, points:string = '';
 
   let svg = null;
-  switch (gameTown.townLevel + (premove?1:0)) {
+  let activePlayersTown = false;
+  if (playerIdx===boardPlayerIdx){
+    activePlayersTown = true;
+  }
+  let levelUpTown = 0;
+  if (makingPremove && activePlayersTown){
+    levelUpTown = 1;
+  }
+
+  switch (gameTown.townLevel + levelUpTown) {
   case 0:
   case 1:
     townSize = settlementSize;
@@ -64,32 +73,12 @@ export const Town = (props: TownProps) => {
     break;
   }
 
-  let fillOpacity, strokeDasharray, strokeWidth = 0;
-  if (playerIdx === -1 || premove) {
-    // dotted line
-    fillOpacity = '0';
-    strokeDasharray = '4 2';
-    strokeWidth = 3;
-  }
-
-  // svg = (
-  //   <svg width={townSize + 5} height={townSize + 5} style={{ transform: `translate(${-baseOffset}px, ${-baseOffset}px)` }}>
-  //     <polygon
-  //       points={points}
-  //       fill={playerColor}
-  //       fillOpacity={fillOpacity}
-  //       stroke={playerColor}
-  //       strokeWidth={strokeWidth}
-  //       strokeDasharray={strokeDasharray}
-  //     />
-  //   </svg >
-  // );
-
-  svg = makeTownSVG(townSize,points,playerColor,highlighted||premove);
+  svg = makeTownSVG(townSize, points, playerColor,
+    highlighted || (makingPremove && activePlayersTown), highlighted);
 
   const { x, y } = vertexCoordsToPixels(gameTown.coords!);
 
-  const shouldDisplay = premove || highlighted || playerIdx !== -1;
+  const shouldDisplay = highlighted || playerIdx !== -1;
   if (!shouldDisplay) {
     return null;
   }
@@ -109,7 +98,8 @@ export const Town = (props: TownProps) => {
   );
 };
 
-function makeTownSVG(townSize:number, points:string,  playerColor:string, dotted:boolean){
+function makeTownSVG(townSize:number, points:string,  playerColor:string, dotted:boolean,
+  hashed:boolean ){
 
   let fillOpacity, strokeDasharray, strokeWidth = 0;
   if (dotted) {
@@ -119,18 +109,28 @@ function makeTownSVG(townSize:number, points:string,  playerColor:string, dotted
     strokeWidth = 3;
   }
 
-  return (<svg 
-    width={townSize + 5} 
-    height={townSize + 5} 
-    style={{ transform: `translate(${-baseOffset}px, ${-baseOffset}px)` }}>
-    <polygon
-      points={points}
-      fill={playerColor}
-      fillOpacity={fillOpacity}
-      stroke={playerColor}
-      strokeWidth={strokeWidth}
-      strokeDasharray={strokeDasharray}
-    />
-  </svg >);
+  const checkerSize = 3;
+  return (
+
+    <svg
+      width={townSize + 5}
+      height={townSize + 5}
+      style={{ transform: `translate(${-baseOffset}px, ${-baseOffset}px)` }}>
+      <defs>
+        <pattern id="checkers" x={checkerSize} y={checkerSize} width={2*checkerSize} height={2*checkerSize} patternUnits="userSpaceOnUse">
+          <rect x={0} y={0} width={checkerSize} height={checkerSize} style={{ stroke: 'none', fill: playerColor }}/>
+          <rect x={checkerSize} y={checkerSize} width={checkerSize} height={checkerSize} style={{ stroke: 'none', fill: playerColor }}/>
+        </pattern>
+      </defs>
+      <polygon
+        points={points}
+        fill= {(hashed? 'url(#checkers)':playerColor)}
+        fillOpacity={fillOpacity}
+        stroke={playerColor}
+        strokeWidth={strokeWidth}
+        strokeDasharray={strokeDasharray}
+      />
+
+    </svg >);
 
 }

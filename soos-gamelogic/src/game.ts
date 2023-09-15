@@ -5,7 +5,7 @@ import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import HexCoords, { hydrateHexCoords } from './utils/hex-coords.js';
-import VertexCoords, { AllVertexDirections, getHexes, vertexDirName } from './utils/vertex-coords.js';
+import VertexCoords, { AllVertexDirections, getHexes } from './utils/vertex-coords.js';
 
 // phases requiring input
 export enum GamePhase {
@@ -210,7 +210,7 @@ export default class Game {
     if (maxPoints > 10) { //max victory point count for game over
       this.gamePhase = GamePhase.GameOver;
       this.endGame(maxPoints);
-      this.instructionText = "The game is over!"
+      this.instructionText = 'The game is over!';
       return;
     }
 
@@ -639,8 +639,22 @@ export default class Game {
     }
   }
 
+  getAllValidBuildActions(playerIdx: number){
+    const myBuildActions: BuildAction[]= this.map.buildableRoadLocations(playerIdx)
+      .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
+    for(const action of this.map.buildableTownLocations(playerIdx)
+      .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords))) {
+      myBuildActions.push(action);
+    }
+    for(const action of this.map.buildableTownLocations(playerIdx)
+      .map(vertexCoords => new BuildCityAction(playerIdx, vertexCoords))) {
+      myBuildActions.push(action);
+    }
+    return myBuildActions;
+  }
+
   getValidBuildActions(playerIdx: number, type: BuildActionType): BuildAction[] {
-    console.log("get valid build actions: " + type.toString());
+    console.log('get valid build actions: ' + type.toString());
     switch (type) {
     case BuildActionType.Road:
       return this.map.buildableRoadLocations(playerIdx)

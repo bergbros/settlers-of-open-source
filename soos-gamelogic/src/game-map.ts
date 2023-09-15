@@ -338,13 +338,20 @@ export default class GameMap {
 
   buildableTownLocations(playerIdx: number): VertexCoords[] {
     const townLocations: { [vertexCoordsStr: string]: VertexCoords } = {};
-    for (const road of this.roads) {
-      if (road.coords && road.playerIdx !==undefined && road.playerIdx === playerIdx) {
-        for (const town of this.getTowns(road)) {
-          if (town && town.coords && !townLocations[town.coords.toString()]) {
-            console.log("buildable location: " + town.coords?.toString());
-            townLocations[town.coords.toString()] = town.coords;
+    for (const town of this.towns){
+      if (!town.coords) {
+        continue;
+      }
+      const townRoads = this.getRoads(town.coords);
+      if (town.coords && town.isUnclaimed()){
+        let foundRoad = false;
+        for (const road of townRoads){
+          if (road && road.playerIdx === playerIdx) {
+            foundRoad = true;
           }
+        }
+        if (foundRoad){
+          townLocations[town.coords.toString()] = town.coords;
         }
       }
     }
@@ -355,7 +362,7 @@ export default class GameMap {
     const cityLocations: { [vertexCoordsStr: string]: VertexCoords } = {};
     for (const town of this.towns){
       if (town.coords && town.playerIdx===playerIdx && town.townLevel<town.maxLevel){
-        console.log("buildable city location:" + town.coords.toString());
+        console.log('buildable city location:' + town.coords.toString());
         cityLocations[town.coords.toString()] = town.coords;
       }
     }

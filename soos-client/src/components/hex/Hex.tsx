@@ -3,7 +3,7 @@ import { hexCoordsToPixels } from '../../utils';
 import './Hex.scss';
 
 // Debug thing to show the HexCoords of every hex on the board.
-const showAllCoords = false;
+const showAllCoords =true;
 
 function getTerrainClass(terrainType: TerrainType, resourceType?: ResourceType): string {
   let terrainClass = '';

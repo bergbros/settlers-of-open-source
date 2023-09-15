@@ -441,6 +441,13 @@ export default class Game {
       }
     } while (playerIndex !== this.currPlayerIdx);
 
+    //clean-up:
+    for (let i = this.premoveActions.length-1; i>=0;i--){
+      if(this.premoveActions[i].shouldDisqualify(this)){
+        this.premoveActions.splice(i);
+      }
+    }
+
     return;
   }
 

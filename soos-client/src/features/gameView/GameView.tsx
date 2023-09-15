@@ -14,8 +14,6 @@ import {
 import { Player } from '~/src/components';
 import { Board, ResourceBar, TradeWindow } from './components';
 
-let premoves: BuildAction[] = [];
-
 type GameViewProps = {
   socket: Socket;
   game: Game;
@@ -30,9 +28,8 @@ export const GameView = (props: GameViewProps) => {
   const [ playerId, setPlayerId ] = React.useState<number | undefined>(undefined);
   const [ isTradeWindowShowing, setIsTradeWindowShowing ] = React.useState<boolean>(false);
   const [ makingPremoves, setMakingPremoves ] = React.useState<boolean>(false);
-
   const [ possibleBuildActions, setPossibleBuildActions ] = React.useState<BuildAction[]>([]);
-
+  const [ queuedPremoves, setQueuedPremoves ] = React.useState<BuildAction[]>([]);
   // Set up force update function
   const [ count, setCount ] = React.useState<number>(0);
   game.forceUpdate = () => {
@@ -59,15 +56,17 @@ export const GameView = (props: GameViewProps) => {
       setPossibleBuildActions([]);
       console.log('pba: ' + possibleBuildActions.length);
       console.log('got new game state');
+      socket.emit('getPremoves');
     }
 
     function setPremoves(serverPremoves: BuildAction[]) {
       console.log('got premoves: ');
       console.log(serverPremoves);
-      premoves = [];
+      const premoves:BuildAction[] = [];
       for (const serverMove of serverPremoves) {
         premoves.push(hydrateBuildAction(serverMove));
       }
+      setQueuedPremoves(premoves);
       game.forceUpdate();
     }
 
@@ -132,6 +131,7 @@ export const GameView = (props: GameViewProps) => {
         makingPremoves={makingPremoves}
         playerId={playerId}
         possibleBuildActions={possibleBuildActions}
+        queuedPremoves = {queuedPremoves}
       />
 
       {/* List of players' resource count & victory points */}

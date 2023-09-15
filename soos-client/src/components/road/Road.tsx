@@ -6,16 +6,17 @@ import './Road.scss';
 export type RoadProps = {
   gameRoad: GameRoad;
   highlighted: boolean;
-  premove: boolean;
+  makingPremoves: boolean;
+  premoveQueued: boolean;
   onClick: () => void;
 };
 
 export const Road = (props: RoadProps) => {
-  const { gameRoad, onClick, premove, highlighted } = props;
+  const { gameRoad, onClick, makingPremoves, premoveQueued, highlighted } = props;
   const coords = gameRoad.coords;
   const { x, y } = edgeCoordsToPixels(coords);
   const playerIdx = gameRoad.playerIdx ?? -1;
-  const shouldDisplay = premove || highlighted || playerIdx !== -1;
+  const shouldDisplay = makingPremoves || highlighted || playerIdx !== -1|| premoveQueued;
 
   // don't display anything at all
   if (!shouldDisplay) {
@@ -31,20 +32,20 @@ export const Road = (props: RoadProps) => {
         top: y + 'px',
       }}
       onClick={() => {
-        console.log("road Clicked"); 
-        onClick()
+        console.log('road Clicked');
+        onClick();
       }}
     >
       {makeSVG(
         coords.direction,
         Variables.PlayerColors[playerIdx],
-        props.premove || (playerIdx === -1 && props.highlighted),
+        props.makingPremoves || (playerIdx === -1 && props.highlighted), premoveQueued,
       )}
     </div>
   );
 };
 
-function makeSVG(direction: HexDirection, color: string, dotted: boolean) {
+function makeSVG(direction: HexDirection, color: string, dotted: boolean, hashed:boolean) {
   let rotation = 0, translateX = 0, translateY = 0;
   if (direction === HexDirection.NW || direction === HexDirection.SE) {
     rotation = -33;
@@ -61,13 +62,13 @@ function makeSVG(direction: HexDirection, color: string, dotted: boolean) {
   }
 
   let fillOpacity, strokeDasharray, strokeWidth = 0;
-  if (dotted) {
+  if (dotted && !hashed) {
     // dotted line
     fillOpacity = '0';
     strokeDasharray = '3 2';
     strokeWidth = 3;
   }
-
+  const checkerSize = 3;
   return (
     <svg
       width={40}
@@ -78,6 +79,12 @@ function makeSVG(direction: HexDirection, color: string, dotted: boolean) {
         transformOrigin: '16px 8px',
       }}
     >
+      <defs>
+        <pattern id="checkers" x={checkerSize} y={checkerSize} width={2*checkerSize} height={2*checkerSize} patternUnits="userSpaceOnUse">
+          <rect x={0} y={0} width={checkerSize} height={checkerSize} style={{ stroke: 'none', fill: color }}/>
+          <rect x={checkerSize} y={checkerSize} width={checkerSize} height={checkerSize} style={{ stroke: 'none', fill: color }}/>
+        </pattern>
+      </defs>
       <rect
         x={4}
         y={4}
@@ -85,7 +92,7 @@ function makeSVG(direction: HexDirection, color: string, dotted: boolean) {
         height={10}
         stroke={color}
         strokeWidth={strokeWidth}
-        fill={color}
+        fill={(hashed? 'url(#checkers)': color)}
         fillOpacity={fillOpacity}
         strokeDasharray={strokeDasharray}
       />

@@ -289,7 +289,7 @@ export default class GameMap {
         roadLocations[roadCoordsStr] = road.coords;
         const bothTowns = this.getTowns(road);
         for (const town of bothTowns) {
-          if (town && town.coords) {
+          if (town && town.coords && town.playerIdx!==undefined && (town.isUnclaimed() || town.playerIdx===playerIdx)) {
             this.buildableRoadLocationsRecursive(playerIdx, town.coords, roadLocations, visitedVertices);
           }
         }
@@ -310,7 +310,8 @@ export default class GameMap {
     }
     visitedVertices[vertexCoords.toString()] = true;
     const vertTown = this.townAt(vertexCoords);
-    if(vertTown && !vertTown.isUnclaimed() &&vertTown.playerIdx && vertTown.playerIdx!== playerIdx){
+    if(vertTown && !vertTown.isUnclaimed() &&vertTown.playerIdx!==undefined && vertTown.playerIdx!== playerIdx){
+      console.log('cant build past opponents towns!');
       return; // can't build past opponents towns!
     }
     const egressRoads = this.getRoads(vertexCoords);
@@ -328,7 +329,8 @@ export default class GameMap {
           // continue on the other side
           const bothTowns = this.getTowns(road);
           const otherTown = bothTowns.find(t => !t.coords?.equals(vertexCoords));
-          if (otherTown?.coords && otherTown?.playerIdx === playerIdx) {
+          if (otherTown?.coords && (otherTown.isUnclaimed() || otherTown?.playerIdx === playerIdx)) {
+            console.log('continuing at ' + otherTown.coords?.toString());
             this.buildableRoadLocationsRecursive(playerIdx, otherTown.coords, roadLocations, visitedVertices);
           }
         }

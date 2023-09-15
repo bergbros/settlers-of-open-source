@@ -156,7 +156,7 @@ export class BuildRoadAction implements BuildAction {
       return false;
     }
     compareAction = new BuildRoadAction(compareAction.playerId, compareAction.location);
-    return this.location.equals(compareAction.location);
+    return this.location.equals(compareAction.location) && compareAction.playerId === this.playerId;
   }
 
 }
@@ -231,7 +231,7 @@ export class BuildSettlementAction implements BuildAction {
       return false;
     }
     compareAction = new BuildSettlementAction(compareAction.playerId, compareAction.location);
-    return this.location.equals(compareAction.location);
+    return this.location.equals(compareAction.location) && compareAction.playerId === this.playerId;
   }
 }
 
@@ -285,7 +285,7 @@ export class BuildCityAction implements BuildAction {
       return false;
     }
     compareAction = new BuildCityAction(compareAction.playerId, compareAction.location);
-    return this.location.equals(compareAction.location);
+    return this.location.equals(compareAction.location) && compareAction.playerId === this.playerId;
   }
 
   setChildPrototypes() {

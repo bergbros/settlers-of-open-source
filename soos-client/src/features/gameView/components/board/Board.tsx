@@ -118,6 +118,7 @@ export const Board = (props: BoardProps) => {
     queued = roadQdActions.find(pba => roadCoords.equals(pba.location))!==undefined;
     roads.push(
       <Road
+        boardPlayerIdx = {playerId}
         gameRoad={road}
         highlighted={!!buildAction}
         makingPremoves={false && makingPremoves && road.playerIdx === playerId}

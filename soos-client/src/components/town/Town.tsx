@@ -38,9 +38,9 @@ const suburbPolygonPoints = townPoints(suburbSize, [[ 0, .25 ], [ 0, 1 ], [ 1, 1
 export const Town = (props: TownProps) => {
   const { boardPlayerIdx, gameTown, onClick, makingPremove, highlighted, premoveQueued } = props;
 
-  const playerIdx = gameTown.playerIdx ?? -1;
-  const playerColor = Variables.PlayerColors[playerIdx];
-  const playerClass = gameTown.isUnclaimed() && !premoveQueued ? 'unclaimed' : '';
+  const piecePlayerIdx = gameTown.playerIdx ?? -1;
+  const pieceColor = Variables.PlayerColors[piecePlayerIdx];
+  const pieceClass = gameTown.isUnclaimed() && !premoveQueued ? 'unclaimed' : '';
   let highlightedClass = '';
   if (highlighted) {
     highlightedClass = 'highlight';
@@ -50,7 +50,7 @@ export const Town = (props: TownProps) => {
 
   let svg = null;
   let activePlayersTown = false;
-  if (playerIdx===boardPlayerIdx){
+  if (piecePlayerIdx===boardPlayerIdx){
     activePlayersTown = true;
   }
   let levelUpTown = 0;
@@ -74,8 +74,8 @@ export const Town = (props: TownProps) => {
     break;
   }
 
-  let townColor = playerColor;
-  let townColorId = playerIdx.toString();
+  let townColor = pieceColor;
+  let townColorId = piecePlayerIdx.toString();
   if(boardPlayerIdx!==undefined && premoveQueued){
     townColor=Variables.PlayerColors[boardPlayerIdx];
     townColorId = boardPlayerIdx.toString();
@@ -87,13 +87,13 @@ export const Town = (props: TownProps) => {
 
   const { x, y } = vertexCoordsToPixels(gameTown.coords!);
 
-  const shouldDisplay = highlighted || playerIdx !== -1 || premoveQueued;
+  const shouldDisplay = highlighted || piecePlayerIdx !== -1 || premoveQueued;
   if (!shouldDisplay) {
     return null;
   }
   highlightedClass= '';
   return (
-    <div className={'Town ' + playerClass + ' ' + highlightedClass}
+    <div className={'Town ' + pieceClass + ' ' + highlightedClass}
       key={`t:${gameTown.coords!.hexCoords.x},${gameTown.coords!.hexCoords.y},${gameTown.coords!.direction}`}
       style={{
         left: x + 'px',
@@ -108,7 +108,7 @@ export const Town = (props: TownProps) => {
 };
 
 function makeTownSVG(townSize:number, points:string,  townColor:string, dotted:boolean,
-  hashed:boolean, playerId:string ){
+  hashed:boolean, hashId:string ){
 
   let fillOpacity, strokeDasharray, strokeWidth = 0;
   if (dotted && !hashed) {
@@ -117,7 +117,7 @@ function makeTownSVG(townSize:number, points:string,  townColor:string, dotted:b
     strokeDasharray = '3 2';
     strokeWidth = 3;
   }
-  const checkersName = 'checkers'+playerId;
+  const checkersName = 'checkers'+hashId;
   const checkersURL = 'url(#'+checkersName+')';
   const checkerSize = 3;
   return (

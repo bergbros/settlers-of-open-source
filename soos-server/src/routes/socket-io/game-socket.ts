@@ -185,6 +185,11 @@ export const registerGameSocketListeners = (
     console.log('got new premove: player ' + context.playerIndex + ' wants to ' + premove.displayString());
     //io.emit('updateGameState', game.toString());
     context.game.addPremove(premove);
+    console.log('premoves: ');
+    for (const act of context.game.premoveActions){
+      console.log(act.displayString());
+    }
+
     const gameMoves = context.game.getPremoves(context.playerIndex);
     for (let gameMove of gameMoves) {
       gameMove = hydrateBuildAction(gameMove);

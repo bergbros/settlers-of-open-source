@@ -3,6 +3,7 @@ import { AllBuildCosts, BuildAction, BuildCityAction, BuildActionType, BuildRoad
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
+import { EdgeCoords } from './index.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import HexCoords, { hydrateHexCoords } from './utils/hex-coords.js';
 import VertexCoords, { AllVertexDirections, getHexes } from './utils/vertex-coords.js';
@@ -375,7 +376,7 @@ export default class Game {
 
     let returnAction: BuildAction;
     console.log('making BuildTownAction:');
-    if (!town.isUnclaimed() || this.settlePremovePresent(town.coords, playerId)) {
+    if (!town.isUnclaimed() || this.map.settlePremovePresent(town.coords, playerId, this.getPremoves(playerId))) {
       returnAction = new BuildCityAction(playerId, town.coords);
     } else {
       returnAction = new BuildSettlementAction(playerId, town.coords);
@@ -388,22 +389,6 @@ export default class Game {
     } else {
       return returnAction;
     }
-  }
-
-  settlePremovePresent(location: VertexCoords, playerId: number): boolean {
-    if (!this.map.townAt(location)?.isUnclaimed()) {
-      return false;
-    }
-    for (const playerPremove of this.getPremoves(playerId)) {
-      if (playerPremove.type !== BuildActionType.Settlement) {
-        continue;
-      }
-      if (playerPremove.location !== location) {
-        continue;
-      }
-      return true;
-    }
-    return false;
   }
 
   addPremove(buildActionJSON: BuildAction) {
@@ -647,16 +632,19 @@ export default class Game {
   }
 
   getAllValidBuildActions(playerIdx: number){
-    const myBuildActions: BuildAction[]= this.map.buildableRoadLocations(playerIdx)
+    const myBuildActions: BuildAction[]= this.map.buildableRoadLocations(playerIdx, this.getPremoves(playerIdx))
       .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
-    for(const action of this.map.buildableTownLocations(playerIdx)
+
+    for(const action of this.map.buildableTownLocations(playerIdx, this.getPremoves(playerIdx))
       .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords))) {
       myBuildActions.push(action);
     }
-    for(const action of this.map.buildableTownLocations(playerIdx)
+
+    for(const action of this.map.buildableTownLocations(playerIdx, this.getPremoves(playerIdx))
       .map(vertexCoords => new BuildCityAction(playerIdx, vertexCoords))) {
       myBuildActions.push(action);
     }
+
     return myBuildActions;
   }
 
@@ -664,11 +652,11 @@ export default class Game {
     console.log('get valid build actions: ' + type.toString());
     switch (type) {
     case BuildActionType.Road:
-      return this.map.buildableRoadLocations(playerIdx)
+      return this.map.buildableRoadLocations(playerIdx, this.getPremoves(playerIdx))
         .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
 
     case BuildActionType.Settlement:
-      return this.map.buildableTownLocations(playerIdx)
+      return this.map.buildableTownLocations(playerIdx, this.getPremoves(playerIdx))
         .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords));
     case BuildActionType.City:
       return this.map.buildableCityLocations(playerIdx)

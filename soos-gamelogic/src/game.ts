@@ -3,7 +3,6 @@ import { AllBuildCosts, BuildAction, BuildCityAction, BuildActionType, BuildRoad
 import GameMap from './game-map.js';
 import GamePlayer from './game-player.js';
 import GameTown from './game-town.js';
-import { EdgeCoords } from './index.js';
 import { AllResourceTypes, resourceToString, ResourceType, TerrainType } from './terrain-type.js';
 import HexCoords, { hydrateHexCoords } from './utils/hex-coords.js';
 import VertexCoords, { AllVertexDirections, getHexes } from './utils/vertex-coords.js';
@@ -632,15 +631,17 @@ export default class Game {
   }
 
   getAllValidBuildActions(playerIdx: number){
-    const myBuildActions: BuildAction[]= this.map.buildableRoadLocations(playerIdx, this.getPremoves(playerIdx))
+    const playerPremoves = this.getPremoves(playerIdx);
+    console.log('using Player Premove set for player ' + playerIdx + ': ' + playerPremoves.length);
+    const myBuildActions: BuildAction[]= this.map.buildableRoadLocations(playerIdx, playerPremoves)
       .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
 
-    for(const action of this.map.buildableTownLocations(playerIdx, this.getPremoves(playerIdx))
+    for(const action of this.map.buildableTownLocations(playerIdx, playerPremoves)
       .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords))) {
       myBuildActions.push(action);
     }
 
-    for(const action of this.map.buildableTownLocations(playerIdx, this.getPremoves(playerIdx))
+    for(const action of this.map.buildableTownLocations(playerIdx, playerPremoves)
       .map(vertexCoords => new BuildCityAction(playerIdx, vertexCoords))) {
       myBuildActions.push(action);
     }
@@ -649,14 +650,15 @@ export default class Game {
   }
 
   getValidBuildActions(playerIdx: number, type: BuildActionType): BuildAction[] {
+    const playerPremoves = this.getPremoves(playerIdx);
     console.log('get valid build actions: ' + type.toString());
     switch (type) {
     case BuildActionType.Road:
-      return this.map.buildableRoadLocations(playerIdx, this.getPremoves(playerIdx))
+      return this.map.buildableRoadLocations(playerIdx, playerPremoves)
         .map(edgeCoords => new BuildRoadAction(playerIdx, edgeCoords));
 
     case BuildActionType.Settlement:
-      return this.map.buildableTownLocations(playerIdx, this.getPremoves(playerIdx))
+      return this.map.buildableTownLocations(playerIdx, playerPremoves)
         .map(vertexCoords => new BuildSettlementAction(playerIdx, vertexCoords));
     case BuildActionType.City:
       return this.map.buildableCityLocations(playerIdx)

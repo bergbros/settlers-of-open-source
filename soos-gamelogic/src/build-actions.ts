@@ -114,7 +114,7 @@ export class BuildRoadAction implements BuildAction {
     }
 
     // New location must be adjacent to an existing town or road for this player
-    const validLocations = gameState.map.buildableRoadLocations(this.playerId);
+    const validLocations = gameState.map.buildableRoadLocations(this.playerId, gameState.getPremoves(this.playerId));
     return validLocations.some(loc => this.location.equals(loc));
   }
 
@@ -260,7 +260,7 @@ export class BuildCityAction implements BuildAction {
   }
 
   shouldDisqualify(gameState: Game): boolean {
-    const validSettlePlan = gameState.settlePremovePresent(this.location, this.playerId);
+    const validSettlePlan = gameState.map.settlePremovePresent(this.location, this.playerId, gameState.getPremoves(this.playerId));
     console.log('checking valid city move: city owned by ' + gameState.map.townAt(this.location)?.playerIdx + ' vs ' + this.playerId + ' and validSP: ' + validSettlePlan);
     return !validSettlePlan || gameState.map.townAt(this.location)?.playerIdx !== this.playerId;
   }

@@ -66,7 +66,11 @@ export const GameView = (props: GameViewProps) => {
       for (const serverMove of serverPremoves) {
         premoves.push(hydrateBuildAction(serverMove));
       }
+      game.premoveActions = premoves;
       setQueuedPremoves(premoves);
+      if(makingPremoves && playerId!==undefined){
+        setPossibleBuildActions(game.getAllValidBuildActions(playerId));
+      }
       game.forceUpdate();
     }
 
@@ -215,6 +219,7 @@ export const GameView = (props: GameViewProps) => {
                 game.gamePhase = GamePhase.MainGameplay;
                 setPossibleBuildActions([]);
               } else {
+                socket.emit('getPremoves');
                 setPossibleBuildActions(game.getAllValidBuildActions(playerId));
               }
               setMakingPremoves(!makingPremoves);

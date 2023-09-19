@@ -284,9 +284,13 @@ export default class GameMap {
   buildableRoadLocations(playerIdx: number, playerPremoves:BuildAction[]): EdgeCoords[] {
     const roadLocations: { [edgeCoordsStr: string]: EdgeCoords } = {};
     const visitedVertices: { [vertexCoordsStr: string]: true } = {};
+    console.log('using premoves: ' + playerPremoves.length);
     for (const road of this.roads) {
       const roadCoordsStr = road.coords.toString();
       const isRoadPremoved = this.roadPremovePresent(road.coords, playerIdx, playerPremoves);
+      if (isRoadPremoved){
+        console.log('found premoved road');
+      }
       if (road.coords  && !roadLocations[roadCoordsStr] && (road.playerIdx === playerIdx || isRoadPremoved)) {
         roadLocations[roadCoordsStr] = road.coords;
         const bothTowns = this.getTowns(road);
@@ -326,21 +330,22 @@ export default class GameMap {
 
       const roadCoordsStr = road.coords.toString();
       const isRoadPremoved = this.roadPremovePresent(road.coords, playerIdx, playerPremoves);
+      if (isRoadPremoved){
+        console.log('found premoved road');
+      }
       let keepGoing =false;
       if (!roadLocations[roadCoordsStr] && road.playerIdx === undefined) {
         roadLocations[roadCoordsStr] = road.coords;
       } else {
         keepGoing = true;
       }
-      if(isRoadPremoved || keepGoing) {
-        if (road.playerIdx === playerIdx) {
-          // continue on the other side
-          const bothTowns = this.getTowns(road);
-          const otherTown = bothTowns.find(t => !t.coords?.equals(vertexCoords));
-          if (otherTown?.coords && (otherTown.isUnclaimed() || otherTown?.playerIdx === playerIdx)) {
-            //console.log('continuing at ' + otherTown.coords?.toString());
-            this.buildableRoadLocationsRecursive(playerIdx, otherTown.coords, roadLocations, visitedVertices, playerPremoves);
-          }
+      if(isRoadPremoved || (keepGoing && road.playerIdx === playerIdx )) {
+        // continue on the other side
+        const bothTowns = this.getTowns(road);
+        const otherTown = bothTowns.find(t => !t.coords?.equals(vertexCoords));
+        if (otherTown?.coords && (otherTown.isUnclaimed() || otherTown?.playerIdx === playerIdx)) {
+          //console.log('continuing at ' + otherTown.coords?.toString());
+          this.buildableRoadLocationsRecursive(playerIdx, otherTown.coords, roadLocations, visitedVertices, playerPremoves);
         }
       }
     }
@@ -363,17 +368,15 @@ export default class GameMap {
   }
 
   roadPremovePresent(location: EdgeCoords, playerId: number, playerPremoves:BuildAction[]): boolean {
-    if (this.roadAt(location)?.isClaimed()) {
+    const road = this.roadAt(location);
+    if (road && road.isClaimed()) {
       return false;
     }
     for (const playerPremove of playerPremoves) {
-      if (playerPremove.type !== BuildActionType.Road) {
-        continue;
+      if (playerPremove.type === BuildActionType.Road && playerPremove.location.equals(location)) {
+        console.log('found a premove road Present!');
+        return true;
       }
-      if (playerPremove.location !== location) {
-        continue;
-      }
-      return true;
     }
     return false;
   }

@@ -31,7 +31,7 @@ export const Road = (props: RoadProps) => {
   if(boardPlayerIdx!==undefined && premoveQueued){
     roadColor=Variables.PlayerColors[boardPlayerIdx];
     roadColorId = boardPlayerIdx.toString();
-    console.log('prepping premove on town for ' + roadColor);
+    //console.log('prepping premove on town for ' + roadColor);
   }
 
   return (
@@ -49,7 +49,7 @@ export const Road = (props: RoadProps) => {
     >
       {makeSVG(
         coords.direction,
-        pieceColor,
+        roadColor,
         props.makingPremoves || (playerIdx === -1 && props.highlighted),
         premoveQueued,
         roadColorId,

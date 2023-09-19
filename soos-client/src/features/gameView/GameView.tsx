@@ -68,7 +68,7 @@ export const GameView = (props: GameViewProps) => {
       }
       game.premoveActions = premoves;
       setQueuedPremoves(premoves);
-      if(makingPremoves && playerId!==undefined){
+      if(playerId!==undefined){
         setPossibleBuildActions(game.getAllValidBuildActions(playerId));
       }
       game.forceUpdate();
@@ -232,13 +232,5 @@ export const GameView = (props: GameViewProps) => {
       </div>
       <div>{dialogBoxes}</div>
     </div>
-    //   <div>{premoveDisplay}</div>
-    //   {game.gamePhase !== GamePhase.MainGameplay &&
-    //     <div>
-    //       <button onClick={() => {
-    //         game.autoPickSettlements(); game.forceUpdate();
-    //       }}>{'Pick My Settlements!'}</button>
-    //     </div>}
-    // </div >
   );
 };

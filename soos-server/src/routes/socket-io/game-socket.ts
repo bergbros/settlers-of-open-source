@@ -75,6 +75,7 @@ const gameEvents: Set<string> = new Set([
   'autoPickSettlements',
   'build',
   'premove',
+  'removePremove',
   'logPremoves',
   'retrieveGameState',
   'getPremoves',
@@ -117,26 +118,6 @@ export const registerGameSocketListeners = (
     console.log('Sending socket ' + socket.id + ' game ' + context?.activeGamecode);
     callback(context?.game.toString());
   });
-
-  // socket.on('newGameState', (newGameState) => {
-  //   if (!context) {
-  //     return new Error();
-  //   }
-
-  //   //console.log(newGameState);
-  //   console.log('got New Game State');
-  //   let premoves: BuildAction[] = [];
-  //   if (context.game) {
-  //     premoves = context.game.premoveActions;
-  //   }
-  //   context.game = gameFromString(newGameState);
-  //   for (const moves of premoves) {
-  //     context.game.addPremove(moves);
-  //   }
-
-  //   saveGame(context);
-  //   io.to(context.activeGamecode).emit('updateGameState', newGameState);
-  // });
 
   socket.on('autoPickSettlements', () => {
     if (!context) {
@@ -189,6 +170,24 @@ export const registerGameSocketListeners = (
     for (const act of context.game.premoveActions){
       console.log(act.displayString());
     }
+
+    const gameMoves = context.game.getPremoves(context.playerIndex);
+    for (let gameMove of gameMoves) {
+      gameMove = hydrateBuildAction(gameMove);
+    }
+
+    saveGame(context);
+    socket.emit('setPremoves', gameMoves);
+  });
+
+  socket.on('removePremove', (premove: BuildAction)=>{
+    if (!context) {
+      return new Error();
+    }
+
+    premove = hydrateBuildAction(premove);
+    console.log('removing premove: player ' + context.playerIndex + ' wants to ' + premove.displayString());
+    context.game.removePremove(premove);
 
     const gameMoves = context.game.getPremoves(context.playerIndex);
     for (let gameMove of gameMoves) {

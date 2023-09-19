@@ -288,9 +288,6 @@ export default class GameMap {
     for (const road of this.roads) {
       const roadCoordsStr = road.coords.toString();
       const isRoadPremoved = this.roadPremovePresent(road.coords, playerIdx, playerPremoves);
-      if (isRoadPremoved){
-        console.log('found premoved road');
-      }
       if (road.coords  && !roadLocations[roadCoordsStr] && (road.playerIdx === playerIdx || isRoadPremoved)) {
         roadLocations[roadCoordsStr] = road.coords;
         const bothTowns = this.getTowns(road);
@@ -330,9 +327,6 @@ export default class GameMap {
 
       const roadCoordsStr = road.coords.toString();
       const isRoadPremoved = this.roadPremovePresent(road.coords, playerIdx, playerPremoves);
-      if (isRoadPremoved){
-        console.log('found premoved road');
-      }
       let keepGoing =false;
       if (!roadLocations[roadCoordsStr] && road.playerIdx === undefined) {
         roadLocations[roadCoordsStr] = road.coords;
@@ -374,7 +368,6 @@ export default class GameMap {
     }
     for (const playerPremove of playerPremoves) {
       if (playerPremove.type === BuildActionType.Road && playerPremove.location.equals(location)) {
-        console.log('found a premove road Present!');
         return true;
       }
     }

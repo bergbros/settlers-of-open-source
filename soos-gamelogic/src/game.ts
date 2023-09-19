@@ -404,6 +404,18 @@ export default class Game {
     }
   }
 
+  removePremove(buildActionJSON: BuildAction){
+    const buildAction = hydrateBuildAction(buildActionJSON);
+    for (let i = 0; i<this.premoveActions.length; i++) {
+      const action = this.premoveActions[i];
+      if (action.equals(buildAction)) {
+        console.log('deleting premove: ' + i);
+        this.premoveActions.splice(i);
+        return;
+      }
+    }
+  }
+
   executePremoves() {
     let playerIndex = this.currPlayerIdx;
     let loopBreaker = 0;
@@ -413,6 +425,7 @@ export default class Game {
         if (action.isPossible(this)) {
           action.execute(this);
         }
+        //auto trade feature
       }
       playerIndex++;
       if (playerIndex >= this.players.length) {

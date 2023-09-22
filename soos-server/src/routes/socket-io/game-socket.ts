@@ -146,7 +146,7 @@ export const registerGameSocketListeners = (
     buildAction.playerId = context.playerIndex;
 
     if (!buildAction.isPossible(context.game)) {
-      console.log('Got invalid build action!', buildAction);
+      console.log('Got invalid build action for immediate execution!', buildAction);
       return;
     }
 

@@ -68,8 +68,12 @@ export const GameView = (props: GameViewProps) => {
       }
       game.premoveActions = premoves;
       setQueuedPremoves(premoves);
-      if(playerId!==undefined){
+      //game.forceUpdate();
+      if(playerId!==undefined && makingPremoves){
+        console.log('setting valid build actions: ' + makingPremoves);
         setPossibleBuildActions(game.getAllValidBuildActions(playerId));
+      } else {
+        console.log('making premoves: ' + makingPremoves);
       }
       game.forceUpdate();
     }
@@ -78,7 +82,10 @@ export const GameView = (props: GameViewProps) => {
     socket.emit('playerId', receivePlayerId);
 
     socket.on('updateGameState', updateGameState);
-    socket.on('setPremoves', setPremoves);
+    socket.on('setPremoves', (serverPremoves)=>{
+      setPremoves(serverPremoves);
+      console.log(serverPremoves);
+    });
 
     return () => {
       // socket.off("playerId", receivePlayerId);
@@ -182,7 +189,7 @@ export const GameView = (props: GameViewProps) => {
         </button>
 
         <div className="BuildActions">
-          <div className="BuildActionsLabel">Build: you are player _{playerId} _</div>
+          <div className="BuildActionsLabel">Build:</div>
           <div className="BuildActionButtons">
             {AllBuildActionTypes.map((buildActionType, index) => (
               <button

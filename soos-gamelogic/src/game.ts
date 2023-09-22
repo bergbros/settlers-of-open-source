@@ -421,11 +421,32 @@ export default class Game {
     let loopBreaker = 0;
     do {
       const currentPremoves = this.getPremoves(playerIndex);
+      const currPlayer = this.players[playerIndex];
       for (const action of currentPremoves) {
         if (action.isPossible(this)) {
           action.execute(this);
         }
-        //auto trade feature
+        //auto trade feature:
+        if(false){
+          for (const resource of AllResourceTypes){
+            if(AllBuildCosts[action.type][resource]>currPlayer.currentResources[resource]){
+              //find the biggest resource and trade it
+              let maxResource = -1;
+              let maxResourceType = -1;
+              for (const hasResource of AllResourceTypes){
+                if(currPlayer.currentResources[resource]>maxResource){
+                  maxResource = currPlayer.currentResources[resource];
+                  maxResourceType = hasResource;
+                }
+              }
+              if (maxResource>0){
+                console.log('executed autotrade! P' + playerIndex + ' traded ' + maxResourceType + ' for ' + resource);
+                this.executeTrade(maxResourceType, resource, playerIndex);
+                //next turn the player will be one trade closer to building!
+              }
+            }
+          }
+        }
       }
       playerIndex++;
       if (playerIndex >= this.players.length) {

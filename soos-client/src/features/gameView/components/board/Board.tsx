@@ -71,7 +71,7 @@ export const Board = (props: BoardProps) => {
       buildAction = townBuildActions.find(pba => townCoords.equals(pba.location));
       townQueued = townQdActions.find(pba => townCoords.equals(pba.location))!==undefined;
       if(buildAction!==undefined) {
-        console.log('Found build action for location: ' + townCoords.toString());
+        console.log('Found town build action for location: ' + townCoords.toString());
       }
       if(townQueued){
         console.log('Premove found for town! ' + townCoords.toString());
@@ -106,9 +106,9 @@ export const Board = (props: BoardProps) => {
   const roadQdActions = queuedPremoves.filter(pba=>pba.type===BuildActionType.Road);
   if (playerId!==undefined && ((game.gamePhase === GamePhase.PlaceSettlement1 || game.gamePhase === GamePhase.PlaceSettlement2)
     && game.currPlayerIdx === playerId
-    && game.claimedSettlement) || makingPremoves) {
+    && game.claimedSettlement)) {
     // custom roadBuildActions for setup phase
-    roadBuildActions = game.getValidBuildActions(playerId!, BuildActionType.Road);
+    roadBuildActions = game.getValidBuildActions(playerId, BuildActionType.Road);
   }
 
   const roads = [];

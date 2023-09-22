@@ -109,12 +109,12 @@ export class BuildRoadAction implements BuildAction {
 
     const player = gameState.players[this.playerId];
     if (player===undefined || !player.hasResources(AllBuildCosts[this.type])) {
-      console.log('player does not have resources or player does not exist');
+      console.log('player does not have resources or player does not exist so road is not possible');
       return false;
     }
 
-    // New location must be adjacent to an existing town or road for this player
-    const validLocations = gameState.map.buildableRoadLocations(this.playerId, gameState.getPremoves(this.playerId));
+    // New location must be adjacent to an existing town or road for this player WITHOUT premoves
+    const validLocations = gameState.map.buildableRoadLocations(this.playerId, []);
     return validLocations.some(loc => this.location.equals(loc));
   }
 

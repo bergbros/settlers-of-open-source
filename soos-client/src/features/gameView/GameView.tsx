@@ -29,7 +29,7 @@ export const GameView = (props: GameViewProps) => {
   const [ playerId, setPlayerId ] = React.useState<number | undefined>(undefined);
   const [ isTradeWindowShowing, setIsTradeWindowShowing ] = React.useState<boolean>(false);
   const [ makingPremoves, setMakingPremoves ] = React.useState<boolean>(false);
-  const [ possibleBuildActions, setPossibleBuildActions ] = React.useState<BuildAction[]>([]);
+  const [ currentlyBuilding, setCurrentlyBuilding ] = React.useState<BuildActionType | 'all' | undefined>(undefined);
   const [ queuedPremoves, setQueuedPremoves ] = React.useState<BuildAction[]>([]);
   // Set up force update function
   const [ count, setCount ] = React.useState<number>(0);
@@ -54,8 +54,7 @@ export const GameView = (props: GameViewProps) => {
         setCount(count + 1);
       };
       setGame(updatedGame);
-      setPossibleBuildActions([]);
-      console.log('pba: ' + possibleBuildActions.length);
+      setCurrentlyBuilding(undefined);
       console.log('got new game state');
       socket.emit('getPremoves');
     }
@@ -69,14 +68,6 @@ export const GameView = (props: GameViewProps) => {
       }
       game.premoveActions = premoves;
       setQueuedPremoves(premoves);
-      //game.forceUpdate();
-      if(playerId!==undefined && makingPremoves){
-        console.log('setting valid build actions: ' + makingPremoves);
-        setPossibleBuildActions(game.getAllValidBuildActions(playerId));
-      } else {
-        console.log('making premoves: ' + makingPremoves);
-      }
-      game.forceUpdate();
     }
 
     console.log('sending playerId');
@@ -143,7 +134,7 @@ export const GameView = (props: GameViewProps) => {
           game={game}
           makingPremoves={makingPremoves}
           playerId={playerId}
-          possibleBuildActions={possibleBuildActions}
+          currentlyBuilding={currentlyBuilding}
           queuedPremoves = {queuedPremoves}
         />
       </BoardScaler>
@@ -199,12 +190,12 @@ export const GameView = (props: GameViewProps) => {
                 key={index}
                 onClick={() => {
                   console.log('clicked ' + buildActionType.toString());
-                  if (possibleBuildActions.length > 0) {
+                  if (currentlyBuilding !== undefined) {
                     // they clicked again, clear it
-                    setPossibleBuildActions([]);
+                    setCurrentlyBuilding(undefined);
                   }
                   if (buildActionType === BuildActionType.Road || buildActionType === BuildActionType.Settlement || buildActionType ===BuildActionType.City) {
-                    setPossibleBuildActions(game.getValidBuildActions(playerId!, buildActionType));
+                    setCurrentlyBuilding(buildActionType);
                   } else {
                     game.displayActionOptions(buildActionType);
                     sendGameStateToServer();
@@ -227,10 +218,10 @@ export const GameView = (props: GameViewProps) => {
               }
               if (makingPremoves) {
                 game.gamePhase = GamePhase.MainGameplay;
-                setPossibleBuildActions([]);
+                setCurrentlyBuilding(undefined);
               } else {
                 socket.emit('getPremoves');
-                setPossibleBuildActions(game.getAllValidBuildActions(playerId));
+                setCurrentlyBuilding('all');
               }
               setMakingPremoves(!makingPremoves);
             }}

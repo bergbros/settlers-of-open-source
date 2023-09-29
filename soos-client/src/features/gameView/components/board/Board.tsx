@@ -8,7 +8,7 @@ import {
   Game,
   BuildActionType,
 } from 'soos-gamelogic';
-import { BuildSettlementAction } from 'soos-gamelogic/dist/src/build-actions';
+import { BuildSettlementAction, hydrateBuildAction } from 'soos-gamelogic/dist/src/build-actions';
 import { Hex, Town, Road, Robber } from '~/src/components';
 import './Board.scss';
 
@@ -17,14 +17,25 @@ type BoardProps = {
   socket: Socket;
   makingPremoves: boolean;
   playerId?: number;
-  possibleBuildActions: BuildAction[];
+  currentlyBuilding: BuildActionType | 'all' | undefined;
   queuedPremoves: BuildAction[];
 };
 
 //const premoves: BuildAction[] = [];
 
 export const Board = memo((props: BoardProps) => {
-  const { game, socket, makingPremoves, playerId, possibleBuildActions, queuedPremoves } = props;
+  const { game, socket, makingPremoves, playerId, currentlyBuilding, queuedPremoves } = props;
+
+  game.premoveActions = queuedPremoves.map(hydrateBuildAction);
+
+  let possibleBuildActions: BuildAction[] = [];
+  if (currentlyBuilding !== undefined && playerId !== undefined) {
+    possibleBuildActions = currentlyBuilding === 'all' ?
+      game.getAllValidBuildActions(playerId) :
+      game.getValidBuildActions(playerId, currentlyBuilding);
+  }
+  console.log('currentlyBuilding', currentlyBuilding);
+  console.log('possibleBuildActions', possibleBuildActions);
 
   function sendGameStateToServer() {
     socket.emit('newGameState', game.toString());
@@ -58,7 +69,7 @@ export const Board = memo((props: BoardProps) => {
   const isSettlementSetup = game.setupPhase() && game.currPlayerIdx === playerId && !game.claimedSettlement;
   const townQdActions = queuedPremoves.filter(pba => pba.type === BuildActionType.Settlement || pba.type === BuildActionType.City);
   const towns = [];
-  console.log('Building towns for player '+ playerId);
+  console.log('Building towns for player ' + playerId);
   for (const town of game.map.towns) {
     if (!town || !town.coords) {
       continue;
@@ -71,11 +82,11 @@ export const Board = memo((props: BoardProps) => {
     } else {
       // TODO optimize
       buildAction = townBuildActions.find(pba => townCoords.equals(pba.location));
-      townQueued = townQdActions.find(pba => townCoords.equals(pba.location))!==undefined;
-      if(buildAction!==undefined) {
+      townQueued = townQdActions.find(pba => townCoords.equals(pba.location)) !== undefined;
+      if (buildAction !== undefined) {
         console.log('Found town build action for location: ' + townCoords.toString());
       }
-      if(townQueued){
+      if (townQueued) {
         console.log('Premove found for town! ' + townCoords.toString());
       }
     }
@@ -85,11 +96,11 @@ export const Board = memo((props: BoardProps) => {
         gameTown={town}
         highlighted={!!buildAction}
         makingPremove={makingPremoves}
-        premoveQueued = {townQueued}
+        premoveQueued={townQueued}
         onClick={() => {
           if (buildAction) {
-            if(makingPremoves){
-              if(!townQueued){
+            if (makingPremoves) {
+              if (!townQueued) {
                 socket.emit('premove', buildAction);
               } else {
                 socket.emit('removePremove', buildAction);
@@ -105,8 +116,8 @@ export const Board = memo((props: BoardProps) => {
   }
 
   let roadBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Road);
-  const roadQdActions = queuedPremoves.filter(pba=>pba.type===BuildActionType.Road);
-  if (playerId!==undefined && ((game.gamePhase === GamePhase.PlaceSettlement1 || game.gamePhase === GamePhase.PlaceSettlement2)
+  const roadQdActions = queuedPremoves.filter(pba => pba.type === BuildActionType.Road);
+  if (playerId !== undefined && ((game.gamePhase === GamePhase.PlaceSettlement1 || game.gamePhase === GamePhase.PlaceSettlement2)
     && game.currPlayerIdx === playerId
     && game.claimedSettlement)) {
     // custom roadBuildActions for setup phase
@@ -120,20 +131,20 @@ export const Board = memo((props: BoardProps) => {
     // TODO optimize
     const buildAction = roadBuildActions.find(pba => road.coords.equals(pba.location));
     let roadQueued = false;
-    roadQueued = roadQdActions.find(pba => roadCoords.equals(pba.location))!==undefined;
+    roadQueued = roadQdActions.find(pba => roadCoords.equals(pba.location)) !== undefined;
     roads.push(
       <Road
-        boardPlayerIdx = {playerId}
+        boardPlayerIdx={playerId}
         gameRoad={road}
         highlighted={!!buildAction}
-        makingPremoves={ false}
-        premoveQueued = {roadQueued}
+        makingPremoves={false}
+        premoveQueued={roadQueued}
         onClick={() => {
           if (buildAction) {
-            if(roadQueued){
+            if (roadQueued) {
               console.log('CANCELLING Premove');
               socket.emit('removePremove', buildAction);
-            }else if(makingPremoves){
+            } else if (makingPremoves) {
               console.log('submitted premove');
               socket.emit('premove', buildAction);
             } else {

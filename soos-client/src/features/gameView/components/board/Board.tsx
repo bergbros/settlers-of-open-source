@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Socket } from 'socket.io-client';
 import {
   BuildAction,
@@ -19,9 +20,9 @@ type BoardProps = {
   queuedPremoves: BuildAction[];
 };
 
-const premoves: BuildAction[] = [];
+//const premoves: BuildAction[] = [];
 
-export const Board = (props: BoardProps) => {
+export const Board = memo((props: BoardProps) => {
   const { game, socket, makingPremoves, playerId, possibleBuildActions, queuedPremoves } = props;
 
   function sendGameStateToServer() {
@@ -145,14 +146,14 @@ export const Board = (props: BoardProps) => {
   }
   const robber = <Robber game={game}></Robber>;
 
-  const premoveItems = premoves.map((action: BuildAction) => (
-    <li>{action.displayString()}</li>
-  ));
-  const premoveDisplay = (
-    <div>
-      <ul> Your Premoves:{premoveItems}</ul>
-    </div>
-  );
+  // const premoveItems = premoves.map((action: BuildAction) => (
+  //   <li>{action.displayString()}</li>
+  // ));
+  // const premoveDisplay = (
+  //   <div>
+  //     <ul> Your Premoves:{premoveItems}</ul>
+  //   </div>
+  // );
 
   return (
     <div className="Board__body">
@@ -168,4 +169,4 @@ export const Board = (props: BoardProps) => {
       {robber}
     </div>
   );
-};
+});

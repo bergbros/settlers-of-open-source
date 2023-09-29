@@ -13,6 +13,7 @@ import {
 } from 'soos-gamelogic';
 import { Player } from '~/src/components';
 import { Board, ResourceBar, TradeWindow } from './components';
+import BoardScaler from './components/board/BoardScaler';
 
 type GameViewProps = {
   socket: Socket;
@@ -136,14 +137,16 @@ export const GameView = (props: GameViewProps) => {
   //   </div>
 
     <div className="Board">
-      <Board
-        socket={socket}
-        game={game}
-        makingPremoves={makingPremoves}
-        playerId={playerId}
-        possibleBuildActions={possibleBuildActions}
-        queuedPremoves = {queuedPremoves}
-      />
+      <BoardScaler>
+        <Board
+          socket={socket}
+          game={game}
+          makingPremoves={makingPremoves}
+          playerId={playerId}
+          possibleBuildActions={possibleBuildActions}
+          queuedPremoves = {queuedPremoves}
+        />
+      </BoardScaler>
 
       {/* List of players' resource count & victory points */}
       <div className="PlayerList">

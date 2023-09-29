@@ -35,7 +35,7 @@ export const Board = memo((props: BoardProps) => {
       game.getValidBuildActions(playerId, currentlyBuilding);
   }
   console.log('currentlyBuilding', currentlyBuilding);
-  console.log('possibleBuildActions', possibleBuildActions);
+  //console.log('possibleBuildActions', possibleBuildActions);
 
   function sendGameStateToServer() {
     socket.emit('newGameState', game.toString());
@@ -65,11 +65,9 @@ export const Board = memo((props: BoardProps) => {
   }
 
   const townBuildActions = possibleBuildActions.filter(pba => pba.type === BuildActionType.Settlement || pba.type === BuildActionType.City);
-  console.log('town build actions: ' + townBuildActions.length);
   const isSettlementSetup = game.setupPhase() && game.currPlayerIdx === playerId && !game.claimedSettlement;
   const townQdActions = queuedPremoves.filter(pba => pba.type === BuildActionType.Settlement || pba.type === BuildActionType.City);
   const towns = [];
-  console.log('Building towns for player ' + playerId);
   for (const town of game.map.towns) {
     if (!town || !town.coords) {
       continue;

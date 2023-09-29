@@ -174,6 +174,7 @@ export const GameView = (props: GameViewProps) => {
           onClick={() => {
             //game.nextPlayer();
             //sendGameStateToServer();
+            setMakingPremoves(false);
             socket.emit('nextTurn');
           }}
           className="NextTurnButton"

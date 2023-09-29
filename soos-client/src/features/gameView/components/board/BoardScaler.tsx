@@ -2,21 +2,21 @@ import { useEffect, useState } from 'react';
 
 const hexWidth = 100;
 const hexHeight = 120;
-const numRows = 7;
-const numCols = 7;
+const numRows = 9;
+const numCols = 9;
 
 // how much smaller is a Unit than a Square?
 
 function getInitialXOffset() {
   const boardWidth = numCols * hexWidth;
   const windowWidth = window.innerWidth;
-  return windowWidth / 2 - boardWidth / 2;
+  return windowWidth / 2 ;
 }
 
 function getInitialYOffset() {
   const boardHeight = numRows * hexHeight;
   const windowHeight = window.innerHeight;
-  return windowHeight / 2 - boardHeight / 2;
+  return windowHeight / 2 ;
 }
 
 const mouseEvents = [
@@ -78,7 +78,6 @@ function BoardScaler(props:BoardScalerProps) {
       switch (evt.type) {
       case 'touchstart':
       case 'mousedown':
-        console.log('mouse down!');
         setDragging(true);
         setLastMouseX(evtX);
         setLastMouseY(evtY);
@@ -96,7 +95,6 @@ function BoardScaler(props:BoardScalerProps) {
         const distanceSq = dx * dx + dy * dy;
 
         if (dragging && (new Date().getTime() - mouseDownTime > 100 || distanceSq > 500)) {
-          console.log('Mouse move!');
           setXOffset(xOffset + dx);
           setYOffset(yOffset + dy);
 

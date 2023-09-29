@@ -103,13 +103,13 @@ export class BuildRoadAction implements BuildAction {
 
     // if it's setup phase, it just needs to be their turn
     if (gameState.setupPhase()) {
-      console.log('road being built during set up phase');
+      //console.log('road being built during set up phase');
       return gameState.currPlayerIdx === this.playerId && gameState.claimedSettlement;
     }
 
     const player = gameState.players[this.playerId];
     if (player===undefined || !player.hasResources(AllBuildCosts[this.type])) {
-      console.log('player does not have resources or player does not exist so road is not possible');
+      //console.log('player does not have resources or player does not exist so road is not possible');
       return false;
     }
 

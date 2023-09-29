@@ -162,7 +162,7 @@ export default class Game {
     }
     //TODO: Check if any premoves can be executed
     this.executePremoves();
-    this.forceUpdate();
+    //this.forceUpdate();
   }
 
   endGame(maxPoints: number) {
@@ -422,27 +422,41 @@ export default class Game {
     do {
       const currentPremoves = this.getPremoves(playerIndex);
       const currPlayer = this.players[playerIndex];
+      console.log('player ' + playerIndex + ' has ');
+      console.log(currPlayer.currentResources());
       for (const action of currentPremoves) {
         if (action.isPossible(this)) {
           action.execute(this);
         }
         //auto trade feature:
-        if(false){
+        if(true){
+          console.log('attempting to trade for player ' + playerIndex);
           for (const resource of AllResourceTypes){
-            if(AllBuildCosts[action.type][resource]>currPlayer.currentResources[resource]){
+            // console.log('checking resource: ' + resource);
+            // console.log(' action cost ' + AllBuildCosts[action.type][resource]);
+            // console.log(' player has ' + currPlayer.currentResourcesN()[resource]);
+
+            if(AllBuildCosts[action.type][resource] >currPlayer.currentResourcesN()[resource]){
               //find the biggest resource and trade it
+              console.log('player ' + playerIndex + ' is missing resource: ' + AllBuildCosts[action.type][resource].toString());
               let maxResource = -1;
               let maxResourceType = -1;
               for (const hasResource of AllResourceTypes){
-                if(currPlayer.currentResources[resource]>maxResource){
-                  maxResource = currPlayer.currentResources[resource];
+                console.log('checking resource: ' + hasResource);
+                console.log(' maxResource ' + maxResourceType);
+                console.log(' player has ' + currPlayer.currentResources()[hasResource]/currPlayer.tradeRatio[hasResource]);
+
+                if(currPlayer.currentResources()[hasResource]/currPlayer.tradeRatio[hasResource]>maxResource){
+                  maxResource = currPlayer.currentResources()[hasResource]/currPlayer.tradeRatio[hasResource];
                   maxResourceType = hasResource;
                 }
               }
-              if (maxResource>0){
+              if (maxResource>=1){
                 console.log('executed autotrade! P' + playerIndex + ' traded ' + maxResourceType + ' for ' + resource);
                 this.executeTrade(maxResourceType, resource, playerIndex);
                 //next turn the player will be one trade closer to building!
+              } else {
+                console.log(' player only has ' + maxResource + ' of ' + maxResourceType);
               }
             }
           }
@@ -462,10 +476,9 @@ export default class Game {
     //clean-up:
     for (let i = this.premoveActions.length-1; i>=0;i--){
       if(this.premoveActions[i].shouldDisqualify(this)){
-        this.premoveActions.splice(i);
+        this.premoveActions.splice(i, 1);
       }
     }
-
     return;
   }
 
@@ -548,13 +561,30 @@ export default class Game {
 
     } else {
 
-      const stolenResource = Math.floor(Math.random() * availableResources.length);
-      robbedPlayer.lose(availableResources[stolenResource]);
-      this.getCurrPlayer().addCard(availableResources[stolenResource]);
-
-      this.instructionText =
+      let stolenResource = Math.floor(Math.random() * availableResources.length);
+      const lastStealAttempt = stolenResource>0?stolenResource-1:AllResourceTypes.length;
+      let counter = 0;
+      while(!robbedPlayer.hasResource(stolenResource) && stolenResource!=lastStealAttempt && counter<10) {
+        stolenResource+=1;
+        if (stolenResource>=AllResourceTypes.length){
+          stolenResource = 0;
+        }
+        counter+=1;
+      }
+      if(robbedPlayer.hasResource(stolenResource)){
+        robbedPlayer.lose(stolenResource);
+        this.getCurrPlayer().addCard(stolenResource);
+        this.instructionText =
         `${this.getCurrPlayer().name} stole ${resourceToString(availableResources[stolenResource])} from Player ${robbedPlayer.index + 1} ---
       ${this.getCurrPlayer().name}'s turn!`;
+      } else {
+        this.instructionText =
+        `${this.getCurrPlayer().name} couldn't steal ${resourceToString(availableResources[stolenResource])} from Player ${robbedPlayer.index + 1} ---
+      ${this.getCurrPlayer().name}'s turn!`;
+
+      }
+
+      console.log(this.instructionText);
     }
 
     this.gamePhase = GamePhase.MainGameplay;

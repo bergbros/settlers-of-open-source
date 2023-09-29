@@ -35,7 +35,8 @@ export default class GamePlayer {
 
   spend(action: number[]): boolean {
     // TODO use hasResources() here
-
+    console.log('spending ');
+    console.log(action);
     //does the player have the resources?
     for (let i = 0; i < action.length; i++) {
       if (i >= this.cards.length) {
@@ -55,6 +56,10 @@ export default class GamePlayer {
     return true;
   }
 
+  hasResource(resource:number):boolean{
+    return this.cards[resource]>0;
+  }
+
   hasResources(action: number[]): boolean {
     //does the player have the resources?
     for (let i = 0; i < action.length; i++) {
@@ -71,9 +76,15 @@ export default class GamePlayer {
   currentResources(): ResourceType[] {
     const resList: ResourceType[] = [];
     for (const allRes of AllResourceTypes) {
-      for (let i = 0; i < this.cards[allRes]; i++) {
-        resList.push(allRes);
-      }
+      resList.push(this.cards[allRes]);
+    }
+    return resList;
+  }
+
+  currentResourcesN(): number[] {
+    const resList: number[] = [];
+    for (const allRes of AllResourceTypes) {
+      resList.push(this.cards[allRes]);
     }
     return resList;
   }

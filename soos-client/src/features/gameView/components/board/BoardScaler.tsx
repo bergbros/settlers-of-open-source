@@ -1,5 +1,4 @@
-import { useEffect, useState, memo } from 'react';
-import { Board } from './Board';
+import { useEffect, useState } from 'react';
 
 const hexWidth = 100;
 const hexHeight = 120;
@@ -31,11 +30,6 @@ const mouseEvents = [
   'wheel',
 ];
 
-const unitKinds = [
-  '⚔️',
-  '🧙',
-  '🌾',
-];
 type BoardScalerProps = {
   children: React.ReactNode;
 };
@@ -136,8 +130,8 @@ function BoardScaler(props:BoardScalerProps) {
   });
 
   const containerStyles = {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: window.innerWidth-2,
+    height: window.innerHeight-2,
   };
 
   const boardStyle = {

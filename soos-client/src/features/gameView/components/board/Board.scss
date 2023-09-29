@@ -1,5 +1,5 @@
 #gameBoardContainer {
-    position: relative;
+    position: absolute;
   
     // hide scrollbars
     overflow: hidden;
@@ -8,4 +8,26 @@
   
 #gameBoard {
     position: absolute;
-}  
+}
+
+
+.Board {
+    position:absolute;
+    // top: 0px;
+    // left: 10px;
+    height: 100vh;
+    width: 100vw;
+    background-color: lightblue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &__body {
+        position: absolute;
+    }
+
+    
+    .Hexes{
+        position:absolute;
+    }
+}

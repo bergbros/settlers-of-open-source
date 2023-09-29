@@ -10,6 +10,7 @@ import {
 } from 'soos-gamelogic';
 import { BuildSettlementAction } from 'soos-gamelogic/dist/src/build-actions';
 import { Hex, Town, Road, Robber } from '~/src/components';
+import './Board.scss';
 
 type BoardProps = {
   game: Game;
@@ -157,7 +158,7 @@ export const Board = memo((props: BoardProps) => {
 
   return (
     <div className="Board__body">
-      <div className="Hexes">
+      <div className="Hexes" >
         {hexes}
       </div>
       <div className="Towns">
